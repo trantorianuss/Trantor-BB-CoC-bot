@@ -1,5 +1,9 @@
 # Trantor-BB-CoC-Bot
 
+--------    NOTE: BETA version, still in progress
+--------    NOTA: version BETA, todavia en progreso
+
+
 Bot simple para interactuar con un emulador y automatizar acciones en Clash of Clans en la aldea nocturna.
 
 ## Requisitos
