@@ -1,0 +1,6 @@
+{
+  "swipe_dx": 100,
+  "swipe_dy": 400,
+  "attacks_per_cycle": 4,
+  "debug_mode": false
+}

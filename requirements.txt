@@ -1,0 +1,9 @@
+customtkinter
+pillow
+numpy
+opencv-python
+adbutils
+pure-python-adb
+requests
+pywin32
+easyocr
