@@ -1,9 +1,12 @@
+import threading
+
 import func as f
 import botcontroller as controller
 import paint as p
 import state_calibration
 import vision
 import coords
+import elixir_cart
 from gui import BotInterface
 
 # Helper
@@ -38,11 +41,20 @@ def bttn_recognize():
     except Exception as e:
         app.log(f"Image recognition failed: {e}")
 
+def _run_search_cart(dy, debug):
+    try:
+        elixir_cart.search_cart(total_offset=dy, debug=debug)
+    except Exception as e:
+        app.log(f"Buscar Carro failed: {e}")
+
+
 def bttn_buscar_carro():
     try:
         _, dy_val = app.get_swipe_values()
         dy = parse_int(dy_val, default=400)
-        f.buscar_carro(dy, debug=True)
+        app.log("Buscar Carro iniciado...")
+        thread = threading.Thread(target=_run_search_cart, args=(dy, True), daemon=True)
+        thread.start()
     except Exception as e:
         app.log(f"Buscar Carro failed: {e}")
 

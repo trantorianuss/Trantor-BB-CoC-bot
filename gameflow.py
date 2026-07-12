@@ -1,6 +1,7 @@
 import time as t
 import func as f
 import attacks as a
+import elixir_cart
 from botstate import is_running
 
 import random
@@ -37,7 +38,7 @@ def tap_return_home():
 def collect_pink_elixir():
     f.log("[Elixir] Moviendo cámara y abriendo Carro…")
 
-    if not f.buscar_carro(600, debug=True):
+    if not elixir_cart.search_cart(total_offset=600, debug=True):
         f.log("[Elixir] Carro no encontrado, no se hace tap de recogida.")
         return
 
