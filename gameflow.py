@@ -2,7 +2,7 @@ import time as t
 import func as f
 import attacks as a
 import elixir_cart
-from botstate import is_running
+from botstate import is_running, stop
 
 import random
 from func import tap_scale
@@ -14,10 +14,27 @@ print(">>> GameFlow.py starting")
 #   Surrender : Farming in Builder base
 # -----------------------------
 
+def is_surrender_button_visible(x=48, y=737, target=(247, 93, 95), tol=20):
+    """Comprueba si el botón de surrender está visible usando un pixel de referencia.
+    Ajusta x, y y target a valores concretos de tu pantalla.
+    """
+    return f.check_pixel(x, y, target, tol=tol)
+
+
 def tap_surrender_button():
-    x = random.randint(24, 246)
-    y = random.randint(721, 780)
-    tap_scale(x, y)
+    while True:
+        if not is_running():
+            f.log("[GameFlow] Bot detenido. Se cancela la espera del botón surrender.")
+            return False
+
+        if is_surrender_button_visible():
+            x = random.randint(24, 246)
+            y = random.randint(721, 780)
+            tap_scale(x, y)
+            return True
+
+        f.log("[GameFlow] Botón surrender no está visible. Reintentando en 10 segundos.")
+        t.sleep(10)
 
 
 def confirm_surrender():
@@ -148,7 +165,8 @@ def perform_attack(attempt_label):
     a.BBFarm()
 
     # 2. Rendirse
-    tap_surrender_button()
+    if not tap_surrender_button():
+        return False
     t.sleep(1)
 
     # 3. Confirmar rendición

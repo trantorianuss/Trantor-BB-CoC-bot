@@ -150,4 +150,123 @@ def tap_cart(detection):
     t.sleep(0.4)
 
 
+"""
+BACKUP - OLD buscar_carro() function from func.py (moved here for archival)
+
+def buscar_carro(total_offset=500, debug=False):
+    log("Iniciando búsqueda del carro...")
+
+    # Swipe desde zona alta
+    xi = 1850
+    yi = 350
+
+    # xi = 1450
+    # yi = 150
+
+
+    # t.sleep(2)  # Espera para estabilizar antes del swipe
+    log("Espero un poco antes del swipe para buscar el carro...")
+    wait_for_stable_screen()
+
+
+
+    screenshot_path = screenshot(tag="pre_swipe")
+    log("saco foto antes del swipe para buscar el carro...")
+
+    p.draw_line_on_image(screenshot_path, xi, yi, xi, yi + total_offset, color=(255, 0, 0), width=5)
+    log("pinto linea simulando swipe el carro...")
+
+    stable_swipe(xi, yi, xi, yi + total_offset, 1500)
+    #swipe_test()  # swipe de prueba para buscar el carro
+
+    #t.sleep(3)  # Esperar a que la pantalla se estabilice
+    log("esperando 3 segundos después del swipe para buscar el carro...")
+
+    screenshot_path = screenshot("buscar_carro")
+
+    # --- ORDEN DE BÚSQUEDA ---
+    templates = []
+
+    if debug:
+        templates.append("templates/Elixir_Cart_1.png")
+        templates.append("templates/Elixir_Cart_2.png")
+
+    templates.append("templates/Elixir_Cart_3.png")
+    templates.append("templates/carro_extra_full.png")
+
+    # --- BÚSQUEDA SECUENCIAL ---
+    result = None
+    tpl_used = None
+
+    for tpl in templates:
+        log(f"Buscando {tpl} ...")
+        result = find_template_multiscale(
+            screenshot_path,
+            tpl,
+            scales=(0.9, 1.0, 1.1),
+            threshold=0.82
+        )
+
+        if not result:
+            continue  # no match, probar siguiente
+
+        # --- VALIDACIÓN SOLO PARA LA PLANTILLA ROJA ---
+        if tpl == "templates/carro_extra_full.png":
+            img = cv2.imread(screenshot_path)
+            x, y = result["position"]
+            w, h = result["size"]
+
+            if x > 5 and y > 5:
+                b, g, r = map(int, img[y-5, x-5])  # <-- FIX IMPORTANTE
+                if not (abs(r - 172) <= 20 and abs(g - 79) <= 20 and abs(b - 41) <= 20):
+                    log("Descartado: fondo NO rojo → seguir buscando")
+                    result = None
+                    continue  # seguir con la siguiente plantilla       
+
+        # Si llega aquí → match válido
+        tpl_used = tpl
+        break
+
+    # --- RESULTADO ---
+    if result:
+        log(f"Carro detectado con {tpl_used} en {result['position']} scale={result['scale']} conf={result['confidence']:.2f}")
+
+        # ============================
+        #   RECORTE DEL ÁREA DETECTADA
+        # ============================
+        try:
+            if not os.path.exists("debug"):
+                os.makedirs("debug")
+
+            x, y = result["position"]
+            w, h = result["size"]
+
+            img = Image.open(screenshot_path)
+            crop = img.crop((x, y, x + w, y + h))
+
+            ts = t.strftime("%Y%m%d_%H%M%S")
+            crop_name = f"debug/carro_detectado_{ts}.png"
+            crop.save(crop_name)
+
+            log(f"[DEBUG] Recorte guardado en {crop_name}")
+        except Exception as e:
+            log(f"[DEBUG] Error guardando recorte: {e}")
+
+        # Tap en el centro
+        cx = x + w // 2
+        cy = y + h // 2
+
+        log(f"[DEBUG] x={x}, y={y}, w={w}, h={h}")
+        log(f"TAP REAL EN: {cx}, {cy}")
+        screenshot_path = screenshot("carro_encontrado")
+
+        tap_absolute(cx, cy)
+        t.sleep(0.4)
+        return True
+
+    log("Carro no encontrado después del swipe")
+    return False
+"""
+
+
 

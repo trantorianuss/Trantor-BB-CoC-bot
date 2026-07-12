@@ -7,6 +7,7 @@ import state_calibration
 import vision
 import coords
 import elixir_cart
+import logger as l 
 from gui import BotInterface
 
 # Helper
@@ -134,8 +135,8 @@ app = BotInterface(
     on_calibrar_zoom=bttn_calibrar_zoom   
 )
 
-# Inyectar el método log en el módulo de funciones secundarias
-f.log = app.log
+# Conectar el logger central con la UI para que toda la app use la misma salida
+l.set_log_sink(app.log)
 
 
 def initialize_coords():

@@ -2,8 +2,7 @@ from doctest import debug
 import time
 import customtkinter as ctk
 import state
-
-DEBUG_MODE = False   # o False si quieres ocultar debug
+import config
 
 class BotInterface(ctk.CTk):
     def __init__(self, on_start_farm, on_stop, on_screenshot, on_recognize, on_buscar_carro, on_test, on_calibrar_zoom):
@@ -114,22 +113,28 @@ class BotInterface(ctk.CTk):
         self.log_textbox.pack(fill="both", expand=True)
 
     # Métodos públicos para interactuar con la interfaz desde fuera
-    def log(self, message, debug=False):
-        # Filtrar mensajes debug si no están activados
-        if debug and not DEBUG_MODE:
+    """
+    def log(self, message, debug=False, category=""):
+        if category:
+            category_cfg = getattr(config, "DEBUG", {})
+            if not category_cfg.get(category, False):
+                return
+            if not state.debug_mode:
+                return
+
+        if debug and not state.debug_mode:
             return
 
-        # Nivel del mensaje
-        level = "DEBUG" if debug else "INFO"  
+        level = "DBG" if (debug or category) else "INF"
 
         # Timestamp
         timestamp = time.strftime("%H:%M:%S")
         
         # Formato final
-        if DEBUG_MODE:
-            formatted_message = f"[{timestamp}] [{level}] {message}"
+        if state.debug_mode:
+            formatted_message = f"[{timestamp}] [{level}]-{category}-{message}"
         else:
-            formatted_message = f"[{timestamp}] {message}"
+            formatted_message = f"[{timestamp}]-{category}- {message}"
         
         def append():
             textbox = self.log_textbox._textbox
@@ -138,7 +143,17 @@ class BotInterface(ctk.CTk):
             textbox.see("end")
 
         self.after(0, append)
+    """
+    def log(self, formatted_message):
 
+        def append():
+            textbox = self.log_textbox._textbox
+            textbox.tag_configure("spacing", spacing3=8)
+            textbox.insert("end", formatted_message + "\n", "spacing")
+            textbox.see("end")
+
+        self.after(0, append)
+        
     def get_attacks(self):
         return state.attacks_per_cycle
 
@@ -146,9 +161,7 @@ class BotInterface(ctk.CTk):
         return state.swipe_dx, state.swipe_dy
 
     def _toggle_debug(self):
-        global DEBUG_MODE
-        DEBUG_MODE = self.debug_switch.get() == 1
-        state.set_debug(DEBUG_MODE)
+        state.set_debug(self.debug_switch.get() == 1)
 
     def _on_swipe_dx_change(self, event=None):
         try:
