@@ -34,6 +34,8 @@ Automatizar el juego puede violar los Términos de Servicio de Clash of Clans.
 
 ![visitors](https://hits.sh/trantorianuss/Trantor-BB-CoC-bot.svg)
 
+[![Hits](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot.svg)](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot/)
+
 
 ## Requisitos
 - Python 3
