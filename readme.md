@@ -25,16 +25,10 @@ Este bot es solo para fines educativos. Úsalo bajo tu propia responsabilidad.
 Automatizar el juego puede violar los Términos de Servicio de Clash of Clans.
 
 ## 📊 Repository Statistics
-## 📊 Visitas al repositorio
 
-[Ver estadísticas detalladas](https://hits.sh/trantorianuss/Trantor-BB-CoC-bot/)
+[![Hits](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot.svg?style=flat-square&label=Visitors)](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot/)
 
-
-## 📊 Visitas al repositorio
-
-![visitors](https://hits.sh/trantorianuss/Trantor-BB-CoC-bot.svg)
-
-[![Hits](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot.svg)](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot/)
+[View detailed statistics](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot/)
 
 
 ## Requisitos
