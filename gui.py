@@ -10,7 +10,7 @@ class BotInterface(ctk.CTk):
         super().__init__()
 
         # Configuración de ventana
-        self.title("Wal CoC BBot")
+        self.title("Trantor CoC BB-Bot")
         self.geometry("400x500")
         
         # Guardar callbacks lógicos
