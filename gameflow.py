@@ -4,7 +4,7 @@ import attacks as a
 from botstate import is_running
 
 import random
-from func import tap
+from func import tap_scale
 
 print(">>> GameFlow.py starting")
 
@@ -16,20 +16,20 @@ print(">>> GameFlow.py starting")
 def tap_surrender_button():
     x = random.randint(24, 246)
     y = random.randint(721, 780)
-    tap(x, y)
+    tap_scale(x, y)
 
 
 def confirm_surrender():
     x = random.randint(1014, 1323)
     y = random.randint(643, 752)
-    tap(x, y)
+    tap_scale(x, y)
 
 
 def tap_return_home():
     # Ajusta estos valores si tu botón está en otra zona
     x = random.randint(850, 1065)
     y = random.randint(875, 950)
-    tap(x, y)
+    tap_scale(x, y)
 
 # -------------------------
 #  RECOGER ELIXIR ROSA
@@ -45,14 +45,14 @@ def collect_pink_elixir():
 
     # Botón verde "Recoger"
     f.log("[Elixir] AQUI L TAP COMMENTED.")
-    f.human_tap(1301, 871, 1510, 944)
+    f.human_tap_scale(1301, 871, 1510, 944)
 
     f.log("[Elixir] Recompensa recogida.")
     t.sleep(5)  # Espera un segundo para asegurar que la acción se complete
     
     # Botón Rojo "Cerrar Ventana"
     f.log("[Elixir] Cerrando Ventana.")
-    f.human_tap(1583, 60, 1630, 132)
+    f.human_tap_scale(1583, 60, 1630, 132)
 
     f.log("[Elixir] Recompensa recogida.")
     t.sleep(5)  # Espera un segundo para asegurar que la acción se complete
@@ -113,19 +113,19 @@ def wait_for_battle_end():
 def collect_loot():
     f.log("[GameFlow] Recogiendo botín…")
 
-    f.tap(950, 900)
+    f.tap_scale(950, 900)
     t.sleep(2)
 
     f.swipe1()
     t.sleep(1)
 
-    f.tap(871, 521)
+    f.tap_scale(871, 521)
     t.sleep(1)
 
-    f.tap(1400, 920)
+    f.tap_scale(1400, 920)
     t.sleep(1)
 
-    f.tap(1600, 100)
+    f.tap_scale(1600, 100)
     t.sleep(1)
 
     f.log("[GameFlow] Botín recogido")

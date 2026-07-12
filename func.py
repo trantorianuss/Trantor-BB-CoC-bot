@@ -341,7 +341,7 @@ def buscar_carro(total_offset=500, debug=False):
         log(f"TAP REAL EN: {cx}, {cy}")
         screenshot_path = screenshot("carro_encontrado")
 
-        tap(cx, cy)
+        tap_absolute(cx, cy)
         t.sleep(0.4)
         return True
 
@@ -350,26 +350,35 @@ def buscar_carro(total_offset=500, debug=False):
 
 
 
-def _send_tap(x, y):
-    log(f"[TAP] x={x}, y={y}", debug=True)
-    os.system(f'C:/LDPlayer/LDPlayer9/adb.exe -s {config.ADB_PORT} shell input tap {x} {y}')
-
-
-def tap(x, y):
+def tap_scale(x, y, *_args):
     if coords.REAL_W is not None and coords.REAL_H is not None:
         x, y = coords.scale(x, y)
 
-    _send_tap(x, y)
+    log(f"[TAP SCALE] x={x}, y={y}", debug=True)
+    os.system(f'C:/LDPlayer/LDPlayer9/adb.exe -s {config.ADB_PORT} shell input tap {x} {y}')
 
 
-def human_tap(x1, y1, x2, y2):
+def tap_absolute(x, y, *_args):
+    log(f"[TAP ABSOLUTE] x={x}, y={y}", debug=True)
+    os.system(f'C:/LDPlayer/LDPlayer9/adb.exe -s {config.ADB_PORT} shell input tap {x} {y}')
+
+
+def human_tap_scale(x1, y1, x2, y2):
     if coords.REAL_W is not None and coords.REAL_H is not None:
         x1, y1 = coords.scale(x1, y1)
         x2, y2 = coords.scale(x2, y2)
 
     x = random.randint(x1, x2)
     y = random.randint(y1, y2)
-    _send_tap(x, y)
+    log(f"[HUMAN TAP SCALE] x={x}, y={y}", debug=True)
+    os.system(f'C:/LDPlayer/LDPlayer9/adb.exe -s {config.ADB_PORT} shell input tap {x} {y}')
+
+
+def human_tap_absolute(x1, y1, x2, y2):
+    x = random.randint(x1, x2)
+    y = random.randint(y1, y2)
+    log(f"[HUMAN TAP ABSOLUTE] x={x}, y={y}", debug=True)
+    os.system(f'C:/LDPlayer/LDPlayer9/adb.exe -s {config.ADB_PORT} shell input tap {x} {y}')
 
 
 def swipe(x1, y1, x2, y2, duration_ms):
@@ -497,14 +506,14 @@ def test_swipe_and_tap_cart():
 
 def find(): 
   print(">>> entro en find <<<")
-  tap(100, 1000)
+  tap_scale(100, 1000)
   t.sleep(0.3)
   print(">>> find despes de sleeep <<<")
-  tap(1375, 650)
+  tap_scale(1375, 650)
   print(">>> find despues de sleep y tap <<<")
 
 def next():
-  tap(1750, 800)
+  tap_scale(1750, 800)
 
 
 def checkloot(port):
