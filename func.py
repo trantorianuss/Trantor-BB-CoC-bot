@@ -355,12 +355,12 @@ def tap_scale(x, y, *_args):
         x, y = coords.scale(x, y)
 
     log(f"[TAP SCALE] x={x}, y={y}", debug=True)
-    os.system(f'C:/LDPlayer/LDPlayer9/adb.exe -s {config.ADB_PORT} shell input tap {x} {y}')
+    adb(f"input tap {x} {y}")
 
 
 def tap_absolute(x, y, *_args):
     log(f"[TAP ABSOLUTE] x={x}, y={y}", debug=True)
-    os.system(f'C:/LDPlayer/LDPlayer9/adb.exe -s {config.ADB_PORT} shell input tap {x} {y}')
+    adb(f"input tap {x} {y}")
 
 
 def human_tap_scale(x1, y1, x2, y2):
@@ -371,14 +371,14 @@ def human_tap_scale(x1, y1, x2, y2):
     x = random.randint(x1, x2)
     y = random.randint(y1, y2)
     log(f"[HUMAN TAP SCALE] x={x}, y={y}", debug=True)
-    os.system(f'C:/LDPlayer/LDPlayer9/adb.exe -s {config.ADB_PORT} shell input tap {x} {y}')
+    adb(f"input tap {x} {y}")
 
 
 def human_tap_absolute(x1, y1, x2, y2):
     x = random.randint(x1, x2)
     y = random.randint(y1, y2)
     log(f"[HUMAN TAP ABSOLUTE] x={x}, y={y}", debug=True)
-    os.system(f'C:/LDPlayer/LDPlayer9/adb.exe -s {config.ADB_PORT} shell input tap {x} {y}')
+    adb(f"input tap {x} {y}")
 
 
 def swipe(x1, y1, x2, y2, duration_ms):
@@ -393,27 +393,18 @@ def swipe(x1, y1, x2, y2, duration_ms):
         x2, y2 = coords.scale(x2, y2)
 
     log(f"[SWIPE] x1={x1}, y1={y1}, x2={x2}, y2={y2}, dur={duration_ms}ms")
-
-    cmd = (
-        f'{config.ADB_PATH} -s {config.ADB_PORT} shell input touchscreen swipe '
-        f'{x1} {y1} {x2} {y2} {duration_ms}'
-    )
-
-    log(cmd)
-    os.system(cmd)
+    adb(f"input touchscreen swipe {x1} {y1} {x2} {y2} {duration_ms}")
 
 
 def swipe_test():  # borrar si no esta en uso 
     log("me cago en su ....")
-    log('C:/LDPlayer/LDPlayer9/adb.exe -s ' + config.ADB_PORT + ' shell  input touchscreen swipe 1450 150 1450 550 500 ')
-    
-    os.system('C:/LDPlayer/LDPlayer9/adb.exe -s ' + config.ADB_PORT + ' shell  input touchscreen swipe 1450 150 1450 550 500 ')
+    adb("input touchscreen swipe 1450 150 1450 550 500")
 
 def swipe1():  # borrar si no esta en uso 
-    os.system('C:/LDPlayer/LDPlayer9/adb.exe -s ' + config.ADB_PORT + ' shell  input touchscreen swipe 1450 150 900 650 500 ')
+    adb("input touchscreen swipe 1450 150 900 650 500")
 
 def swipe2(): 
-    os.system('C:/LDPlayer/LDPlayer9/adb.exe -s ' + config.ADB_PORT + ' shell  input touchscreen swipe 1900 850 100 850 500 ')
+    adb("input touchscreen swipe 1900 850 100 850 500")
 
 def simple_swipe_up(pixels, duration_ms=300):
     """
