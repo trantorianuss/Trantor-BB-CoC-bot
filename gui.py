@@ -173,6 +173,7 @@ class BotInterface(ctk.CTk):
 
         tab_tools = self.tabs.add("Herramientas")
         tab_settings = self.tabs.add("Settings")
+        tab_debug = self.tabs.add("Debug")
 
         # ---------- TAB HERRAMIENTAS ----------
         tab_tools.columnconfigure(0, weight=1)
@@ -181,37 +182,44 @@ class BotInterface(ctk.CTk):
         self.button_Screenshot = ctk.CTkButton(tab_tools, text="Screenshot", command=self.on_screenshot)
         self.button_Screenshot.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        self.button_Test = ctk.CTkButton(tab_tools, text="Test", command=self.on_test)
+        # ---------- TAB DEBUG ----------
+        tab_debug.columnconfigure(0, weight=1)
+        tab_debug.columnconfigure(1, weight=1)
+
+        self.button_Screenshot = ctk.CTkButton(tab_debug, text="Screenshot", command=self.on_screenshot)
+        self.button_Screenshot.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+        self.button_Test = ctk.CTkButton(tab_debug, text="Test", command=self.on_test)
         self.button_Test.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-        self.button_Recognize = ctk.CTkButton(tab_tools, text="Recognize", command=self.on_recognize)
+        self.button_Recognize = ctk.CTkButton(tab_debug, text="Recognize", command=self.on_recognize)
         self.button_Recognize.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
-        self.button_Buscar_Carro = ctk.CTkButton(tab_tools, text="Buscar Carro", command=self.on_buscar_carro)
+        self.button_Buscar_Carro = ctk.CTkButton(tab_debug, text="Buscar Carro", command=self.on_buscar_carro)
         self.button_Buscar_Carro.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
-        self.swipe_dx_label = ctk.CTkLabel(tab_tools, text="Swipe dx:")
+        self.swipe_dx_label = ctk.CTkLabel(tab_debug, text="Swipe dx:")
         self.swipe_dx_label.grid(row=2, column=0, padx=5, pady=(10, 2), sticky="w")
-        self.swipe_dx_entry = ctk.CTkEntry(tab_tools, placeholder_text="0")
+        self.swipe_dx_entry = ctk.CTkEntry(tab_debug, placeholder_text="0")
         self.swipe_dx_entry.insert(0, str(state.swipe_dx))
         self.swipe_dx_entry.bind("<KeyRelease>", self._on_swipe_dx_change)
         self.swipe_dx_entry.grid(row=3, column=0, padx=5, pady=2, sticky="ew")
 
-        self.swipe_dy_label = ctk.CTkLabel(tab_tools, text="Swipe dy:")
+        self.swipe_dy_label = ctk.CTkLabel(tab_debug, text="Swipe dy:")
         self.swipe_dy_label.grid(row=2, column=1, padx=5, pady=(10, 2), sticky="w")
-        self.swipe_dy_entry = ctk.CTkEntry(tab_tools, placeholder_text="400")
+        self.swipe_dy_entry = ctk.CTkEntry(tab_debug, placeholder_text="400")
         self.swipe_dy_entry.insert(0, str(state.swipe_dy))
         self.swipe_dy_entry.bind("<KeyRelease>", self._on_swipe_dy_change)
         self.swipe_dy_entry.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
 
         self.button_Calibrar = ctk.CTkButton(
-            tab_tools,
+            tab_debug,
             text="Calibrar Zoom y Centro",
             command=self._pre_calibrar_zoom
         )
         self.button_Calibrar.grid(row=4, column=0, columnspan=2, padx=5, pady=10, sticky="ew")
 
-        self.button_Calibrate = ctk.CTkButton(tab_tools, text="Calibrate", command=self.on_calibrate)
+        self.button_Calibrate = ctk.CTkButton(tab_debug, text="Calibrate", command=self.on_calibrate)
         self.button_Calibrate.grid(row=5, column=0, columnspan=2, padx=5, pady=10, sticky="ew")
 
         # ---------- TAB SETTINGS ----------
