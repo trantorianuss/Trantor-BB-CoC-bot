@@ -9,6 +9,7 @@ import coords
 import elixir_cart
 import logger as l 
 from gui import BotInterface
+import calibration
 
 # Helper
 def parse_int(value, default=0):
@@ -119,6 +120,13 @@ def bttn_calibrar_zoom(popup=None):
     except Exception as e:
         app.log(f"Calibración falló: {e}")
 
+def bttn_calibrate(popup=None):
+
+    app.log("Starting calibration...")
+
+    screenshot_path = f.screenshot("calibration")
+
+    calibration.run(screenshot_path)
 
 # -----------------------------
 #   INICIALIZACIÓN
@@ -132,7 +140,8 @@ app = BotInterface(
     on_recognize=bttn_recognize,
     on_buscar_carro=bttn_buscar_carro,
     on_test=bttn_test,
-    on_calibrar_zoom=bttn_calibrar_zoom   
+    on_calibrar_zoom=bttn_calibrar_zoom,
+    on_calibrate=bttn_calibrate   
 )
 
 # Conectar el logger central con la UI para que toda la app use la misma salida

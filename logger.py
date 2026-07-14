@@ -9,39 +9,6 @@ def set_log_sink(sink=None):
     global _log_sink
     _log_sink = sink
 
-"""
-def _should_emit_log(debug=False, category=""):
-    if category:
-        category_cfg = getattr(config, "DEBUG", {})
-        if not category_cfg.get(category, False):
-            return False
-        return bool(getattr(state, "debug_mode", False))
-
-    if debug:
-        return bool(getattr(state, "debug_mode", False))
-
-    return True
-
-
-def log(message, debug=False, category=""):
-    if not _should_emit_log(debug=debug, category=category):
-        return
-
-    if _log_sink is not None:
-        try:
-            _log_sink(message, debug=debug, category=category)
-            return
-        except TypeError:
-            _log_sink(message)
-            return
-
-    if debug:
-        return
-"""
-
-
-
-
 def _should_emit_log(debug=False, category=""):
 
     # Los INFO siempre salen

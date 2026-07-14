@@ -68,6 +68,7 @@ def get_real_resolution():
     return w, h
 
 def screenshot(tag: str = None):
+    # tag opcional para diferenciar capturas, útil para debugging
 
     # Crear carpeta si no existe
     if not os.path.exists("screenshots"):
@@ -76,7 +77,7 @@ def screenshot(tag: str = None):
     # Nombre con timestamp
     timestamp = t.strftime("%Y%m%d_%H%M%S")
 
-        # Si viene un tag, lo añadimos al nombre
+    # Si viene un tag, lo añadimos al nombre
     if tag:
         filename = f"screenshots/screen_{timestamp}_{tag}.png"
     else:
