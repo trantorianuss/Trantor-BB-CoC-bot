@@ -1,11 +1,14 @@
 import time as t
 import func as f
 import attacks as a
-import elixir_cart
+#import elixir_cart
+import cart_calibration
+
 from botstate import is_running, stop
 
 import random
 from func import tap_scale
+import state
 
 print(">>> GameFlow.py starting")
 
@@ -55,7 +58,9 @@ def tap_return_home():
 def collect_pink_elixir():
     f.log("[Elixir] Moviendo cámara y abriendo Carro…")
 
-    if not elixir_cart.search_cart(total_offset=600, debug=True):
+    #if not elixir_cart.search_cart(total_offset=600, debug=True):
+    if not open_cart(debug=True):
+    
         f.log("[Elixir] Carro no encontrado, no se hace tap de recogida.")
         return
 
@@ -75,6 +80,38 @@ def collect_pink_elixir():
     f.log("[Elixir] Recompensa recogida.")
     t.sleep(5)  # Espera un segundo para asegurar que la acción se complete
     return True
+
+def open_cart(debug=False):
+
+    # Swipe desde zona alta
+    xi = 1850
+    yi = 350
+
+    dx, dy = state.swipe_dx, state.swipe_dy
+    
+    f.wait_for_stable_screen()
+
+    f.stable_swipe(xi, yi, xi + dx, yi + dy, 1500)
+
+    screenshot_path = f.screenshot("cart_search")
+
+    position = cart_calibration.locate_cart(screenshot_path, debug=debug)
+
+    if position is None:
+        f.log("[Elixir] Carro no encontrado.")
+        return False
+
+    x, y = position
+
+    f.log(f"TAP REAL EN: {x}, {y}")
+
+    f.tap_absolute(x, y)
+
+    t.sleep(0.4)
+
+    return True
+    
+
 
 
 def try_collect_pink_elixir():

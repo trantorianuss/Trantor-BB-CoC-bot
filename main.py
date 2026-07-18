@@ -3,6 +3,7 @@ import threading
 import func as f
 import botcontroller as controller
 import paint as p
+import state
 import state_calibration
 import vision
 import coords
@@ -22,9 +23,9 @@ def parse_int(value, default=0):
 #   FUNCIONES MANEJADORAS (LOGIC)
 # -----------------------------
 
+
 def bttn_start_Farm():
-    attacks = parse_int(app.get_attacks(), default=2)
-    controller.start_farm(attacks_per_cycle=attacks)
+    controller.start_farm(attacks_per_cycle=state.attacks_per_cycle)
 
 def bttn_stop():
     controller.stop()

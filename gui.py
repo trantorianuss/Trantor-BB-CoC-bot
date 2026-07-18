@@ -63,12 +63,6 @@ class BotInterface(ctk.CTk):
 
         self.after(0, append)
 
-    def get_attacks(self):
-        return state.attacks_per_cycle
-
-    def get_swipe_values(self):
-        return state.swipe_dx, state.swipe_dy
-
     # ---------- Handlers de controles ----------
     def _toggle_debug(self):
         state.set_debug(self.debug_switch.get() == 1)
