@@ -24,12 +24,6 @@ Automating gameplay may violate Clash of Clans' Terms of Service.
 Este bot es solo para fines educativos. Úsalo bajo tu propia responsabilidad.
 Automatizar el juego puede violar los Términos de Servicio de Clash of Clans.
 
-## 📊 Repository Statistics
-
-[![Hits](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot.svg?style=flat-square&label=Visitors)](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot/)
-
-[View detailed statistics](https://hits.sh/github.com/trantorianuss/Trantor-BB-CoC-bot/)
-
 
 ## Requisitos
 - Python 3
