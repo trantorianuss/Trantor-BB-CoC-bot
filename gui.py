@@ -51,16 +51,25 @@ class BotInterface(ctk.CTk):
         self.log_textbox = ctk.CTkTextbox(self.log_frame, wrap="word")
         self.log_textbox.pack(fill="both", expand=True)
 
+        self.tk_log = self.log_textbox._textbox
+
+        self.tk_log.tag_configure("default")
+        self.tk_log.tag_configure("green", foreground="green")
+        self.tk_log.tag_configure("red", foreground="red")
+        self.tk_log.tag_configure("orange", foreground="orange")
+        self.tk_log.tag_configure("blue", foreground="blue")
+        self.tk_log.tag_configure("gray", foreground="gray")
+        self.tk_log.tag_configure("spacing", spacing3=8)
+
+
     # Métodos públicos para interactuar con la interfaz desde fuera
-    def log(self, formatted_message):
+    def log(self, formatted_message, color="default"):
         def append():
-            textbox = self.log_textbox._textbox
+            textbox = self.tk_log
             textbox.configure(state="normal")
-            textbox.tag_configure("spacing", spacing3=8)
-            textbox.insert("end", formatted_message + "\n", "spacing")
+            textbox.insert("end", formatted_message + "\n", (color, "spacing"))
             textbox.see("end")
             textbox.configure(state="disabled")
-
         self.after(0, append)
 
     # ---------- Handlers de controles ----------

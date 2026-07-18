@@ -1,6 +1,9 @@
+import os
+
 import state
 import config
 import time as t
+import inspect
 
 _log_sink = None
 
@@ -26,7 +29,7 @@ def _should_emit_log(debug=False, category=""):
     return True
 
 
-def log(message, debug=False, category=""):
+def log(message, debug=False, category="", color=None):
 
     if not _should_emit_log(debug, category):
         return
@@ -47,7 +50,27 @@ def log(message, debug=False, category=""):
 
     formatted = " ".join(parts)
 
+    if color is None:
+        if debug:
+            color = "orange"
+        else:
+            color = "default"
+
+
+
+
     if _log_sink:
-        _log_sink(formatted)
+        _log_sink(formatted, color)
     else:
         print(formatted)
+
+    if config.DEBUG_INSPECTION:
+        # Obtener el nombre de la función que llamó a log()
+        frame = inspect.currentframe().f_back
+
+        filename = os.path.basename(frame.f_code.co_filename)   
+        function = frame.f_code.co_name
+        line = frame.f_lineno
+
+        origen = f"{filename}:{function}:{line}"
+        _log_sink(origen, "gray")

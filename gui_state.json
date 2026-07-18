@@ -1,6 +1,6 @@
 {
-  "swipe_dx": -200,
+  "swipe_dx": -300,
   "swipe_dy": 800,
   "attacks_per_cycle": 2,
-  "debug_mode": false
+  "debug_mode": true
 }

@@ -12,3 +12,5 @@ DEBUG = {
     "adb": True,
     "flow": True,
 }
+
+DEBUG_INSPECTION = True
