@@ -343,15 +343,15 @@ def test_swipe_and_tap_cart():
 
 
 def find(): 
-  print(">>> entro en find <<<")
-  tap_scale(100, 1000)
-  t.sleep(0.3)
-  print(">>> find despes de sleeep <<<")
-  tap_scale(1375, 650)
-  print(">>> find despues de sleep y tap <<<")
+    log("Pulso en Atacar", category="Find")
+    tap_scale(100, 1000)
+    t.sleep(0.3), 
+    log("Pulso en Find", category="Find")
+    tap_scale(1375, 650)
+
 
 def next():
-  tap_scale(1750, 800)
+    tap_scale(1750, 800)
 
 
 def checkloot(port):

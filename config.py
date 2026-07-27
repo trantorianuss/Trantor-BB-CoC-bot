@@ -9,7 +9,7 @@ DEBUG = {
     "attack": True,
     "vision": True,
     "timing": True,
-    "adb": True,
+    "adb": False,
     "flow": True,
 }
 

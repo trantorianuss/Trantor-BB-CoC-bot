@@ -4,7 +4,7 @@ import func as f
 from func import screenshot
 from func import find_template_multiscale  # tu función real
 
-print(">>> vision.py starting")
+print(">>> Vision.py starting")
 
 def print_resultados(resultados):
     """
