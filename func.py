@@ -90,7 +90,7 @@ def screenshot(tag: str = None):
         subprocess.run(cmd.split(), stdout=f_out)
 
     t1 = t.perf_counter()
-    log(f"screenshot ADB : {(t1-t0)*1000:.1f} ms")
+    log(f"screenshot ADB : {(t1-t0)*1000:.1f} ms", debug=True, category="timing")
 
     return filename
 
