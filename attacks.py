@@ -51,19 +51,19 @@ def BB2():
 
 def BBFarm():
     print(">>> entro en BBFarm <<<")
-    f.log("[BBF] Iniciando ataque BBF()")
+    f.log("Iniciando ataque BBF()", category="BB Farm")
     f.swipe2()
-    f.log("[BBF] Slot 1")
+    f.log("Slot 1", category="BB Farm")
     Slot(1)
-    f.log("[BBF] Tap inicial")
+    f.log("Tap inicial", category="BB Farm")
     tropas = random.randint(1, 4)
-    f.log(f"[BBF] Soltando {tropas} tropa(s)")
+    f.log(f"Soltando {tropas} tropa(s)", category="BB Farm")
 
     f.human_tap_scale(1400, 500, 1600, 700)
     t.sleep(0.35)
 
     if tropas > 1:
-        f.log("[BBF] Cambiando a slot 2 para el resto")
+        f.log("Cambiando a slot 2 para el resto", category="BB Farm")
         Slot(2)
 
     for _ in range(tropas - 1):
