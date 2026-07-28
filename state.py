@@ -4,6 +4,7 @@ Todas las variables se guardan automáticamente en gui_state.json
 """
 import json
 import os
+import random
 from pathlib import Path
 
 # Path al archivo de persistencia
@@ -13,14 +14,15 @@ STATE_FILE = Path(__file__).parent / "gui_state.json"
 # GUI Settings
 swipe_dx = 0
 swipe_dy = 400
-attacks_per_cycle = 2
+attacks_min_per_cycle = 2
+attacks_max_per_cycle = 4
 debug_mode = False
 
 # ============ FUNCIONES DE PERSISTENCIA ============
 
 def load_state():
     """Cargar el estado desde el archivo JSON."""
-    global swipe_dx, swipe_dy, attacks_per_cycle, debug_mode
+    global swipe_dx, swipe_dy, attacks_min_per_cycle, attacks_max_per_cycle, debug_mode
     
     if not STATE_FILE.exists():
         return
@@ -32,7 +34,15 @@ def load_state():
         # Cargar GUI settings
         swipe_dx = data.get("swipe_dx", 0)
         swipe_dy = data.get("swipe_dy", 400)
-        attacks_per_cycle = data.get("attacks_per_cycle", 2)
+
+        if "attacks_min_per_cycle" in data or "attacks_max_per_cycle" in data:
+            attacks_min_per_cycle = data.get("attacks_min_per_cycle", attacks_min_per_cycle)
+            attacks_max_per_cycle = data.get("attacks_max_per_cycle", attacks_max_per_cycle)
+        else:
+            legacy_value = data.get("attacks_per_cycle", 2)
+            attacks_min_per_cycle = int(legacy_value)
+            attacks_max_per_cycle = int(legacy_value)
+
         debug_mode = data.get("debug_mode", False)
         
     except Exception as e:
@@ -44,7 +54,8 @@ def save_state():
     data = {
         "swipe_dx": swipe_dx,
         "swipe_dy": swipe_dy,
-        "attacks_per_cycle": attacks_per_cycle,
+        "attacks_min_per_cycle": attacks_min_per_cycle,
+        "attacks_max_per_cycle": attacks_max_per_cycle,
         "debug_mode": debug_mode,
     }
     
@@ -68,6 +79,19 @@ def set_attacks(num):
     global attacks_per_cycle
     attacks_per_cycle = int(num) if isinstance(num, str) else num
     save_state()
+
+
+def set_attacks_range(min_value, max_value):
+    """Actualizar rango aleatorio de ataques por ciclo."""
+    global attacks_min_per_cycle, attacks_max_per_cycle
+    attacks_min_per_cycle = max(1, int(min_value) if isinstance(min_value, str) else int(min_value))
+    attacks_max_per_cycle = max(attacks_min_per_cycle, int(max_value) if isinstance(max_value, str) else int(max_value))
+    save_state()
+
+
+def get_attacks_per_cycle():
+    """Obtener un número aleatorio de ataques dentro del rango configurado."""
+    return random.randint(attacks_min_per_cycle, attacks_max_per_cycle)
 
 
 def set_debug(enabled):

@@ -25,7 +25,7 @@ def parse_int(value, default=0):
 
 
 def bttn_start_Farm():
-    controller.start_farm(attacks_per_cycle=state.attacks_per_cycle)
+    controller.start_farm()
 
 def bttn_stop():
     controller.stop()

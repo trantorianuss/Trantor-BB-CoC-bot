@@ -216,13 +216,13 @@ def perform_attack(attempt_label):
     t.sleep(1)
 
 
-def farm_until_full(attacks_per_cycle=2):
+def farm_until_full(attacks_per_cycle=None):
 
     while not is_elixir_full():
+        cycle_attacks = state.get_attacks_per_cycle() if attacks_per_cycle is None else attacks_per_cycle
+        f.log(f">>> Nuevo ciclo de {cycle_attacks} ataques <<<")
 
-        f.log(f">>> Nuevo ciclo de {attacks_per_cycle} ataques <<<")
-
-        for i in range(attacks_per_cycle):  ## numero de ataques por ciclo          
+        for i in range(cycle_attacks):  ## numero de ataques por ciclo
             if not is_running():
                 return True
             perform_attack(i + 1)

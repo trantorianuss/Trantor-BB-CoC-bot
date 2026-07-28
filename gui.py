@@ -94,9 +94,10 @@ class BotInterface(ctk.CTk):
 
     def _on_attacks_change(self, event=None):
         try:
-            value = self.attacks_entry.get()
-            if value:
-                state.set_attacks(value)
+            min_value = self.attacks_min_entry.get()
+            max_value = self.attacks_max_entry.get()
+            if min_value and max_value:
+                state.set_attacks_range(min_value, max_value)
         except:
             pass
 
@@ -228,22 +229,27 @@ class BotInterface(ctk.CTk):
         # ---------- TAB SETTINGS ----------
         tab_settings.columnconfigure(0, weight=1)
 
-        self.attacks_label = ctk.CTkLabel(tab_settings, text="Ataques/ciclo:")
+        self.attacks_label = ctk.CTkLabel(tab_settings, text="Ataques/ciclo (min/max):")
         self.attacks_label.grid(row=0, column=0, padx=5, pady=(10, 2), sticky="w")
 
-        self.attacks_entry = ctk.CTkEntry(tab_settings, placeholder_text="2")
-        self.attacks_entry.insert(0, str(state.attacks_per_cycle))
-        self.attacks_entry.bind("<KeyRelease>", self._on_attacks_change)
-        self.attacks_entry.grid(row=1, column=0, padx=5, pady=2, sticky="ew")
+        self.attacks_min_entry = ctk.CTkEntry(tab_settings, placeholder_text="2")
+        self.attacks_min_entry.insert(0, str(state.attacks_min_per_cycle))
+        self.attacks_min_entry.bind("<KeyRelease>", self._on_attacks_change)
+        self.attacks_min_entry.grid(row=1, column=0, padx=5, pady=2, sticky="ew")
+
+        self.attacks_max_entry = ctk.CTkEntry(tab_settings, placeholder_text="4")
+        self.attacks_max_entry.insert(0, str(state.attacks_max_per_cycle))
+        self.attacks_max_entry.bind("<KeyRelease>", self._on_attacks_change)
+        self.attacks_max_entry.grid(row=2, column=0, padx=5, pady=2, sticky="ew")
 
         # Interruptor DEBUG
         self.debug_label = ctk.CTkLabel(tab_settings, text="Modo DEBUG:")
-        self.debug_label.grid(row=2, column=0, padx=5, pady=(10, 2), sticky="w")
+        self.debug_label.grid(row=3, column=0, padx=5, pady=(10, 2), sticky="w")
 
         self.debug_switch = ctk.CTkSwitch(tab_settings, text="Activar", command=self._toggle_debug)
         if state.debug_mode:
             self.debug_switch.select()
-        self.debug_switch.grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        self.debug_switch.grid(row=4, column=0, padx=5, pady=2, sticky="w")
 
         self.panel_window.lift()
         self.panel_window.focus_force()

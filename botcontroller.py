@@ -9,13 +9,16 @@ import botstate
 Bbot_thread = None
 
 
-def start_farm(attacks_per_cycle=2):
+def start_farm(attacks_per_cycle=None):
     global Bbot_thread
     if not botstate.is_running():
         botstate.start()
         Bbot_thread = threading.Thread(target=lambda: farm_loop(attacks_per_cycle), daemon=True)
         Bbot_thread.start()
-        f.log(f"Farm started with {attacks_per_cycle} attacks per cycle.")
+        if attacks_per_cycle is None:
+            f.log("Farm started with random attacks per cycle.")
+        else:
+            f.log(f"Farm started with {attacks_per_cycle} attacks per cycle.")
 
 
 def stop():
@@ -23,7 +26,7 @@ def stop():
     f.log("Stopping bot...")
 
 
-def farm_loop(attacks_per_cycle=2):
+def farm_loop(attacks_per_cycle=None):
     while botstate.is_running():
         full = gf.farm_until_full(attacks_per_cycle)
 
