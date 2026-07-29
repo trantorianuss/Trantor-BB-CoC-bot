@@ -4,7 +4,7 @@ import attacks as a
 #import elixir_cart
 import cart_calibration
 
-from botstate import is_running, stop
+import botstate
 
 import random
 from func import tap_scale
@@ -26,7 +26,7 @@ def is_surrender_button_visible(x=48, y=737, target=(247, 93, 95), tol=20):
 
 def tap_surrender_button():
     while True:
-        if not is_running():
+        if not botstate.should_run():
             f.log("[GameFlow] Bot detenido. Se cancela la espera del botón surrender.")
             return False
 
@@ -223,8 +223,8 @@ def farm_until_full(attacks_per_cycle=None):
         f.log(f">>> Nuevo ciclo de {cycle_attacks} ataques <<<")
 
         for i in range(cycle_attacks):  ## numero de ataques por ciclo
-            if not is_running():
-                return True
+            if not botstate.should_run():
+                return False
             perform_attack(i + 1)
 
         # --- INTENTAR RECOGER ELIXIR ---
@@ -237,8 +237,8 @@ def farm_until_full(attacks_per_cycle=None):
 
         while True:
              
-            if not is_running():
-                return True
+            if not botstate.should_run():
+                return False   
 
             f.log("[GameFlow] Ataque extra...")
             perform_attack("extra")
@@ -251,7 +251,7 @@ def farm_until_full(attacks_per_cycle=None):
 
         # vuelve al inicio del while principal
 
-    print(">>> Almacén lleno. Fin del ciclo. <<<")
+    f.log(">>> Almacén lleno. Fin del ciclo. <<<")
     
     return True   # ← señal para parar
 

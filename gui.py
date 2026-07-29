@@ -1,5 +1,6 @@
 import time
 import customtkinter as ctk
+import botstate
 import state
 import config
 
@@ -25,6 +26,7 @@ class BotInterface(ctk.CTk):
         self.on_calibrate = on_calibrate
 
         self._init_components()
+        self.update_bot_status()
 
     def _init_components(self):
         # ---------- PANEL SUPERIOR ----------
@@ -44,6 +46,9 @@ class BotInterface(ctk.CTk):
         self.button_side_panel = ctk.CTkButton(self.top_frame, text="☰ ", width=40, command=self._show_side_panel)
         self.button_side_panel.grid(row=0, column=2, padx=5, pady=5, sticky="e")
 
+        self.label_bot_status = ctk.CTkLabel(self.top_frame, text="Estado: ?")
+        self.label_bot_status.grid(row=1, column=0, columnspan=3, padx=5, pady=(0, 5), sticky="w")
+
         # ---------- LOG ----------
         self.log_frame = ctk.CTkFrame(self)
         self.log_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -61,7 +66,16 @@ class BotInterface(ctk.CTk):
         self.tk_log.tag_configure("gray", foreground="gray")
         self.tk_log.tag_configure("spacing", spacing3=8)
 
+    # Métodos internos
+    def update_bot_status(self):
 
+        if botstate.should_run():
+            self.label_bot_status.configure(text="Run request: ON")
+        else:
+            self.label_bot_status.configure(text="Run request: OFF")
+
+        self.after(500, self.update_bot_status)
+    
     # Métodos públicos para interactuar con la interfaz desde fuera
     def log(self, formatted_message, color="default"):
         def append():

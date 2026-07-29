@@ -1,16 +1,15 @@
 import threading
 
 
-Bbot_running = threading.Event()
-
+bot_run_event = threading.Event()
 
 def start():
-    Bbot_running.set()
+    bot_run_event.set()
 
 
 def stop():
-    Bbot_running.clear()
+    bot_run_event.clear()
 
 
-def is_running():
-    return Bbot_running.is_set()
+def should_run():
+    return bot_run_event.is_set()

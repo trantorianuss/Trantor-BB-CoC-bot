@@ -11,7 +11,7 @@ Bbot_thread = None
 
 def start_farm(attacks_per_cycle=None):
     global Bbot_thread
-    if not botstate.is_running():
+    if not botstate.should_run():
         botstate.start()
         Bbot_thread = threading.Thread(target=lambda: farm_loop(attacks_per_cycle), daemon=True)
         Bbot_thread.start()
@@ -27,10 +27,12 @@ def stop():
 
 
 def farm_loop(attacks_per_cycle=None):
-    while botstate.is_running():
+    while botstate.should_run():
         full = gf.farm_until_full(attacks_per_cycle)
 
         if full:
             f.log("Storage full. Stopping bot.")
             botstate.stop()
             break
+
+    f.log("Bot stopped.")
