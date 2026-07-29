@@ -67,29 +67,60 @@ def get_real_resolution():
     w, h = map(int, size_part.split("x"))
     return w, h
 
-def screenshot(tag: str = None):
-    # tag opcional para diferenciar capturas, útil para debugging
+def screenshot(
+    name: str = None,
+    tag: str = None,
+    timestamp: bool = True,
+    debug_level: int = 1,
+):
+
+    """
+    Guarda un screenshot del emulador.
+
+    Args:
+        name: Nombre base del fichero.
+        tag: Etiqueta opcional para añadir al nombre. (for backward compatibility)
+        timestamp: Añadir timestamp al nombre.
+        debug_level: Nivel de debug requerido (pendiente de implementar).
+    """
+
+    # TODO: cuando exista el sistema de niveles
+    # if debug_level > config.DEBUG_LEVEL:
+    #     return None
+
+
+    if name is None:
+        name = tag or "screen"
 
     # Crear carpeta si no existe
-    if not os.path.exists("screenshots"):
-        os.makedirs("screenshots")
+    os.makedirs("screenshots", exist_ok=True)
+
+    # Construir nombre del fichero
+    if timestamp:
+        ts = t.strftime("%Y%m%d_%H%M%S")
+        filename = f"screenshots/{name}_{ts}.png"
+    else:
+        filename = f"screenshots/{name}.png"
+
 
     # Nombre con timestamp
     timestamp = t.strftime("%Y%m%d_%H%M%S")
 
-    # Si viene un tag, lo añadimos al nombre
-    if tag:
-        filename = f"screenshots/screen_{timestamp}_{tag}.png"
-    else:
-        filename = f"screenshots/screen_{timestamp}.png"
 
     # Captura directa del emulador
     t0 = t.perf_counter()
-    cmd = f"{config.ADB_PATH} -s {config.ADB_PORT} exec-out screencap -p"
+    
+    cmd = [
+        config.ADB_PATH,
+        "-s", config.ADB_PORT,
+        "exec-out", "screencap", "-p"
+    ]
+
     with open(filename, "wb") as f_out:
-        subprocess.run(cmd.split(), stdout=f_out)
+        subprocess.run(cmd, stdout=f_out)
 
     t1 = t.perf_counter()
+    
     log(f"screenshot ADB : {(t1-t0)*1000:.1f} ms", debug=True, category="timing")
 
     return filename
