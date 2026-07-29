@@ -357,7 +357,7 @@ def next():
 def checkloot(port):
     filename = f"Pictures/{port}val.png"
     screenshot(port, filename)
-    print("captured")
+    log("captured")
     t.sleep(0.2)
 
     with Image.open(filename) as photo:
@@ -379,7 +379,7 @@ def checkloot(port):
 def checktrophies(port):
     filename = f"Pictures/{port}trophies.png"
     screenshot(port, filename)
-    print("captured")
+    log("captured")
     t.sleep(0.2)
 
     with Image.open(filename) as photo:
@@ -491,3 +491,33 @@ def calibrar_zoom(popup=None):
 
     return result
 
+import os
+from pathlib import Path
+
+
+def cleanup_screenshots(folder="screenshots", max_files=200):
+    """
+    Mantiene únicamente los 'max_files' screenshots más recientes.
+    """
+
+    folder = Path(folder)
+
+    if not folder.exists():
+        return
+
+    log(f"Cleaning screenshots in {folder} (máx {max_files})", category="cleanup")
+
+    files = list(folder.glob("*.png"))
+
+    if len(files) <= max_files:
+        return
+
+    # Ordenar por fecha de modificación (más antiguos primero)
+    files.sort(key=lambda f: f.stat().st_mtime)
+
+    # Borrar los sobrantes
+    for file in files[:-max_files]:
+        try:
+            file.unlink()
+        except Exception as e:
+            log(f"No se pudo borrar {file}: {e}")

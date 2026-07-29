@@ -161,7 +161,13 @@ def initialize_coords():
         app.log("[coords] Usando resolución por defecto: 1920x1080")
 
 
+# -----------------------------
+#   MAIN
+# -----------------------------
+
+f.cleanup_screenshots()
 initialize_coords()
+
 
 if __name__ == "__main__":
     app.mainloop()
