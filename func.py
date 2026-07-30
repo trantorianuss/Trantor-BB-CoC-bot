@@ -283,14 +283,24 @@ def tap_absolute(x, y, *_args):
 
 
 def human_tap_scale(x1, y1, x2, y2):
-    if coords.REAL_W is not None and coords.REAL_H is not None:
-        x1, y1 = coords.scale(x1, y1)
-        x2, y2 = coords.scale(x2, y2)
-
+    # Elegir el punto ANTES de escalar
     x = random.randint(x1, x2)
     y = random.randint(y1, y2)
+
+    # Guardar las coordenadas absolutas para devolverlas
+    # absolutas -> las del sistema de coordenadas inicial
+    absolute_x = x
+    absolute_y = y
+
+    # Escalar sólo para el tap
+    if coords.REAL_W is not None and coords.REAL_H is not None:
+        x, y = coords.scale(x, y)
+
     log(f"[HUMAN TAP SCALE] x={x}, y={y}", debug=True)
     adb(f"input tap {x} {y}")
+
+    return absolute_x, absolute_y
+
 
 
 def human_tap_absolute(x1, y1, x2, y2):

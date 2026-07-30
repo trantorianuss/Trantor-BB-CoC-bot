@@ -13,4 +13,5 @@ DEBUG = {
     "flow": True,
 }
 
-DEBUG_INSPECTION = True
+DEBUG_INSPECTION = True # used to print the file, function, and line number of the log message
+DROP_ANALYZER = True # used to analyze the drop point and visualize it on the screenshot

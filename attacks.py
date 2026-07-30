@@ -1,7 +1,10 @@
+import screen_layout as layout  
 import func as f
 import time as t
 import config
 import random
+import drop_analyzer
+import coords #  para remover cuando quite el escalado
 
 
 def Slot(n):  # tap on slot n
@@ -59,15 +62,27 @@ def BBFarm():
     tropas = random.randint(1, 4)
     f.log(f"Soltando {tropas} tropa(s)", category="BB Farm")
 
-    f.human_tap_scale(1400, 500, 1600, 700)
+    absolute_x, absolute_y = f.human_tap_scale(*layout.DROP_AREA)
+    scaled_x, scaled_y = coords.scale(absolute_x, absolute_y)
+
+
     t.sleep(0.35)
+
+    if config.DROP_ANALYZER:
+        screenshot = f.screenshot("DropAnalyzer")
+
+        drop_analyzer.analyze_drop(
+            screenshot,
+            scaled_x,
+            scaled_y
+        )
 
     if tropas > 1:
         f.log("Cambiando a slot 2 para el resto", category="BB Farm")
         Slot(2)
 
     for _ in range(tropas - 1):
-        f.human_tap_scale(1400, 500, 1600, 700)
+        f.human_tap_scale(*layout.DROP_AREA)
         t.sleep(0.35)
 
 #    f.tap(1535,585,p)
