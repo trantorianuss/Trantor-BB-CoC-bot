@@ -1,10 +1,12 @@
+from shapely import area
+
 import screen_layout as layout  
 import func as f
 import time as t
 import config
 import random
 import drop_analyzer
-import coords #  para remover cuando quite el escalado
+#import coords #  para remover cuando quite el escalado
 
 
 def Slot(n):  # tap on slot n
@@ -53,38 +55,36 @@ def BB2():
 
 
 def BBFarm():
-    print(">>> entro en BBFarm <<<")
     f.log("Iniciando ataque BBF()", category="BB Farm")
     f.swipe2()
+
+    f.log("Buscando punto de drop", category="BB Farm")
+
+
+    area = drop_analyzer.find_drop_point()
+
+    if area is None:
+        f.log("No se encontró zona de despliegue", color="red")
+        return
+
+    f.human_tap_area(area)
+
     f.log("Slot 1", category="BB Farm")
     Slot(1)
     f.log("Tap inicial", category="BB Farm")
-    tropas = random.randint(1, 4)
-    f.log(f"Soltando {tropas} tropa(s)", category="BB Farm")
 
-    absolute_x, absolute_y = f.human_tap_scale(*layout.DROP_AREA)
-    scaled_x, scaled_y = coords.scale(absolute_x, absolute_y)
-
-
+    f.human_tap_area(area)
     t.sleep(0.35)
 
-    if config.DROP_ANALYZER:
-        screenshot = f.screenshot("DropAnalyzer")
+    tropas = random.randint(0, 4)
+    f.log(f"Soltando {tropas} tropa(s)", category="BB Farm")
 
-        drop_analyzer.analyze_drop(
-            screenshot,
-            scaled_x,
-            scaled_y
-        )
-
-    if tropas > 1:
+    if tropas > 0:
         f.log("Cambiando a slot 2 para el resto", category="BB Farm")
         Slot(2)
 
     for _ in range(tropas - 1):
-        f.human_tap_scale(*layout.DROP_AREA)
+        f.human_tap_area(area)
         t.sleep(0.35)
-
-#    f.tap(1535,585,p)
 
     t.sleep(0.5)

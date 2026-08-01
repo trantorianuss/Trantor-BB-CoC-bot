@@ -9,12 +9,16 @@ import numpy as np
 import random as r
 import subprocess
 import random
+import math
 
 import config
 import paint as p
 import coords
 import state
 from logger import log
+
+import time
+print(f"{time.perf_counter():.3f} >>> func.py starting")
 
 BASE_W = 1920
 BASE_H = 1080
@@ -308,6 +312,49 @@ def human_tap_absolute(x1, y1, x2, y2):
     y = random.randint(y1, y2)
     log(f"[HUMAN TAP ABSOLUTE] x={x}, y={y}", debug=True)
     adb(f"input tap {x} {y}")
+
+def human_tap_area(area):
+    """
+    area:
+        {
+            "mask": ...,
+            "point": (x,y)
+            "radius": r
+        }
+    """
+
+    mask = area["mask"]
+    cx, cy = area["point"]
+    radius = area["radius"]
+
+    for _ in range(100):
+
+        angle = random.uniform(0, 2 * math.pi)
+
+        r = random.uniform(0, radius)
+
+        x = int(cx + math.cos(angle) * r)
+        y = int(cy + math.sin(angle) * r)
+
+        # Fuera de la imagen
+        if x < 0 or y < 0:
+            continue
+
+        if x >= mask.shape[1] or y >= mask.shape[0]:
+            continue
+
+        # Debe caer dentro del blob
+        if mask[y, x] == 0:
+            continue
+
+        tap_absolute(x, y)
+
+        return (x, y)
+
+    # Si no encuentra ninguno, usar el mejor punto
+    tap_absolute(cx, cy)
+
+    return (cx, cy)
 
 
 def swipe(x1, y1, x2, y2, duration_ms):

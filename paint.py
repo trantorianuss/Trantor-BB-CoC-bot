@@ -3,7 +3,9 @@ from PIL import Image, ImageDraw
 
 import func as f
 
-print(">>> Paint.py starting")
+import time
+
+print(f"{time.perf_counter():.3f} >>> paint.py starting")
 
 
 # ============================================================

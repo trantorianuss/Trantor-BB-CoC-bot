@@ -1,133 +1,193 @@
-import os
-import math
-
 import cv2
 import numpy as np
+import time as t
+
+import func as f
+import config
 
 
-SEARCH_RADIUS = 250
-OFFSET = 40
+def save_debug_image(name, image, timestamp=True):
 
+    if timestamp:
+        ts = t.strftime("%Y%m%d_%H%M%S")
+        filename = f"screenshots/{name}_{ts}.png"
+    else:
+        filename = f"screenshots/{name}.png"
 
-def analyze_drop(image_file, drop_x, drop_y):
+    cv2.imwrite(filename, image)
 
-    img = cv2.imread(image_file)
+    return filename
+
+def find_drop_point():
+
+    screenshot = f.screenshot("DropAnalyzer")
+
+    img = cv2.imread(screenshot)
 
     if img is None:
-        print(f"No se pudo abrir {image_file}")
-        return
+        return None
 
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    lower_red1 = np.array([0, 60, 60])
-    upper_red1 = np.array([15, 255, 255])
+    # -------------------------------------------------------
+    # Máscara verde
+    # -------------------------------------------------------
 
-    lower_red2 = np.array([165, 60, 60])
-    upper_red2 = np.array([180, 255, 255])
+    lower_green = np.array([84, 80, 70])
+    upper_green = np.array([92, 100, 140])
 
-    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
-    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+    mask = cv2.inRange(hsv, lower_green, upper_green)
 
-    mask = cv2.bitwise_or(mask1, mask2)
+    kernel = np.ones((5, 5), np.uint8)
+
+    mask = cv2.morphologyEx(
+        mask,
+        cv2.MORPH_CLOSE,
+        kernel
+    )
+
+    save_debug_image("mask_green", mask)
+
+    # -------------------------------------------------------
+    # Componentes conectadas (blobs)
+    # -------------------------------------------------------
+
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask)
+
+    if num_labels <= 1:
+        return None
+
+    best_label = -1
+    best_area = 0
+
+    for label in range(1, num_labels):
+
+        area = stats[label, cv2.CC_STAT_AREA]
+
+        if area > best_area:
+
+            best_area = area
+            best_label = label
+
+    blob_mask = np.zeros_like(mask)
+
+    blob_mask[labels == best_label] = 255
+
+    # para obtener el bounding box del blob, por ahora solo por si acaso
+    ys, xs = np.where(blob_mask > 0)
+
+    x = np.min(xs)
+    y = np.min(ys)
+    w = np.max(xs) - x + 1
+    h = np.max(ys) - y + 1
+
+    save_debug_image("blob_mask", blob_mask)
+
+    # -------------------------------------------------------
+    # Punto más seguro
+    # -------------------------------------------------------
+
+    dist = cv2.distanceTransform(
+        blob_mask,
+        cv2.DIST_L2,
+        5
+    )
+
+    _, maxDist, _, maxLoc = cv2.minMaxLoc(dist)
+
+    best_x = maxLoc[0]
+    best_y = maxLoc[1]
+    radius = int(maxDist * config.DROP_RADIUS_FACTOR)
+    
+
+    # -------------------------------------------------------
+    # Imagen de depuración
+    # -------------------------------------------------------
+
+    debug = img.copy()
+
+    # Contorno del blob
 
     contours, _ = cv2.findContours(
-        mask,
+        blob_mask,
         cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_SIMPLE
     )
 
-    candidate = None
-    best_point = None
-    best_dist = 999999999
-
-    for contour in contours:
-
-        for p in contour:
-
-            px, py = p[0]
-
-            if abs(px - drop_x) > SEARCH_RADIUS:
-                continue
-
-            if abs(py - drop_y) > SEARCH_RADIUS:
-                continue
-
-            d = (px - drop_x) ** 2 + (py - drop_y) ** 2
-
-            if d < best_dist:
-
-                best_dist = d
-                best_point = (px, py)
-                candidate = contour
-
-    result = img.copy()
-
-    cv2.rectangle(
-        result,
-        (drop_x - SEARCH_RADIUS, drop_y - SEARCH_RADIUS),
-        (drop_x + SEARCH_RADIUS, drop_y + SEARCH_RADIUS),
-        (255, 0, 0),
+    cv2.drawContours(
+        debug,
+        contours,
+        -1,
+        (0,255,0),
         2
     )
 
     cv2.circle(
-        result,
-        (drop_x, drop_y),
+        debug,
+        (best_x, best_y),
         8,
-        (0, 0, 255),
+        (255,0,0),
         -1
     )
 
-    if candidate is not None:
+    cv2.circle(
+        debug,
+        (best_x, best_y),
+        radius,
+        (0,255,255),
+        2
+    )
 
-        cv2.drawContours(
-            result,
-            [candidate],
-            -1,
-            (0, 255, 0),
-            2
-        )
+    # -------------------------------------------------------
+    # Dibujar agujeros (solo depuración)
+    # -------------------------------------------------------
 
-        cv2.circle(
-            result,
-            best_point,
-            8,
-            (255, 0, 0),
-            -1
-        )
+    contours, hierarchy = cv2.findContours(
+        blob_mask,
+        cv2.RETR_CCOMP,
+        cv2.CHAIN_APPROX_SIMPLE
+    )
 
-        cv2.line(
-            result,
-            (drop_x, drop_y),
-            best_point,
-            (255, 255, 0),
-            2
-        )
+    if hierarchy is not None:
 
-        vx = drop_x - best_point[0]
-        vy = drop_y - best_point[1]
+        hierarchy = hierarchy[0]
 
-        norm = math.hypot(vx, vy)
+        for i in range(len(contours)):
 
-        if norm > 0:
+            # Contorno exterior
+            if hierarchy[i][3] == -1:
 
-            vx /= norm
-            vy /= norm
+                cv2.drawContours(
+                    debug,
+                    contours,
+                    i,
+                    (0, 255, 0),
+                    2
+                )
 
-            new_x = int(best_point[0] + vx * OFFSET)
-            new_y = int(best_point[1] + vy * OFFSET)
+            # Agujero
+            else:
 
-            cv2.circle(
-                result,
-                (new_x, new_y),
-                8,
-                (0, 255, 255),
-                -1
-            )
+                # Ignorar agujeros muy pequeños (ruido)
+                if cv2.contourArea(contours[i]) < 150:
+                    continue
 
-    base = os.path.splitext(image_file)[0]
+                cv2.drawContours(
+                    debug,
+                    contours,
+                    i,
+                    (0, 0, 255),
+                    2
+                )
 
-    cv2.imwrite(base + "_mask.png", mask)
-    cv2.imwrite(base + "_analysis.png", result)
+    # -------------------------------------------------------
+    # salvar imagen de depuración
+    # -------------------------------------------------------
 
-    
+    save_debug_image("green_analysis", debug)
+
+    return {
+        "mask": blob_mask,
+        "point": (best_x, best_y),
+        "radius": radius
+    }

@@ -2,8 +2,9 @@
 
 # screen_layout.py
 
-DROP_AREA = (1400, 500, 1600, 700)  # area where troops are dropped during an attack
-ATTACK_DROP = (1500, 600)  # coordinates for the drop point during an attack, used for analyzing the drop point and visualizing it on the screenshot
+# removed con el drop analizer
+# DROP_AREA = (1400, 500, 1600, 700)  # area where troops are dropped during an attack
+# ATTACK_DROP = (1500, 600)  # coordinates for the drop point during an attack, used for analyzing the drop point and visualizing it on the screenshot
 
 
 # below, examples of coordinates for various buttons and slots in the game
