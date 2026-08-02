@@ -5,7 +5,7 @@ import func as f
 import time as t
 import config
 import random
-import drop_analyzer
+import drop_finder as df
 from logger import log
 
 #import coords #  para remover cuando quite el escalado
@@ -63,7 +63,7 @@ def BBFarm():
     log("Buscando punto de drop", category="BB Farm")
 
 
-    area = drop_analyzer.find_drop_point()
+    area = df.find_drop_point()
 
     if area is None:
         log("No se encontró zona de despliegue", color="red")
