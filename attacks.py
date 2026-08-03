@@ -12,10 +12,9 @@ from logger import log
 
 
 def Slot(n):  # tap on slot n
-    xccord = 225-150
-    for x in range(0,n):
-        xccord += 150
-    f.tap_scale(xccord, 925)
+    x = layout.FIRST_SLOT_CENTER[0] + layout.SLOT_STEP * (n - 1)
+    y = layout.FIRST_SLOT_CENTER[1]
+    f.tap_scale(x, y)
 
 
 def BB():
@@ -25,14 +24,14 @@ def BB():
     log("[BB] Slot 1")
     Slot(1)
     log("[BB] Tap inicial")
-    f.tap_scale(1535,585)
+    f.tap_scale(*layout.DROP_POINT)
     t.sleep(0.5)
 
     log("[BB] Slot 2")
     Slot(2)
     for x in range(6):
         log(f"[BB] Soltando tropa {x+1}/6 en slot 2")
-        f.tap_scale(1535, 585)
+        f.tap_scale(*layout.DROP_POINT)
         t.sleep(0.5)  # mio... quitar
 
     for x in range(2,8):
@@ -41,17 +40,17 @@ def BB():
 
         for x in range(6):
             log(f"[BB] Soltando tropa {x+1}/6 en slot 2")
-            f.tap_scale(1535, 585)
+            f.tap_scale(*layout.DROP_POINT)
             t.sleep(0.5)  # mio... quitar
 
 def BB2():
     log("[BB2] Iniciando ataque BB()")
     f.swipe2()
     Slot(1)
-    f.tap_scale(1535, 585)
+    f.tap_scale(*layout.DROP_POINT)
     Slot(9)
     for x in range(8):
-        f.tap_scale(1535, 585)
+        f.tap_scale(*layout.DROP_POINT)
     for x in range(2,10):
         Slot(x)
 

@@ -6,6 +6,11 @@
 # DROP_AREA = (1400, 500, 1600, 700)  # area where troops are dropped during an attack
 # ATTACK_DROP = (1500, 600)  # coordinates for the drop point during an attack, used for analyzing the drop point and visualizing it on the screenshot
 
+# Actual slot/drop constants used by attacks.py
+FIRST_SLOT_CENTER = (225, 925)
+SLOT_STEP = 150
+
+DROP_POINT = (1535, 585)  ## OLD BB code, to review
 
 # below, examples of coordinates for various buttons and slots in the game
 # not the real coordinates, just examples. You will need to adjust these values based on your screen resolution and the actual positions of the buttons in your game.
@@ -18,6 +23,8 @@ RETURN_HOME = (960, 915)
 
 SLOT_1 = (75, 925)
 SLOT_2 = (225, 925)
+
+
 
 MATCH_BUTTON = (1700, 930)
 
