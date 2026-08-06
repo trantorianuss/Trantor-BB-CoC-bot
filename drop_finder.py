@@ -6,26 +6,15 @@ import func as f
 import config
 
 
-def save_debug_image(name, image, timestamp=True):
-
-    if timestamp:
-        ts = t.strftime("%Y%m%d_%H%M%S")
-        filename = f"screenshots/{name}_{ts}.png"
-    else:
-        filename = f"screenshots/{name}.png"
-
-    cv2.imwrite(filename, image)
-
-    return filename
-
 def find_drop_point():
 
-    screenshot = f.screenshot("DropAnalyzer")
-
-    img = cv2.imread(screenshot)
+    img = f.capture_screenshot()
 
     if img is None:
         return None
+
+    if config.DROP_ANALYZER_DEBUG >= 3:
+        f.save_image("DropAnalyzer", img)
 
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -46,7 +35,8 @@ def find_drop_point():
         kernel
     )
 
-    save_debug_image("mask_green", mask)
+    if config.DROP_ANALYZER_DEBUG >= 2:
+        f.save_image("mask_green", mask)
 
     # -------------------------------------------------------
     # Componentes conectadas (blobs)
@@ -81,7 +71,8 @@ def find_drop_point():
     w = np.max(xs) - x + 1
     h = np.max(ys) - y + 1
 
-    save_debug_image("blob_mask", blob_mask)
+    if config.DROP_ANALYZER_DEBUG >= 2:
+        f.save_image("blob_mask", blob_mask)
 
     # -------------------------------------------------------
     # Punto más seguro
@@ -184,7 +175,8 @@ def find_drop_point():
     # salvar imagen de depuración
     # -------------------------------------------------------
 
-    save_debug_image("green_analysis", debug)
+    if config.DROP_ANALYZER_DEBUG >= 1:
+        f.save_image("green_analysis", debug)
 
     return {
         "mask": blob_mask,

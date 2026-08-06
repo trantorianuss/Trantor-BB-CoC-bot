@@ -71,6 +71,56 @@ def get_real_resolution():
     w, h = map(int, size_part.split("x"))
     return w, h
 
+def save_image(name, image, timestamp=True):
+
+    if timestamp:
+        ts = t.strftime("%Y%m%d_%H%M%S")
+        filename = f"screenshots/{name}_{ts}.png"
+    else:
+        filename = f"screenshots/{name}.png"
+
+    cv2.imwrite(filename, image)
+
+    return filename
+
+def capture_screenshot():
+    """
+    Captures a screenshot from the emulator and returns it as an OpenCV image.
+
+    Returns:
+        numpy.ndarray: Screenshot in BGR format.
+        None: If the capture fails.
+    """
+
+    t0 = t.perf_counter()
+
+    cmd = [
+        config.ADB_PATH,
+        "-s", config.ADB_PORT,
+        "exec-out", "screencap", "-p"
+    ]
+
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        check=True
+    )
+
+    image = cv2.imdecode(
+        np.frombuffer(result.stdout, dtype=np.uint8),
+        cv2.IMREAD_COLOR
+    )
+
+    t1 = t.perf_counter()
+
+    log(
+        f"screenshot ADB : {(t1 - t0) * 1000:.1f} ms",
+        debug=True,
+        category="timing",
+    )
+
+    return image
+
 def screenshot(
     name: str = None,
     tag: str = None,
