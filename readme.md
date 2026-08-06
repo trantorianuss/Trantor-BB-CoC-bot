@@ -63,6 +63,14 @@ Automatizar el juego puede violar los Términos de Servicio de Clash of Clans.
 - Dependencias del proyecto: `pip install -r requirements.txt`
 - ADB configurado y conectado al emulador
 
+## Tested Environment
+The project is currently developed and tested on:
+
+- Windows 10
+- Python 3.x
+- LDPlayer emulator
+- ADB
+
 ## Ejecución
 ```bash
 python main.py
