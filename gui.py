@@ -282,7 +282,7 @@ class BotInterface(ctk.CTk):
 
         self.village_selector = ctk.CTkSegmentedButton(
             tab_experimental,
-            values=["Nocturna", "BB", "TH"]
+            values=["BB", "TH"]
         )
         self.village_selector.set("BB")
         self.village_selector.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
