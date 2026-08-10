@@ -200,6 +200,7 @@ class BotInterface(ctk.CTk):
         tab_tools = self.tabs.add("Herramientas")
         tab_settings = self.tabs.add("Settings")
         tab_debug = self.tabs.add("Debug")
+        tab_experimental = self.tabs.add("Experimental")
 
         # ---------- TAB HERRAMIENTAS ----------
         tab_tools.columnconfigure(0, weight=1)
@@ -272,6 +273,19 @@ class BotInterface(ctk.CTk):
         if state.debug_mode:
             self.debug_switch.select()
         self.debug_switch.grid(row=4, column=0, padx=5, pady=2, sticky="w")
+
+        # ---------- TAB EXPERIMENTAL ----------
+        tab_experimental.columnconfigure(0, weight=1)
+
+        self.village_selector_label = ctk.CTkLabel(tab_experimental, text="Aldea:")
+        self.village_selector_label.grid(row=0, column=0, padx=5, pady=(10, 2), sticky="w")
+
+        self.village_selector = ctk.CTkSegmentedButton(
+            tab_experimental,
+            values=["Nocturna", "BB", "TH"]
+        )
+        self.village_selector.set("BB")
+        self.village_selector.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
         self.panel_window.lift()
         self.panel_window.focus_force()
