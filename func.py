@@ -1,9 +1,10 @@
+import time
+print(f">>> func.py  starting [{time.perf_counter():.3f}]")
+
 import os
 import shutil
 import time as t
-from PIL import Image, ImageEnhance
 from PIL.ImageChops import screen
-import easyocr
 import cv2
 import numpy as np
 import random as r
@@ -17,16 +18,8 @@ import coords
 import state
 from logger import log
 
-import time
-print(f"{time.perf_counter():.3f} >>> func.py starting")
-
 BASE_W = 1920
 BASE_H = 1080
-
-print(">>> func.py starting")
-
-reader = easyocr.Reader(['en'], gpu=False)
-
 
 import os
 import config
@@ -180,25 +173,10 @@ def screenshot(
     return filename
 
 
-def ocr_image(filename, region=None, allowlist=None, detail=0):
-    """OCR sobre una imagen guardada, opcionalmente recortando una región."""
-    with Image.open(filename) as photo:
-        if region:
-            photo = photo.crop(region)
-        photo = photo.convert("L")
-        photo = ImageEnhance.Contrast(photo).enhance(2.0)
-        image_np = np.array(photo)
-
-    try:
-        return reader.readtext(image_np, allowlist=allowlist, detail=detail)
-    except Exception as e:
-        log(f"[OCR] Error procesando imagen {filename}: {e}")
-        return []
 
 
-def recognize_screenshot(region=None, allowlist=None):
-    filename = screenshot()
-    return ocr_image(filename, region=region, allowlist=allowlist, detail=0)
+
+
 
 
 def find_template(haystack_path, needle_path, threshold=0.8):

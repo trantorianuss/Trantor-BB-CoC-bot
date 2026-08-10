@@ -1,4 +1,8 @@
+import time
+print(f">>> main.py  starting [{time.perf_counter():.3f}]")
+
 import threading
+import ocr
 
 import func as f
 import botcontroller as controller
@@ -11,6 +15,7 @@ import elixir_cart
 import logger as l 
 from gui import BotInterface
 import calibration
+
 
 # Helper
 def parse_int(value, default=0):
@@ -39,7 +44,8 @@ def bttn_screenshot():
 
 def bttn_recognize():
     try:
-        result = f.recognize_screenshot()
+        filename = f.screenshot()
+        result = ocr.ocr_image(filename)
         app.log(f"OCR result: {result}")
     except Exception as e:
         app.log(f"Image recognition failed: {e}")
