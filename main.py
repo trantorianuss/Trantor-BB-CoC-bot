@@ -139,6 +139,12 @@ def bttn_calibrate(popup=None):
 #   INICIALIZACIÓN
 # -----------------------------
 
+# antes de crear app
+print("==========================================")
+print(">>> Clash of Clans Trantor Bot starting...")
+print("==========================================")
+
+
 # Instanciar pasándole los callbacks
 app = BotInterface(
     on_start_farm=bttn_start_Farm,
@@ -170,6 +176,9 @@ def initialize_coords():
 # -----------------------------
 #   MAIN
 # -----------------------------
+
+l.log("  Clash of Clans Trantor Bot")
+l.log("  Initializing application...")
 
 f.cleanup_screenshots()
 initialize_coords()
