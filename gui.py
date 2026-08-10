@@ -115,6 +115,9 @@ class BotInterface(ctk.CTk):
         except:
             pass
 
+    def _on_village_change(self, value):
+        state.set_village(value)
+
     # ---------- Diálogos / popups ----------
     def _pre_start_farm(self):
         # Crear ventana emergente
@@ -282,9 +285,10 @@ class BotInterface(ctk.CTk):
 
         self.village_selector = ctk.CTkSegmentedButton(
             tab_experimental,
-            values=["BB", "TH"]
+            values=["BB", "TH"],
+            command=self._on_village_change
         )
-        self.village_selector.set("BB")
+        self.village_selector.set(state.village)
         self.village_selector.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
         self.panel_window.lift()
