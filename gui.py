@@ -183,7 +183,15 @@ class BotInterface(ctk.CTk):
         panel_w = 300
         panel_h = 500
 
-        self.panel_window.geometry(f"{panel_w}x{panel_h}+{main_x + main_w + 10}+{main_y}")
+        screen_w = self.winfo_screenwidth()
+        right_x = main_x + main_w + 10
+
+        if right_x + panel_w <= screen_w:
+            panel_x = right_x
+        else:
+            panel_x = main_x - panel_w - 10
+
+        self.panel_window.geometry(f"{panel_w}x{panel_h}+{panel_x}+{main_y}")
 
         # ---------- TABS ----------
         self.tabs = ctk.CTkTabview(self.panel_window)
