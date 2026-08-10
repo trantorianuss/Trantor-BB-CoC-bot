@@ -17,12 +17,13 @@ swipe_dy = 400
 attacks_min_per_cycle = 2
 attacks_max_per_cycle = 4
 debug_mode = False
+village = "BB"
 
 # ============ FUNCIONES DE PERSISTENCIA ============
 
 def load_state():
     """Cargar el estado desde el archivo JSON."""
-    global swipe_dx, swipe_dy, attacks_min_per_cycle, attacks_max_per_cycle, debug_mode
+    global swipe_dx, swipe_dy, attacks_min_per_cycle, attacks_max_per_cycle, debug_mode, village
     
     if not STATE_FILE.exists():
         return
@@ -44,6 +45,7 @@ def load_state():
             attacks_max_per_cycle = int(legacy_value)
 
         debug_mode = data.get("debug_mode", False)
+        village = data.get("village", "BB")
         
     except Exception as e:
         print(f"Error cargando estado: {e}")
@@ -57,6 +59,7 @@ def save_state():
         "attacks_min_per_cycle": attacks_min_per_cycle,
         "attacks_max_per_cycle": attacks_max_per_cycle,
         "debug_mode": debug_mode,
+        "village": village,
     }
     
     try:
@@ -99,6 +102,14 @@ def set_debug(enabled):
     global debug_mode
     debug_mode = bool(enabled)
     save_state()
+
+
+def set_village(value):
+    """Actualizar aldea seleccionada."""
+    global village
+    if value in ("BB", "TH"):
+        village = value
+        save_state()
 
 
 # Cargar estado al importar el módulo
