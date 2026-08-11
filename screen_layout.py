@@ -12,8 +12,20 @@ SLOT_STEP = 150
 
 DROP_POINT = (1535, 585)  ## OLD BB code, to review
 
+# Elixir level reference pixels. The points are ordered from full to low.
+# The full point is known; the remaining X coordinates are intentionally pending.
+ELIXIR_FULL_PIXEL = (1525, 175)
+ELIXIR_75_PIXEL = (1605, 175)
+ELIXIR_50_PIXEL = (1685, 175)
+ELIXIR_25_PIXEL = (1765, 175)
+
+
+
+
+"""
 # below, examples of coordinates for various buttons and slots in the game
 # not the real coordinates, just examples. You will need to adjust these values based on your screen resolution and the actual positions of the buttons in your game.
+
 
 SURRENDER_BUTTON = (1785, 90)
 
@@ -33,9 +45,4 @@ BOAT_SEARCH_REGION = (
     450
 )
 
-# Elixir level reference pixels. The points are ordered from full to low.
-# The full point is known; the remaining X coordinates are intentionally pending.
-ELIXIR_FULL_PIXEL = (1525, 175)
-ELIXIR_75_PIXEL = (None, 175)
-ELIXIR_50_PIXEL = (None, 175)
-ELIXIR_25_PIXEL = (None, 175)
+"""
