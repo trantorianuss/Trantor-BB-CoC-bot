@@ -34,8 +34,8 @@ BOAT_SEARCH_REGION = (
 )
 
 # Elixir level reference pixels. The points are ordered from full to low.
-# These are screen coordinates for the current game layout.
+# The full point is known; the remaining X coordinates are intentionally pending.
 ELIXIR_FULL_PIXEL = (1525, 175)
-ELIXIR_75_PIXEL = (1495, 175)
-ELIXIR_50_PIXEL = (1465, 175)
-ELIXIR_25_PIXEL = (1435, 175)
+ELIXIR_75_PIXEL = (None, 175)
+ELIXIR_50_PIXEL = (None, 175)
+ELIXIR_25_PIXEL = (None, 175)
