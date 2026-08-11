@@ -216,11 +216,8 @@ class BotInterface(ctk.CTk):
         tab_debug.columnconfigure(0, weight=1)
         tab_debug.columnconfigure(1, weight=1)
 
-        self.button_Screenshot = ctk.CTkButton(tab_debug, text="Screenshot", command=self.on_screenshot)
-        self.button_Screenshot.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-
         self.button_Test = ctk.CTkButton(tab_debug, text="Test", command=self.on_test)
-        self.button_Test.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        self.button_Test.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         self.button_Recognize = ctk.CTkButton(tab_debug, text="Recognize", command=self.on_recognize)
         self.button_Recognize.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
