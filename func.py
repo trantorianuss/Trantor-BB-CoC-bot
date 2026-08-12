@@ -517,7 +517,11 @@ def get_pixel(x, y):
 
     filename = screenshot()
     checkp = Image.open(filename).convert("RGB")
-    return checkp.getpixel((x, y))
+    mi_pixel = checkp.getpixel((x, y))
+
+    log(f"[func] get_pixel : (pos={x},{y})  {mi_pixel}", debug=True)
+        
+    return mi_pixel  # devuelve (R, G, B)
 
 
 def check_pixel(x, y, target, tol=20):

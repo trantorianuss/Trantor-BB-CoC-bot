@@ -9,6 +9,7 @@ import botstate
 import random
 from func import tap_scale
 import state
+import screen_layout
 
 print(">>> GameFlow.py starting")
 
@@ -113,7 +114,6 @@ def open_cart(debug=False):
     
 
 
-
 def try_collect_pink_elixir():
     f.log("[Elixir] Intentando recoger elixir rosa…")
     if collect_pink_elixir():
@@ -124,21 +124,50 @@ def try_collect_pink_elixir():
     return False
 
 # -------------------------
-#  COMPROBAR SI EL ALMACÉN ESTÁ LLENO
+#  COMPROBAR NIVEL DE ELIXIR
 # -------------------------
 
-def is_elixir_full():
-    x, y = 1525, 175
+def get_elixir_level():
+    """Devuelve el nivel detectado del elixir para mostrarlo en el log.
+
+    FULL es el único nivel que afecta al flujo del bot. Los niveles 75/50/25
+    son únicamente informativos y sus coordenadas quedan pendientes de medir.
+    """
     target = (121, 69, 197)
     tol = 20
 
+    levels = (
+        ("FULL", screen_layout.ELIXIR_FULL_PIXEL),
+        ("75%", screen_layout.ELIXIR_75_PIXEL),
+        ("50%", screen_layout.ELIXIR_50_PIXEL),
+        ("25%", screen_layout.ELIXIR_25_PIXEL),
+    )
+
+    f.log("[Elixir] Buscando Niveles de Elixir.")
+
+    for level, (x, y) in levels:
+        # Las coordenadas pendientes no se comprueban todavía.
+        f.log(f"[Elixir] buscando Nivel : {level} (pos={x},{y})")
+
+        if x is None or y is None:
+            continue
+
+        if f.check_pixel(x, y, target, tol=tol):
+            f.log(f"[Elixir] Nivel detectado: {level} (pos={x},{y})")
+            return level
+
+    return None
+
+
+def is_elixir_full():
+    """Comprueba exclusivamente la condición que termina el farming.
+
+    Los niveles 75/50/25 son informativos y nunca cambian el flujo.
+    """
     f.log("[Elixir] Buscando si Elixir Full.")
-    full = f.check_pixel(x, y, target, tol=tol)
 
-    f.log(f"[ElixirFull] pos=({x},{y}) target={target} tol={tol} result={full}")
-
-    return full
-
+    level = get_elixir_level()
+    return level == "FULL"
 
 
 # -----------------------------

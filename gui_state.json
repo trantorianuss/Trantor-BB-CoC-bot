@@ -1,7 +1,7 @@
 {
   "swipe_dx": -300,
   "swipe_dy": 800,
-  "attacks_min_per_cycle": 3,
-  "attacks_max_per_cycle": 6,
+  "attacks_min_per_cycle": 1,
+  "attacks_max_per_cycle": 3,
   "debug_mode": false
 }
