@@ -143,16 +143,18 @@ def get_elixir_level():
         ("25%", screen_layout.ELIXIR_25_PIXEL),
     )
 
-    f.log("[Elixir] Buscando Niveles de Elixir.")
+    f.log("[Elixir] Buscando Niveles de Elixir.", debug=True)
+    
+    image = f.capture_screenshot()
 
     for level, (x, y) in levels:
         # Las coordenadas pendientes no se comprueban todavía.
-        f.log(f"[Elixir] buscando Nivel : {level} (pos={x},{y})")
+        f.log(f"[Elixir] buscando Nivel : {level} (pos={x},{y})", debug=True)
 
         if x is None or y is None:
             continue
 
-        if f.check_pixel(x, y, target, tol=tol):
+        if f.check_pixel_from_image(image, x, y, target, tol=tol):
             f.log(f"[Elixir] Nivel detectado: {level} (pos={x},{y})")
             return level
 

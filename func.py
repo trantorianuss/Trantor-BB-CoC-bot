@@ -523,9 +523,29 @@ def get_pixel(x, y):
         
     return mi_pixel  # devuelve (R, G, B)
 
+def get_pixel_from_image(image, x, y):
+    """Devuelve el píxel de una imagen OpenCV ya capturada, sin hacer otro screenshot."""
+    if coords.REAL_W is not None and coords.REAL_H is not None:
+        x, y = coords.scale(x, y)
+
+    b, g, r = image[y, x]
+    mi_pixel = (int(r), int(g), int(b))
+
+    log(f"[func] get_pixel_from_image : pos=({x},{y}) RGB={mi_pixel}", debug=True)
+
+    return mi_pixel
 
 def check_pixel(x, y, target, tol=20):
     r, g, b = get_pixel(x, y)
+
+    return (
+        abs(r - target[0]) <= tol and
+        abs(g - target[1]) <= tol and
+        abs(b - target[2]) <= tol
+    )
+
+def check_pixel_from_image(image, x, y, target, tol=20):
+    r, g, b = get_pixel_from_image(image, x, y)
 
     return (
         abs(r - target[0]) <= tol and
