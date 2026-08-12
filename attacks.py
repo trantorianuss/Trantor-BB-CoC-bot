@@ -78,7 +78,7 @@ def BBFarm():
     t.sleep(0.35)
 
     tropas = random.randint(0, 4)
-    log(f"Soltando {tropas} tropa(s)", category="BB Farm")
+    log(f"Soltando {tropas} tropa(s) extra", category="BB Farm")
 
     if tropas > 0:
         log("Cambiando a slot 2 para el resto", category="BB Farm")
