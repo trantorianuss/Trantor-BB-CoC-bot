@@ -14,10 +14,10 @@ DROP_POINT = (1535, 585)  ## OLD BB code, to review
 
 # Elixir level reference pixels. The points are ordered from full to low.
 # The full point is known; the remaining X coordinates are intentionally pending.
-ELIXIR_FULL_PIXEL = (1525, 175)
-ELIXIR_75_PIXEL = (1605, 175)
-ELIXIR_50_PIXEL = (1685, 175)
-ELIXIR_25_PIXEL = (1765, 175)
+ELIXIR_FULL_PIXEL = (1525, 179)
+ELIXIR_75_PIXEL = (1605, 179)
+ELIXIR_50_PIXEL = (1685, 179)
+ELIXIR_25_PIXEL = (1765, 179)
 
 
 

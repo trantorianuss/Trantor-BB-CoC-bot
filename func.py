@@ -4,6 +4,7 @@ print(f">>> func.py  starting [{time.perf_counter():.3f}]")
 import os
 import shutil
 import time as t
+from PIL import Image, ImageEnhance
 from PIL.ImageChops import screen
 import cv2
 import numpy as np
@@ -516,7 +517,11 @@ def get_pixel(x, y):
 
     filename = screenshot()
     checkp = Image.open(filename).convert("RGB")
-    return checkp.getpixel((x, y))
+    mi_pixel = checkp.getpixel((x, y))
+
+    log(f"[func] get_pixel : (pos={x},{y})  {mi_pixel}", debug=True)
+        
+    return mi_pixel  # devuelve (R, G, B)
 
 
 def check_pixel(x, y, target, tol=20):

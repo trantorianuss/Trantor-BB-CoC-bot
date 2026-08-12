@@ -143,8 +143,12 @@ def get_elixir_level():
         ("25%", screen_layout.ELIXIR_25_PIXEL),
     )
 
+    f.log("[Elixir] Buscando Niveles de Elixir.")
+
     for level, (x, y) in levels:
         # Las coordenadas pendientes no se comprueban todavía.
+        f.log(f"[Elixir] buscando Nivel : {level} (pos={x},{y})")
+
         if x is None or y is None:
             continue
 
@@ -160,6 +164,8 @@ def is_elixir_full():
 
     Los niveles 75/50/25 son informativos y nunca cambian el flujo.
     """
+    f.log("[Elixir] Buscando si Elixir Full.")
+
     level = get_elixir_level()
     return level == "FULL"
 
