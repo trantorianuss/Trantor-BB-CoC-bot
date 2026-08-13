@@ -1,7 +1,7 @@
 import time
 import customtkinter as ctk
 import botstate
-import state
+import settings
 import config
 
 
@@ -87,13 +87,13 @@ class BotInterface(ctk.CTk):
 
     # ---------- Handlers de controles ----------
     def _toggle_debug(self):
-        state.set_debug(self.debug_switch.get() == 1)
+        settings.set_debug(self.debug_switch.get() == 1)
 
     def _on_swipe_dx_change(self, event=None):
         try:
             value = self.swipe_dx_entry.get()
             if value:
-                state.set_swipe_values(value, state.swipe_dy)
+                settings.set_swipe_values(value, settings.swipe_dy)
         except:
             pass
 
@@ -101,7 +101,7 @@ class BotInterface(ctk.CTk):
         try:
             value = self.swipe_dy_entry.get()
             if value:
-                state.set_swipe_values(state.swipe_dx, value)
+                settings.set_swipe_values(settings.swipe_dx, value)
         except:
             pass
 
@@ -110,7 +110,7 @@ class BotInterface(ctk.CTk):
             min_value = self.attacks_min_entry.get()
             max_value = self.attacks_max_entry.get()
             if min_value and max_value:
-                state.set_attacks_range(min_value, max_value)
+                settings.set_attacks_range(min_value, max_value)
         except:
             pass
 
@@ -118,7 +118,7 @@ class BotInterface(ctk.CTk):
         min_value = self.extra_troops_min_entry.get()
         max_value = self.extra_troops_max_entry.get()
         if min_value and max_value:
-            state.set_extra_troops_range(min_value, max_value)
+            settings.set_extra_troops_range(min_value, max_value)
 
     def _pre_start_farm(self):
         popup = ctk.CTkToplevel(self)
@@ -186,13 +186,13 @@ class BotInterface(ctk.CTk):
         self.swipe_dx_label = ctk.CTkLabel(tab_debug, text="Swipe dx:")
         self.swipe_dx_label.grid(row=2, column=0, padx=5, pady=(10, 2), sticky="w")
         self.swipe_dx_entry = ctk.CTkEntry(tab_debug, placeholder_text="0")
-        self.swipe_dx_entry.insert(0, str(state.swipe_dx))
+        self.swipe_dx_entry.insert(0, str(settings.swipe_dx))
         self.swipe_dx_entry.bind("<KeyRelease>", self._on_swipe_dx_change)
         self.swipe_dx_entry.grid(row=3, column=0, padx=5, pady=2, sticky="ew")
         self.swipe_dy_label = ctk.CTkLabel(tab_debug, text="Swipe dy:")
         self.swipe_dy_label.grid(row=2, column=1, padx=5, pady=(10, 2), sticky="w")
         self.swipe_dy_entry = ctk.CTkEntry(tab_debug, placeholder_text="400")
-        self.swipe_dy_entry.insert(0, str(state.swipe_dy))
+        self.swipe_dy_entry.insert(0, str(settings.swipe_dy))
         self.swipe_dy_entry.bind("<KeyRelease>", self._on_swipe_dy_change)
         self.swipe_dy_entry.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
         self.button_Calibrar = ctk.CTkButton(tab_debug, text="Calibrar Zoom y Centro", command=self._pre_calibrar_zoom)
@@ -204,29 +204,29 @@ class BotInterface(ctk.CTk):
         self.attacks_label = ctk.CTkLabel(tab_settings, text="Ataques/ciclo (min/max):")
         self.attacks_label.grid(row=0, column=0, padx=5, pady=(10, 2), sticky="w")
         self.attacks_min_entry = ctk.CTkEntry(tab_settings, placeholder_text="2")
-        self.attacks_min_entry.insert(0, str(state.attacks_min_per_cycle))
+        self.attacks_min_entry.insert(0, str(settings.attacks_min_per_cycle))
         self.attacks_min_entry.bind("<KeyRelease>", self._on_attacks_change)
         self.attacks_min_entry.grid(row=1, column=0, padx=5, pady=2, sticky="ew")
         self.attacks_max_entry = ctk.CTkEntry(tab_settings, placeholder_text="4")
-        self.attacks_max_entry.insert(0, str(state.attacks_max_per_cycle))
+        self.attacks_max_entry.insert(0, str(settings.attacks_max_per_cycle))
         self.attacks_max_entry.bind("<KeyRelease>", self._on_attacks_change)
         self.attacks_max_entry.grid(row=2, column=0, padx=5, pady=2, sticky="ew")
 
         self.extra_troops_label = ctk.CTkLabel(tab_settings, text="Tropas extra/ataque (min/max):")
         self.extra_troops_label.grid(row=3, column=0, padx=5, pady=(10, 2), sticky="w")
         self.extra_troops_min_entry = ctk.CTkEntry(tab_settings, placeholder_text="0")
-        self.extra_troops_min_entry.insert(0, str(state.extra_troops_min))
+        self.extra_troops_min_entry.insert(0, str(settings.extra_troops_min))
         self.extra_troops_min_entry.bind("<KeyRelease>", self._on_extra_troops_change)
         self.extra_troops_min_entry.grid(row=4, column=0, padx=5, pady=2, sticky="ew")
         self.extra_troops_max_entry = ctk.CTkEntry(tab_settings, placeholder_text="4")
-        self.extra_troops_max_entry.insert(0, str(state.extra_troops_max))
+        self.extra_troops_max_entry.insert(0, str(settings.extra_troops_max))
         self.extra_troops_max_entry.bind("<KeyRelease>", self._on_extra_troops_change)
         self.extra_troops_max_entry.grid(row=5, column=0, padx=5, pady=2, sticky="ew")
 
         self.debug_label = ctk.CTkLabel(tab_settings, text="Modo DEBUG:")
         self.debug_label.grid(row=6, column=0, padx=5, pady=(10, 2), sticky="w")
         self.debug_switch = ctk.CTkSwitch(tab_settings, text="Activar", command=self._toggle_debug)
-        if state.debug_mode:
+        if settings.debug_mode:
             self.debug_switch.select()
         self.debug_switch.grid(row=7, column=0, padx=5, pady=2, sticky="w")
 

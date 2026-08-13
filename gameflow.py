@@ -8,7 +8,7 @@ import botstate
 
 import random
 from func import tap_scale
-import state
+import settings
 import screen_layout
 
 print(">>> GameFlow.py starting")
@@ -88,7 +88,7 @@ def open_cart(debug=False):
     xi = 1850
     yi = 350
 
-    dx, dy = state.swipe_dx, state.swipe_dy
+    dx, dy = settings.swipe_dx, settings.swipe_dy
     
     f.wait_for_stable_screen()
 
@@ -250,7 +250,7 @@ def perform_attack(attempt_label):
 def farm_until_full(attacks_per_cycle=None):
 
     while not is_elixir_full():
-        cycle_attacks = state.get_attacks_per_cycle() if attacks_per_cycle is None else attacks_per_cycle
+        cycle_attacks = settings.get_attacks_per_cycle() if attacks_per_cycle is None else attacks_per_cycle
         f.log(f">>> Nuevo ciclo de {cycle_attacks} ataques <<<")
 
         for i in range(cycle_attacks):  ## numero de ataques por ciclo

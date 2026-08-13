@@ -1,6 +1,6 @@
 import os
 
-import state
+import settings
 import config
 import time as t
 import inspect
@@ -19,7 +19,7 @@ def _should_emit_log(debug=False, category=""):
         return True
 
     # Los DEBUG requieren modo debug
-    if not state.debug_mode:
+    if not settings.debug_mode:
         return False
 
     # Si tienen categoría, comprobar si está habilitada
@@ -38,7 +38,7 @@ def log(message, debug=False, category="", color=None):
 
     parts = [f"[{timestamp}]"]
 
-    if state.debug_mode:
+    if settings.debug_mode:
         level = "DBG" if debug else "INF"
         parts.append(f"[{level}]")
 

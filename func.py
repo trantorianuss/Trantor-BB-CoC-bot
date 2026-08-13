@@ -16,7 +16,7 @@ import math
 import config
 import paint as p
 import coords
-import state
+import settings
 from logger import log
 
 BASE_W = 1920

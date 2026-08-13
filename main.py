@@ -7,7 +7,7 @@ import ocr
 import func as f
 import botcontroller as controller
 import paint as p
-import state
+import settings
 import state_calibration
 import vision
 import coords

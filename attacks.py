@@ -6,7 +6,7 @@ import time as t
 import config
 import drop_finder as df
 from logger import log
-import state
+import settings
 
 
 def Slot(n):
@@ -69,7 +69,7 @@ def BBFarm():
     f.human_tap_area(area)
     t.sleep(0.35)
 
-    tropas = state.get_extra_troops()
+    tropas = settings.get_extra_troops()
 
     if tropas > 0:
         log("Cambiando a slot 2 para el resto", category="BB Farm")
