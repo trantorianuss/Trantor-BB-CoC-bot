@@ -19,13 +19,14 @@ attacks_max_per_cycle = 4
 extra_troops_min = 0
 extra_troops_max = 4
 debug_mode = False
+attack_mode = "surrender"
 
 # ============ FUNCIONES DE PERSISTENCIA ============
 
 def load_state():
     """Cargar el estado desde el archivo JSON."""
     global swipe_dx, swipe_dy, attacks_min_per_cycle, attacks_max_per_cycle
-    global extra_troops_min, extra_troops_max, debug_mode
+    global extra_troops_min, extra_troops_max, debug_mode, attack_mode
     
     if not STATE_FILE.exists():
         return
@@ -53,6 +54,7 @@ def load_state():
             extra_troops_max = 4
 
         debug_mode = data.get("debug_mode", False)
+        attack_mode = data.get("attack_mode", "surrender")
         
     except Exception as e:
         print(f"Error cargando estado: {e}")
@@ -68,6 +70,7 @@ def save_state():
         "extra_troops_min": extra_troops_min,
         "extra_troops_max": extra_troops_max,
         "debug_mode": debug_mode,
+        "attack_mode": attack_mode,
     }
     
     try:
@@ -112,7 +115,7 @@ def _valid_non_negative_range(min_value, max_value):
         max_value = int(max_value)
     except (TypeError, ValueError):
         return False
-    return min_value >= 0 and max_value >= 0 and max_value >= min_value
+    return min_value >= 0 and max_value >= min_value
 
 
 def set_extra_troops_range(min_value, max_value):
@@ -144,6 +147,18 @@ def set_debug(enabled):
     global debug_mode
     debug_mode = bool(enabled)
     save_state()
+
+
+def set_attack_mode(mode):
+    """Actualizar modo de ataque."""
+    global attack_mode
+    attack_mode = mode
+    save_state()
+
+
+def get_attack_mode():
+    """Obtener el modo de ataque actual."""
+    return attack_mode
 
 
 # Cargar estado al importar el módulo
