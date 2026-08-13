@@ -70,12 +70,12 @@ def BBFarm():
     t.sleep(0.35)
 
     tropas = state.get_extra_troops()
-    log(f"Soltando {tropas} tropa(s) extra", category="BB Farm")
 
     if tropas > 0:
         log("Cambiando a slot 2 para el resto", category="BB Farm")
         Slot(2)
 
+    log(f"Soltando {tropas} tropa(s) extra", category="BB Farm")
     for _ in range(tropas - 1):
         f.human_tap_area(area)
         t.sleep(0.35)
