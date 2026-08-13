@@ -54,6 +54,16 @@ class BotInterface(ctk.CTk):
         self.tk_log.tag_configure("gray", foreground="gray")
         self.tk_log.tag_configure("spacing", spacing3=8)
 
+        # ---------- AUTO SCROLL ----------
+        self.autoscroll_switch = ctk.CTkCheckBox(
+            self.top_frame,
+            text="Auto Scroll",
+            command=self._toggle_autoscroll
+        )
+        self.autoscroll_switch.select()
+        self.autoscroll_switch.grid(row=2, column=0, columnspan=3, padx=5, pady=(0, 5), sticky="w")
+
+    # Métodos internos
     def update_bot_status(self):
         if botstate.should_run():
             self.label_bot_status.configure(text="Run request: ON")
@@ -66,10 +76,16 @@ class BotInterface(ctk.CTk):
             textbox = self.tk_log
             textbox.configure(state="normal")
             textbox.insert("end", formatted_message + "\n", (color, "spacing"))
-            textbox.see("end")
+            if self.autoscroll_switch.get() == 1:
+                textbox.see("end")
             textbox.configure(state="disabled")
         self.after(0, append)
 
+    def _toggle_autoscroll(self):
+        if self.autoscroll_switch.get() == 1:
+            self.tk_log.see("end")
+
+    # ---------- Handlers de controles ----------
     def _toggle_debug(self):
         state.set_debug(self.debug_switch.get() == 1)
 
