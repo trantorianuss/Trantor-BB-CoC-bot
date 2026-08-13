@@ -255,14 +255,20 @@ def perform_attack(attempt_label):
     # 1. Atacar
     a.BBFarm()
 
-    # 2. Rendirse
-    if not tap_surrender_button():
-        return False
-    t.sleep(1)
+    # 2. Finalizar ataque según configuración
+    if settings.get_attack_mode() == "surrender":
+        if not tap_surrender_button():
+            return False
+        t.sleep(1)
 
-    # 3. Confirmar rendición
-    confirm_surrender()
-    t.sleep(1)
+        # 3. Confirmar rendición
+        confirm_surrender()
+        t.sleep(1)
+    else:
+        # 3. Esperar a que termine la batalla y recoger el botín
+        if not wait_for_battle_end():
+            return False
+        collect_loot()
 
     # 4. Volver a Home
     f.log(">>> Return Home <<<")
