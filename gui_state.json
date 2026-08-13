@@ -3,5 +3,7 @@
   "swipe_dy": 800,
   "attacks_min_per_cycle": 1,
   "attacks_max_per_cycle": 3,
+  "extra_troops_min": 3,
+  "extra_troops_max": 4,
   "debug_mode": true
 }
