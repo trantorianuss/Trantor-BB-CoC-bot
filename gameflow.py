@@ -18,11 +18,17 @@ print(">>> GameFlow.py starting")
 #   Surrender : Farming in Builder base
 # -----------------------------
 
-def is_surrender_button_visible(x=48, y=737, target=(247, 93, 95), tol=20):
-    """Comprueba si el botón de surrender está visible usando un pixel de referencia.
-    Ajusta x, y y target a valores concretos de tu pantalla.
-    """
-    return f.check_pixel(x, y, target, tol=tol)
+def is_surrender_button_visible():
+    """Comprueba si el botón de surrender está visible usando un pixel de referencia."""
+    x, y = screen_layout.SURRENDER_PIXEL
+    image = f.capture_screenshot()
+    return f.check_pixel_from_image(
+        image,
+        x,
+        y,
+        screen_layout.SURRENDER_COLOR,
+        tol=screen_layout.PIXEL_TOLERANCE,
+    )
 
 
 def tap_surrender_button():
@@ -133,9 +139,6 @@ def get_elixir_level():
     FULL es el único nivel que afecta al flujo del bot. Los niveles 75/50/25
     son únicamente informativos y sus coordenadas quedan pendientes de medir.
     """
-    target = (121, 69, 197)
-    tol = 20
-
     levels = (
         ("FULL", screen_layout.ELIXIR_FULL_PIXEL),
         ("75%", screen_layout.ELIXIR_75_PIXEL),
@@ -154,7 +157,13 @@ def get_elixir_level():
         if x is None or y is None:
             continue
 
-        if f.check_pixel_from_image(image, x, y, target, tol=tol):
+        if f.check_pixel_from_image(
+            image,
+            x,
+            y,
+            screen_layout.ELIXIR_COLOR,
+            tol=screen_layout.PIXEL_TOLERANCE,
+        ):
             f.log(f"[Elixir] Nivel detectado: {level} (pos={x},{y})")
             return level
 
@@ -187,10 +196,24 @@ def find_match():
 def wait_for_battle_end():
     f.log("[GameFlow] Esperando fin de batalla…")
 
-    while f.checkpixelBB_old(888, 900) != (180, 230, 125, 255):
+    while botstate.should_run():
+        image = f.capture_screenshot()
+
+        x, y = screen_layout.BATTLE_END_PIXEL
+        if f.check_pixel_from_image(
+            image,
+            x,
+            y,
+            screen_layout.BATTLE_END_COLOR,
+            tol=screen_layout.PIXEL_TOLERANCE,
+        ):
+            f.log("[GameFlow] Batalla terminada")
+            return True
+
         t.sleep(1)
 
-    f.log("[GameFlow] Batalla terminada")
+    f.log("[GameFlow] Bot detenido mientras esperaba el fin de batalla.")
+    return False
 
 
 # -----------------------------
