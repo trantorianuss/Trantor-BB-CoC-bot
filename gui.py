@@ -89,6 +89,9 @@ class BotInterface(ctk.CTk):
     def _toggle_debug(self):
         settings.set_debug(self.debug_switch.get() == 1)
 
+    def _on_attack_mode_change(self, choice):
+        settings.set_attack_mode(choice)
+
     def _on_swipe_dx_change(self, event=None):
         try:
             value = self.swipe_dx_entry.get()
@@ -201,34 +204,44 @@ class BotInterface(ctk.CTk):
         self.button_Calibrate.grid(row=5, column=0, columnspan=2, padx=5, pady=10, sticky="ew")
 
         tab_settings.columnconfigure(0, weight=1)
+        self.attack_mode_label = ctk.CTkLabel(tab_settings, text="Tipo de ataque:")
+        self.attack_mode_label.grid(row=0, column=0, padx=5, pady=(10, 2), sticky="w")
+        self.attack_mode_menu = ctk.CTkOptionMenu(
+            tab_settings,
+            values=["surrender", "full (beta)"],
+            command=self._on_attack_mode_change,
+        )
+        self.attack_mode_menu.set(settings.get_attack_mode())
+        self.attack_mode_menu.grid(row=1, column=0, padx=5, pady=2, sticky="ew")
+
         self.attacks_label = ctk.CTkLabel(tab_settings, text="Ataques/ciclo (min/max):")
-        self.attacks_label.grid(row=0, column=0, padx=5, pady=(10, 2), sticky="w")
+        self.attacks_label.grid(row=2, column=0, padx=5, pady=(10, 2), sticky="w")
         self.attacks_min_entry = ctk.CTkEntry(tab_settings, placeholder_text="2")
         self.attacks_min_entry.insert(0, str(settings.attacks_min_per_cycle))
         self.attacks_min_entry.bind("<KeyRelease>", self._on_attacks_change)
-        self.attacks_min_entry.grid(row=1, column=0, padx=5, pady=2, sticky="ew")
+        self.attacks_min_entry.grid(row=3, column=0, padx=5, pady=2, sticky="ew")
         self.attacks_max_entry = ctk.CTkEntry(tab_settings, placeholder_text="4")
         self.attacks_max_entry.insert(0, str(settings.attacks_max_per_cycle))
         self.attacks_max_entry.bind("<KeyRelease>", self._on_attacks_change)
-        self.attacks_max_entry.grid(row=2, column=0, padx=5, pady=2, sticky="ew")
+        self.attacks_max_entry.grid(row=4, column=0, padx=5, pady=2, sticky="ew")
 
         self.extra_troops_label = ctk.CTkLabel(tab_settings, text="Tropas extra/ataque (min/max):")
-        self.extra_troops_label.grid(row=3, column=0, padx=5, pady=(10, 2), sticky="w")
+        self.extra_troops_label.grid(row=5, column=0, padx=5, pady=(10, 2), sticky="w")
         self.extra_troops_min_entry = ctk.CTkEntry(tab_settings, placeholder_text="0")
         self.extra_troops_min_entry.insert(0, str(settings.extra_troops_min))
         self.extra_troops_min_entry.bind("<KeyRelease>", self._on_extra_troops_change)
-        self.extra_troops_min_entry.grid(row=4, column=0, padx=5, pady=2, sticky="ew")
+        self.extra_troops_min_entry.grid(row=6, column=0, padx=5, pady=2, sticky="ew")
         self.extra_troops_max_entry = ctk.CTkEntry(tab_settings, placeholder_text="4")
         self.extra_troops_max_entry.insert(0, str(settings.extra_troops_max))
         self.extra_troops_max_entry.bind("<KeyRelease>", self._on_extra_troops_change)
-        self.extra_troops_max_entry.grid(row=5, column=0, padx=5, pady=2, sticky="ew")
+        self.extra_troops_max_entry.grid(row=7, column=0, padx=5, pady=2, sticky="ew")
 
         self.debug_label = ctk.CTkLabel(tab_settings, text="Modo DEBUG:")
-        self.debug_label.grid(row=6, column=0, padx=5, pady=(10, 2), sticky="w")
+        self.debug_label.grid(row=8, column=0, padx=5, pady=(10, 2), sticky="w")
         self.debug_switch = ctk.CTkSwitch(tab_settings, text="Activar", command=self._toggle_debug)
         if settings.debug_mode:
             self.debug_switch.select()
-        self.debug_switch.grid(row=7, column=0, padx=5, pady=2, sticky="w")
+        self.debug_switch.grid(row=9, column=0, padx=5, pady=2, sticky="w")
 
         self.panel_window.lift()
         self.panel_window.focus_force()
