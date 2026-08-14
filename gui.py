@@ -208,7 +208,7 @@ class BotInterface(ctk.CTk):
         self.attack_mode_label.grid(row=0, column=0, padx=5, pady=(10, 2), sticky="w")
         self.attack_mode_menu = ctk.CTkOptionMenu(
             tab_settings,
-            values=["surrender", "full"],
+            values=["surrender", "full (beta)"],
             command=self._on_attack_mode_change,
         )
         self.attack_mode_menu.set(settings.get_attack_mode())
