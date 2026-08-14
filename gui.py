@@ -4,6 +4,12 @@ import botstate
 import state
 import config
 
+try:
+    import local_config
+    SHOW_EXPERIMENTAL_TAB = local_config.SHOW_EXPERIMENTAL_TAB
+except ImportError:
+    SHOW_EXPERIMENTAL_TAB = False
+
 
 class BotInterface(ctk.CTk):
     def __init__(self, on_start_farm, on_stop, on_screenshot, on_recognize, on_buscar_carro, on_test, on_calibrar_zoom, on_calibrate):
@@ -203,7 +209,9 @@ class BotInterface(ctk.CTk):
         tab_tools = self.tabs.add("Herramientas")
         tab_settings = self.tabs.add("Settings")
         tab_debug = self.tabs.add("Debug")
-        tab_experimental = self.tabs.add("Experimental")
+
+        if SHOW_EXPERIMENTAL_TAB:
+            tab_experimental = self.tabs.add("Experimental")
 
         # ---------- TAB HERRAMIENTAS ----------
         tab_tools.columnconfigure(0, weight=1)
@@ -274,19 +282,20 @@ class BotInterface(ctk.CTk):
             self.debug_switch.select()
         self.debug_switch.grid(row=4, column=0, padx=5, pady=2, sticky="w")
 
-        # ---------- TAB EXPERIMENTAL ----------
-        tab_experimental.columnconfigure(0, weight=1)
+        if SHOW_EXPERIMENTAL_TAB:
+            # ---------- TAB EXPERIMENTAL ----------
+            tab_experimental.columnconfigure(0, weight=1)
 
-        self.village_selector_label = ctk.CTkLabel(tab_experimental, text="Aldea:")
-        self.village_selector_label.grid(row=0, column=0, padx=5, pady=(10, 2), sticky="w")
+            self.village_selector_label = ctk.CTkLabel(tab_experimental, text="Aldea:")
+            self.village_selector_label.grid(row=0, column=0, padx=5, pady=(10, 2), sticky="w")
 
-        self.village_selector = ctk.CTkSegmentedButton(
-            tab_experimental,
-            values=["BB", "TH"],
-            command=self._on_village_change
-        )
-        self.village_selector.set(state.village)
-        self.village_selector.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
+            self.village_selector = ctk.CTkSegmentedButton(
+                tab_experimental,
+                values=["BB", "TH"],
+                command=self._on_village_change
+            )
+            self.village_selector.set(state.village)
+            self.village_selector.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
         self.panel_window.lift()
         self.panel_window.focus_force()
