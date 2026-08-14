@@ -21,9 +21,7 @@ print(">>> GameFlow.py starting")
 def is_surrender_button_visible():
     """Comprueba si el botón de surrender está visible usando un pixel de referencia."""
     x, y = screen_layout.SURRENDER_PIXEL
-    image = f.capture_screenshot()
-    return f.check_pixel_from_image(
-        image,
+    return f.check_pixel(
         x,
         y,
         screen_layout.SURRENDER_COLOR,
@@ -197,11 +195,9 @@ def wait_for_battle_end():
     f.log("[GameFlow] Esperando fin de batalla…")
 
     while botstate.should_run():
-        image = f.capture_screenshot()
-
         x, y = screen_layout.BATTLE_END_PIXEL
-        if f.check_pixel_from_image(
-            image,
+
+        if f.check_pixel(
             x,
             y,
             screen_layout.BATTLE_END_COLOR,
@@ -265,10 +261,9 @@ def perform_attack(attempt_label):
         confirm_surrender()
         t.sleep(1)
     else:
-        # 3. Esperar a que termine la batalla y recoger el botín
+        # 3. Esperar a que termine la batalla
         if not wait_for_battle_end():
             return False
-        collect_loot()
 
     # 4. Volver a Home
     f.log(">>> Return Home <<<")
