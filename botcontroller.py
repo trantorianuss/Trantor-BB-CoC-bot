@@ -35,4 +35,5 @@ def farm_loop(attacks_per_cycle=None):
             botstate.stop()
             break
 
+    botstate.set_stopped()
     f.log("Bot stopped.")
