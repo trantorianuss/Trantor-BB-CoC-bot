@@ -1,9 +1,26 @@
 import cv2
 import numpy as np
 import time as t
+import os
 
 import func as f
 import config
+from logger import log
+
+
+DROP_HISTORY_FILE = "logs/drop_finder_history.log"
+
+
+def _write_drop_history(**data):
+    """Append one diagnostic record to the drop finder history file."""
+    os.makedirs(os.path.dirname(DROP_HISTORY_FILE), exist_ok=True)
+
+    timestamp = t.strftime("%Y-%m-%d %H:%M:%S")
+    fields = [f"{timestamp}"]
+    fields.extend(f"{key}={value}" for key, value in data.items())
+
+    with open(DROP_HISTORY_FILE, "a", encoding="utf-8") as history:
+        history.write(" | ".join(fields) + "\n")
 
 
 def find_drop_point():
@@ -11,10 +28,15 @@ def find_drop_point():
     img = f.capture_screenshot()
 
     if img is None:
+        _write_drop_history(result="NO_SCREENSHOT", image_file="N/A")
+        log("[Drop] No se pudo capturar la pantalla", color="red")
         return None
 
+    height, width = img.shape[:2]
+    image_file = "N/A (captura en memoria)"
+
     if config.DROP_ANALYZER_DEBUG >= 3:
-        f.save_image("DropAnalyzer", img)
+        image_file = f.save_image("DropAnalyzer", img)
 
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -43,8 +65,21 @@ def find_drop_point():
     # -------------------------------------------------------
 
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask)
+    component_count = max(0, num_labels - 1)
 
     if num_labels <= 1:
+        _write_drop_history(
+            result="NO_POINT",
+            image_file=image_file,
+            image=f"{width}x{height}",
+            components=component_count,
+            best_area=0,
+            green_ratio="0.000%",
+        )
+        log(
+            f"[Drop] No se encontró zona verde: components={component_count}",
+            color="red",
+        )
         return None
 
     best_label = -1
@@ -89,7 +124,27 @@ def find_drop_point():
     best_x = maxLoc[0]
     best_y = maxLoc[1]
     radius = int(maxDist * config.DROP_RADIUS_FACTOR)
-    
+    green_ratio = (best_area / (width * height)) * 100
+
+    _write_drop_history(
+        result="OK",
+        image_file=image_file,
+        image=f"{width}x{height}",
+        components=component_count,
+        best_area=best_area,
+        green_ratio=f"{green_ratio:.3f}%",
+        bbox=f"{x},{y},{w},{h}",
+        point=f"{best_x},{best_y}",
+        max_dist=f"{maxDist:.2f}",
+        radius=radius,
+    )
+
+    log(
+        f"[Drop] Zona encontrada: area={best_area}, "
+        f"ratio={green_ratio:.3f}%, components={component_count}, "
+        f"radius={radius}",
+        category="BB Farm",
+    )
 
     # -------------------------------------------------------
     # Imagen de depuración
