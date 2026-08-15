@@ -8,7 +8,8 @@ import botstate
 
 import random
 from func import tap_scale
-import state
+import settings
+import screen_layout
 
 print(">>> GameFlow.py starting")
 
@@ -17,11 +18,15 @@ print(">>> GameFlow.py starting")
 #   Surrender : Farming in Builder base
 # -----------------------------
 
-def is_surrender_button_visible(x=48, y=737, target=(247, 93, 95), tol=20):
-    """Comprueba si el botón de surrender está visible usando un pixel de referencia.
-    Ajusta x, y y target a valores concretos de tu pantalla.
-    """
-    return f.check_pixel(x, y, target, tol=tol)
+def is_surrender_button_visible():
+    """Comprueba si el botón de surrender está visible usando un pixel de referencia."""
+    x, y = screen_layout.SURRENDER_PIXEL
+    return f.check_pixel(
+        x,
+        y,
+        screen_layout.SURRENDER_COLOR,
+        tol=screen_layout.PIXEL_TOLERANCE,
+    )
 
 
 def tap_surrender_button():
@@ -87,7 +92,7 @@ def open_cart(debug=False):
     xi = 1850
     yi = 350
 
-    dx, dy = state.swipe_dx, state.swipe_dy
+    dx, dy = settings.swipe_dx, settings.swipe_dy
     
     f.wait_for_stable_screen()
 
@@ -113,7 +118,6 @@ def open_cart(debug=False):
     
 
 
-
 def try_collect_pink_elixir():
     f.log("[Elixir] Intentando recoger elixir rosa…")
     if collect_pink_elixir():
@@ -124,21 +128,55 @@ def try_collect_pink_elixir():
     return False
 
 # -------------------------
-#  COMPROBAR SI EL ALMACÉN ESTÁ LLENO
+#  COMPROBAR NIVEL DE ELIXIR
 # -------------------------
 
+def get_elixir_level():
+    """Devuelve el nivel detectado del elixir para mostrarlo en el log.
+
+    FULL es el único nivel que afecta al flujo del bot. Los niveles 75/50/25
+    son únicamente informativos y sus coordenadas quedan pendientes de medir.
+    """
+    levels = (
+        ("FULL", screen_layout.ELIXIR_FULL_PIXEL),
+        ("75%", screen_layout.ELIXIR_75_PIXEL),
+        ("50%", screen_layout.ELIXIR_50_PIXEL),
+        ("25%", screen_layout.ELIXIR_25_PIXEL),
+    )
+
+    f.log("[Elixir] Buscando Niveles de Elixir.", debug=True)
+    
+    image = f.capture_screenshot()
+
+    for level, (x, y) in levels:
+        # Las coordenadas pendientes no se comprueban todavía.
+        f.log(f"[Elixir] buscando Nivel : {level} (pos={x},{y})", debug=True)
+
+        if x is None or y is None:
+            continue
+
+        if f.check_pixel_from_image(
+            image,
+            x,
+            y,
+            screen_layout.ELIXIR_COLOR,
+            tol=screen_layout.PIXEL_TOLERANCE,
+        ):
+            f.log(f"[Elixir] Nivel detectado: {level} (pos={x},{y})")
+            return level
+
+    return None
+
+
 def is_elixir_full():
-    x, y = 1525, 175
-    target = (121, 69, 197)
-    tol = 20
+    """Comprueba exclusivamente la condición que termina el farming.
 
+    Los niveles 75/50/25 son informativos y nunca cambian el flujo.
+    """
     f.log("[Elixir] Buscando si Elixir Full.")
-    full = f.check_pixel(x, y, target, tol=tol)
 
-    f.log(f"[ElixirFull] pos=({x},{y}) target={target} tol={tol} result={full}")
-
-    return full
-
+    level = get_elixir_level()
+    return level == "FULL"
 
 
 # -----------------------------
@@ -156,10 +194,22 @@ def find_match():
 def wait_for_battle_end():
     f.log("[GameFlow] Esperando fin de batalla…")
 
-    while f.checkpixelBB_old(888, 900) != (180, 230, 125, 255):
+    while botstate.should_run():
+        x, y = screen_layout.BATTLE_END_PIXEL
+
+        if f.check_pixel(
+            x,
+            y,
+            screen_layout.BATTLE_END_COLOR,
+            tol=screen_layout.PIXEL_TOLERANCE,
+        ):
+            f.log("[GameFlow] Batalla terminada")
+            return True
+
         t.sleep(1)
 
-    f.log("[GameFlow] Batalla terminada")
+    f.log("[GameFlow] Bot detenido mientras esperaba el fin de batalla.")
+    return False
 
 
 # -----------------------------
@@ -201,14 +251,19 @@ def perform_attack(attempt_label):
     # 1. Atacar
     a.BBFarm()
 
-    # 2. Rendirse
-    if not tap_surrender_button():
-        return False
-    t.sleep(1)
+    # 2. Finalizar ataque según configuración
+    if settings.get_attack_mode() == "surrender":
+        if not tap_surrender_button():
+            return False
+        t.sleep(1)
 
-    # 3. Confirmar rendición
-    confirm_surrender()
-    t.sleep(1)
+        # 3. Confirmar rendición
+        confirm_surrender()
+        t.sleep(1)
+    else:
+        # 3. Esperar a que termine la batalla
+        if not wait_for_battle_end():
+            return False
 
     # 4. Volver a Home
     f.log(">>> Return Home <<<")
@@ -219,7 +274,7 @@ def perform_attack(attempt_label):
 def farm_until_full(attacks_per_cycle=None):
 
     while not is_elixir_full():
-        cycle_attacks = state.get_attacks_per_cycle() if attacks_per_cycle is None else attacks_per_cycle
+        cycle_attacks = settings.get_attacks_per_cycle() if attacks_per_cycle is None else attacks_per_cycle
         f.log(f">>> Nuevo ciclo de {cycle_attacks} ataques <<<")
 
         for i in range(cycle_attacks):  ## numero de ataques por ciclo

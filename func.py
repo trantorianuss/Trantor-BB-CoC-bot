@@ -4,6 +4,7 @@ print(f">>> func.py  starting [{time.perf_counter():.3f}]")
 import os
 import shutil
 import time as t
+from PIL import Image, ImageEnhance
 from PIL.ImageChops import screen
 import cv2
 import numpy as np
@@ -15,7 +16,7 @@ import math
 import config
 import paint as p
 import coords
-import state
+import settings
 from logger import log
 
 BASE_W = 1920
@@ -516,11 +517,35 @@ def get_pixel(x, y):
 
     filename = screenshot()
     checkp = Image.open(filename).convert("RGB")
-    return checkp.getpixel((x, y))
+    mi_pixel = checkp.getpixel((x, y))
 
+    log(f"[func] get_pixel : (pos={x},{y})  {mi_pixel}", debug=True)
+        
+    return mi_pixel  # devuelve (R, G, B)
+
+def get_pixel_from_image(image, x, y):
+    """Devuelve el píxel de una imagen OpenCV ya capturada, sin hacer otro screenshot."""
+    if coords.REAL_W is not None and coords.REAL_H is not None:
+        x, y = coords.scale(x, y)
+
+    b, g, r = image[y, x]
+    mi_pixel = (int(r), int(g), int(b))
+
+    log(f"[func] get_pixel_from_image : pos=({x},{y}) RGB={mi_pixel}", debug=True)
+
+    return mi_pixel
 
 def check_pixel(x, y, target, tol=20):
     r, g, b = get_pixel(x, y)
+
+    return (
+        abs(r - target[0]) <= tol and
+        abs(g - target[1]) <= tol and
+        abs(b - target[2]) <= tol
+    )
+
+def check_pixel_from_image(image, x, y, target, tol=20):
+    r, g, b = get_pixel_from_image(image, x, y)
 
     return (
         abs(r - target[0]) <= tol and

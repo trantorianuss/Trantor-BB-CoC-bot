@@ -16,14 +16,18 @@ swipe_dx = 0
 swipe_dy = 400
 attacks_min_per_cycle = 2
 attacks_max_per_cycle = 4
+extra_troops_min = 0
+extra_troops_max = 4
 debug_mode = False
 village = "BB"
+attack_mode = "surrender"
 
 # ============ FUNCIONES DE PERSISTENCIA ============
 
 def load_state():
     """Cargar el estado desde el archivo JSON."""
-    global swipe_dx, swipe_dy, attacks_min_per_cycle, attacks_max_per_cycle, debug_mode, village
+    global swipe_dx, swipe_dy, attacks_min_per_cycle, attacks_max_per_cycle
+    global extra_troops_min, extra_troops_max, debug_mode, attack_mode, village
     
     if not STATE_FILE.exists():
         return
@@ -44,8 +48,15 @@ def load_state():
             attacks_min_per_cycle = int(legacy_value)
             attacks_max_per_cycle = int(legacy_value)
 
+        extra_troops_min = data.get("extra_troops_min", 0)
+        extra_troops_max = data.get("extra_troops_max", 4)
+        if not _valid_non_negative_range(extra_troops_min, extra_troops_max):
+            extra_troops_min = 0
+            extra_troops_max = 4
+
         debug_mode = data.get("debug_mode", False)
         village = data.get("village", "BB")
+        attack_mode = data.get("attack_mode", "surrender")
         
     except Exception as e:
         print(f"Error cargando estado: {e}")
@@ -58,8 +69,11 @@ def save_state():
         "swipe_dy": swipe_dy,
         "attacks_min_per_cycle": attacks_min_per_cycle,
         "attacks_max_per_cycle": attacks_max_per_cycle,
+        "extra_troops_min": extra_troops_min,
+        "extra_troops_max": extra_troops_max,
         "debug_mode": debug_mode,
         "village": village,
+        "attack_mode": attack_mode,
     }
     
     try:
@@ -97,6 +111,40 @@ def get_attacks_per_cycle():
     return random.randint(attacks_min_per_cycle, attacks_max_per_cycle)
 
 
+def _valid_non_negative_range(min_value, max_value):
+    """Comprobar que un rango contiene enteros no negativos y min <= max."""
+    try:
+        min_value = int(min_value)
+        max_value = int(max_value)
+    except (TypeError, ValueError):
+        return False
+    return min_value >= 0 and max_value >= min_value
+
+
+def set_extra_troops_range(min_value, max_value):
+    """Actualizar el rango aleatorio de tropas extra por ataque."""
+    global extra_troops_min, extra_troops_max
+
+    try:
+        min_value = int(min_value)
+        max_value = int(max_value)
+    except (TypeError, ValueError):
+        return False
+
+    if not _valid_non_negative_range(min_value, max_value):
+        return False
+
+    extra_troops_min = min_value
+    extra_troops_max = max_value
+    save_state()
+    return True
+
+
+def get_extra_troops():
+    """Obtener un número aleatorio de tropas extra dentro del rango configurado."""
+    return random.randint(extra_troops_min, extra_troops_max)
+
+
 def set_debug(enabled):
     """Actualizar modo debug."""
     global debug_mode
@@ -110,6 +158,16 @@ def set_village(value):
     if value in ("BB", "TH"):
         village = value
         save_state()
+def set_attack_mode(mode):
+    """Actualizar modo de ataque."""
+    global attack_mode
+    attack_mode = mode
+    save_state()
+
+
+def get_attack_mode():
+    """Obtener el modo de ataque actual."""
+    return attack_mode
 
 
 # Cargar estado al importar el módulo
