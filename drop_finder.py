@@ -187,6 +187,7 @@ def find_drop_point():
         f"ratio={green_ratio:.3f}%, components={component_count}, "
         f"radius={radius}",
         category="BB Farm",
+        color="green" if radius >= MIN_DROP_RADIUS else "red"
     )
 
     # -------------------------------------------------------
