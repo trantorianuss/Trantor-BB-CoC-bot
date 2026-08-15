@@ -28,18 +28,28 @@ class BotInterface(ctk.CTk):
     def _init_components(self):
         self.top_frame = ctk.CTkFrame(self)
         self.top_frame.pack(fill="x", padx=10, pady=(10, 0))
-        self.top_frame.columnconfigure(0, weight=4)
+        self.top_frame.columnconfigure(0, weight=1)
         self.top_frame.columnconfigure(1, weight=4)
-        self.top_frame.columnconfigure(2, weight=1)
+        self.top_frame.columnconfigure(2, weight=4)
+        self.top_frame.columnconfigure(3, weight=1)
 
         self.button_Farm = ctk.CTkButton(self.top_frame, text="Start Farm", command=self._pre_start_farm)
-        self.button_Farm.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        self.button_Farm.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
         self.button_Stop = ctk.CTkButton(self.top_frame, text="Stop", command=self.on_stop)
-        self.button_Stop.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        self.button_Stop.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
         self.button_side_panel = ctk.CTkButton(self.top_frame, text="☰ ", width=40, command=self._show_side_panel)
-        self.button_side_panel.grid(row=0, column=2, padx=5, pady=5, sticky="e")
+        self.button_side_panel.grid(row=0, column=3, padx=5, pady=5, sticky="e")
+
+        # Se mantiene el label original como referencia.
         self.label_bot_status = ctk.CTkLabel(self.top_frame, text="Estado: ?")
-        self.label_bot_status.grid(row=1, column=0, columnspan=3, padx=5, pady=(0, 5), sticky="w")
+        self.label_bot_status.grid(row=1, column=1, columnspan=3, padx=5, pady=(0, 5), sticky="w")
+
+        self.label_bot_status_indicator = ctk.CTkLabel(
+            self.top_frame,
+            text="●",
+            font=ctk.CTkFont(size=18),
+        )
+        self.label_bot_status_indicator.grid(row=1, column=0, padx=(5, 0), pady=(0, 5), sticky="e")
 
         self.log_frame = ctk.CTkFrame(self)
         self.log_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -61,14 +71,28 @@ class BotInterface(ctk.CTk):
             command=self._toggle_autoscroll
         )
         self.autoscroll_switch.select()
-        self.autoscroll_switch.grid(row=2, column=0, columnspan=3, padx=5, pady=(0, 5), sticky="w")
+        self.autoscroll_switch.grid(row=2, column=0, columnspan=4, padx=5, pady=(0, 5), sticky="w")
 
     # Métodos internos
     def update_bot_status(self):
-        if botstate.should_run():
+        status = botstate.get_status()
+
+        if status == botstate.RUNNING:
+            self.label_bot_status_indicator.configure(text_color="green")
             self.label_bot_status.configure(text="Run request: ON")
+            self.button_Farm.configure(state="disabled")
+            self.button_Stop.configure(state="normal")
+        elif status == botstate.STOPPING:
+            self.label_bot_status_indicator.configure(text_color="orange")
+            self.label_bot_status.configure(text="Run request: OFF (stopping)")
+            self.button_Farm.configure(state="disabled")
+            self.button_Stop.configure(state="disabled")
         else:
+            self.label_bot_status_indicator.configure(text_color="red")
             self.label_bot_status.configure(text="Run request: OFF")
+            self.button_Farm.configure(state="normal")
+            self.button_Stop.configure(state="disabled")
+
         self.after(500, self.update_bot_status)
     
     def log(self, formatted_message, color="default"):
