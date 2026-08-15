@@ -1,15 +1,28 @@
-import threading
+RUNNING = "running"
+STOPPING = "stopping"
+STOPPED = "stopped"
 
+bot_status = STOPPED
 
-bot_run_event = threading.Event()
 
 def start():
-    bot_run_event.set()
+    global bot_status
+    bot_status = RUNNING
 
 
 def stop():
-    bot_run_event.clear()
+    global bot_status
+    bot_status = STOPPING
+
+
+def set_stopped():
+    global bot_status
+    bot_status = STOPPED
 
 
 def should_run():
-    return bot_run_event.is_set()
+    return bot_status == RUNNING
+
+
+def get_status():
+    return bot_status
