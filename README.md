@@ -57,10 +57,10 @@ Automating gameplay may violate Clash of Clans' Terms of Service.
 Este bot es solo para fines educativos. Úsalo bajo tu propia responsabilidad.
 Automatizar el juego puede violar los Términos de Servicio de Clash of Clans.
 
-## Requisitos
+## Requirements
 - Python 3
-- Dependencias del proyecto: `pip install -r requirements.txt`
-- ADB configurado y conectado al emulador
+- Project dependencies: `pip install -r requirements.txt`
+- ADB configured and connected to the emulator
 
 ## Tested Environment
 The project is currently developed and tested on:
@@ -70,11 +70,11 @@ The project is currently developed and tested on:
 - LDPlayer emulator
 - ADB
 
-## Ejecución
+## Usage
 ```bash
 python main.py
 ```
 
-## Notas
-- El bot usa la resolución del emulador para ajustar los taps y swipes.
-- Puedes revisar el código en los archivos principales como `main.py`, `func.py` y `attacks.py`.
+## Notes
+- The bot uses the emulator resolution to adjust taps and swipes.
+- The main project files include `main.py`, `func.py`, and `attacks.py`.
