@@ -80,12 +80,18 @@ class BotInterface(ctk.CTk):
         if status == botstate.RUNNING:
             self.label_bot_status_indicator.configure(text_color="green")
             self.label_bot_status.configure(text="Run request: ON")
+            self.button_Farm.configure(state="disabled")
+            self.button_Stop.configure(state="normal")
         elif status == botstate.STOPPING:
             self.label_bot_status_indicator.configure(text_color="orange")
             self.label_bot_status.configure(text="Run request: OFF (stopping)")
+            self.button_Farm.configure(state="disabled")
+            self.button_Stop.configure(state="disabled")
         else:
             self.label_bot_status_indicator.configure(text_color="red")
             self.label_bot_status.configure(text="Run request: OFF")
+            self.button_Farm.configure(state="normal")
+            self.button_Stop.configure(state="disabled")
 
         self.after(500, self.update_bot_status)
     
