@@ -9,6 +9,8 @@ from logger import log
 
 
 DROP_HISTORY_FILE = "logs/drop_finder_history.log"
+MIN_GREEN_AREA = 1000
+MIN_DROP_RADIUS = 5
 
 
 def _write_drop_history(**data):
@@ -94,6 +96,25 @@ def find_drop_point():
             best_area = area
             best_label = label
 
+    # Rechazar falsos positivos diminutos antes de calcular el punto de drop.
+    if best_area < MIN_GREEN_AREA:
+        green_ratio = (best_area / (width * height)) * 100
+        _write_drop_history(
+            result="NO_POINT",
+            image_file=image_file,
+            image=f"{width}x{height}",
+            components=component_count,
+            best_area=best_area,
+            green_ratio=f"{green_ratio:.3f}%",
+            reason=f"area<{MIN_GREEN_AREA}",
+        )
+        log(
+            f"[Drop] Zona rechazada: area={best_area} < {MIN_GREEN_AREA}",
+            color="red",
+            category="BB Farm",
+        )
+        return None
+
     blob_mask = np.zeros_like(mask)
 
     blob_mask[labels == best_label] = 255
@@ -126,6 +147,28 @@ def find_drop_point():
     radius = int(maxDist * config.DROP_RADIUS_FACTOR)
     green_ratio = (best_area / (width * height)) * 100
 
+    # Rechazar zonas demasiado estrechas para generar un drop útil.
+    if radius < MIN_DROP_RADIUS:
+        _write_drop_history(
+            result="NO_POINT",
+            image_file=image_file,
+            image=f"{width}x{height}",
+            components=component_count,
+            best_area=best_area,
+            green_ratio=f"{green_ratio:.3f}%",
+            bbox=f"{x},{y},{w},{h}",
+            point=f"{best_x},{best_y}",
+            max_dist=f"{maxDist:.2f}",
+            radius=radius,
+            reason=f"radius<{MIN_DROP_RADIUS}",
+        )
+        log(
+            f"[Drop] Zona rechazada: radius={radius} < {MIN_DROP_RADIUS}",
+            color="red",
+            category="BB Farm",
+        )
+        return None
+
     _write_drop_history(
         result="OK",
         image_file=image_file,
@@ -151,8 +194,6 @@ def find_drop_point():
     # -------------------------------------------------------
 
     debug = img.copy()
-
-    # Contorno del blob
 
     contours, _ = cv2.findContours(
         blob_mask,
@@ -184,10 +225,6 @@ def find_drop_point():
         2
     )
 
-    # -------------------------------------------------------
-    # Dibujar agujeros (solo depuración)
-    # -------------------------------------------------------
-
     contours, hierarchy = cv2.findContours(
         blob_mask,
         cv2.RETR_CCOMP,
@@ -200,7 +237,6 @@ def find_drop_point():
 
         for i in range(len(contours)):
 
-            # Contorno exterior
             if hierarchy[i][3] == -1:
 
                 cv2.drawContours(
@@ -211,10 +247,8 @@ def find_drop_point():
                     2
                 )
 
-            # Agujero
             else:
 
-                # Ignorar agujeros muy pequeños (ruido)
                 if cv2.contourArea(contours[i]) < 150:
                     continue
 
@@ -225,10 +259,6 @@ def find_drop_point():
                     (0, 0, 255),
                     2
                 )
-
-    # -------------------------------------------------------
-    # salvar imagen de depuración
-    # -------------------------------------------------------
 
     if config.DROP_ANALYZER_DEBUG >= 1:
         f.save_image("green_analysis", debug)
