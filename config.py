@@ -52,3 +52,17 @@ DEBUG_INSPECTION = False # used to print the file, function, and line number of 
 DROP_ANALYZER_DEBUG = 1
 
 
+# ------------------------------------------------------------
+# Log colors
+# ------------------------------------------------------------
+
+# Colors available for log messages in the GUI.
+LOG_COLORS = {
+    "default": None,
+    "green": "green",
+    "red": "red",
+    "orange": "orange",
+    "blue": "blue",
+    "gray": "gray",
+    "yellow": "yellow",
+}
