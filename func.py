@@ -465,3 +465,182 @@ def next():
 def checkloot(port):
     filename = f"Pictures/{port}val.png"
     screenshot(port, filename)
+    log("captured")
+    t.sleep(0.2)
+
+    with Image.open(filename) as photo:
+        (left, upper, right, lower) = (97, 155, 285, 295)
+        loot = photo.crop((left, upper, right, lower))
+
+        loot = loot.convert('L')
+        loot = ImageEnhance.Contrast(loot).enhance(2.0)
+        loot = loot.point(lambda x: 0 if x < 250 else 255)
+
+        loot.save(filename)
+
+        checkloot.result = reader.readtext(filename, allowlist='0123456789', detail=0)
+        if len(checkloot.result) < 3:
+            checkloot.result = ["0", "0", "0"]
+
+
+def checktrophies(port):
+    filename = f"Pictures/{port}trophies.png"
+    screenshot(port, filename)
+    log("captured")
+    t.sleep(0.2)
+
+    with Image.open(filename) as photo:
+        (left, upper, right, lower) = (130, 160, 255, 210)
+        trophies = photo.crop((left, upper, right, lower))
+
+        trophies = trophies.convert('L')
+        trophies = ImageEnhance.Contrast(trophies).enhance(2.0)
+        trophies = trophies.point(lambda x: 0 if x < 240 else 255)
+
+        trophies.save(filename)
+
+        checktrophies.result = reader.readtext(filename, allowlist='0123456789', detail=0)
+
+def get_pixel(x, y):
+    if coords.REAL_W is not None and coords.REAL_H is not None:
+        x, y = coords.scale(x, y)
+
+    filename = screenshot()
+    checkp = Image.open(filename).convert("RGB")
+    mi_pixel = checkp.getpixel((x, y))
+
+    log(f"[func] get_pixel : (pos={x},{y})  {mi_pixel}", debug=True)
+        
+    return mi_pixel
+
+def get_pixel_from_image(image, x, y):
+    """Devuelve el píxel de una imagen OpenCV ya capturada, sin hacer otro screenshot."""
+    if coords.REAL_W is not None and coords.REAL_H is not None:
+        x, y = coords.scale(x, y)
+
+    b, g, r = image[y, x]
+    mi_pixel = (int(r), int(g), int(b))
+
+    log(f"[func] get_pixel_from_image : pos=({x},{y}) RGB={mi_pixel}", debug=True)
+
+    return mi_pixel
+
+def check_pixel(x, y, target, tol=20):
+    r, g, b = get_pixel(x, y)
+
+    return (
+        abs(r - target[0]) <= tol and
+        abs(g - target[1]) <= tol and
+        abs(b - target[2]) <= tol
+    )
+
+def check_pixel_from_image(image, x, y, target, tol=20):
+    r, g, b = get_pixel_from_image(image, x, y)
+
+    return (
+        abs(r - target[0]) <= tol and
+        abs(g - target[1]) <= tol and
+        abs(b - target[2]) <= tol
+    )
+
+def checkpixel_old(port):
+    filename = f"Pictures/{port}return.png"
+    screenshot(port, filename)
+
+    checkp = Image.open(filename)
+    return checkp.getpixel((898, 909)) == checkp.getpixel((969, 938))
+
+def checkpixelBB_old(x,y):
+    filename = f"Pictures/{config.ADB_PORT}bb.png"
+    screenshot(config.ADB_PORT, filename)
+    checkp = Image.open(filename)
+    return checkp.getpixel((x, y))
+
+
+def calibrar_zoom(popup=None):
+    filename = screenshot(tag="calibracion")
+    img = cv2.imread(filename)
+
+    if img is None:
+        log("❌ Error leyendo la captura")
+        return
+
+    bh_template = cv2.imread("templates/bh.png")
+    if bh_template is None:
+        log("❌ No se encontró plantilla BH")
+        return
+
+    scales = [0.8, 1.0, 1.2]
+    best_val = -1
+    best_match = None
+
+    for s in scales:
+        resized = cv2.resize(bh_template, None, fx=s, fy=s)
+        res = cv2.matchTemplate(img, resized, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+
+        if max_val > best_val:
+            best_val = max_val
+            best_match = {
+                "scale": s,
+                "pos": max_loc,
+                "size": resized.shape[:2]
+            }
+
+    if best_val < 0.45:
+        log("❌ No se detectó el BH. Revisa el zoom.")
+        return None
+
+    result = {
+        "pos": best_match["pos"],
+        "size": best_match["size"],
+        "scale": best_match["scale"],
+        "confidence": best_val,
+    }
+
+    bh_w = result["size"][1]
+    if bh_w < 80:
+        zoom = "mínimo"
+    elif bh_w < 120:
+        zoom = "medio"
+    else:
+        zoom = "alto"
+
+    result["zoom"] = zoom
+
+    log("✅ Calibración completada")
+    log(f"BH detectado en {result['pos']}")
+    log(f"Tamaño BH: {result['size']}")
+    log(f"Zoom estimado: {result['zoom']}")
+    log(f"Escala usada: {result['scale']}")
+
+    return result
+
+import os
+from pathlib import Path
+
+
+def cleanup_screenshots(folder="screenshots", max_files=200):
+    """
+    Mantiene únicamente los 'max_files' screenshots más recientes.
+    """
+
+    folder = Path(folder)
+
+    if not folder.exists():
+        return
+
+    log(f"Cleaning screenshots in {folder} (máx {max_files})", category="cleanup")
+
+    files = list(folder.glob("*.png"))
+
+    if len(files) <= max_files:
+        return
+
+    files.sort(key=lambda f: f.stat().st_mtime)
+
+    for file in files[:-max_files]:
+        try:
+            file.unlink()
+        except Exception as e:
+            log(f"No se pudo borrar {file}: {e}")
