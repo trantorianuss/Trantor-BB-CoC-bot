@@ -56,22 +56,37 @@ class BotInterface(ctk.CTk):
         self.log_textbox = ctk.CTkTextbox(self.log_frame, wrap="word")
         self.log_textbox.pack(fill="both", expand=True)
         self.tk_log = self.log_textbox._textbox
-        self.tk_log.tag_configure("default")
-        self.tk_log.tag_configure("green", foreground="green")
-        self.tk_log.tag_configure("red", foreground="red")
-        self.tk_log.tag_configure("orange", foreground="orange")
-        self.tk_log.tag_configure("blue", foreground="blue")
-        self.tk_log.tag_configure("gray", foreground="gray")
+
+        for name, color in config.LOG_COLORS.items():
+            if color is None:
+                self.tk_log.tag_configure(name)
+            else:
+                self.tk_log.tag_configure(name, foreground=color)
+
         self.tk_log.tag_configure("spacing", spacing3=8)
 
-        # ---------- AUTO SCROLL ----------
+        # ---------- LOG CONTROLS ----------
+        self.log_controls_frame = ctk.CTkFrame(self)
+        self.log_controls_frame.pack(fill="x", padx=10, pady=(0, 10))
+        self.log_controls_frame.columnconfigure(0, weight=1)
+        self.log_controls_frame.columnconfigure(1, weight=1)
+
         self.autoscroll_switch = ctk.CTkCheckBox(
-            self.top_frame,
+            self.log_controls_frame,
             text="Auto Scroll",
             command=self._toggle_autoscroll
         )
         self.autoscroll_switch.select()
-        self.autoscroll_switch.grid(row=2, column=0, columnspan=4, padx=5, pady=(0, 5), sticky="w")
+        self.autoscroll_switch.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+        self.debug_checkbox = ctk.CTkCheckBox(
+            self.log_controls_frame,
+            text="Debug Mode",
+            command=self._toggle_debug
+        )
+        if settings.debug_mode:
+            self.debug_checkbox.select()
+        self.debug_checkbox.grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
     # Métodos internos
     def update_bot_status(self):
@@ -111,7 +126,7 @@ class BotInterface(ctk.CTk):
 
     # ---------- Handlers de controles ----------
     def _toggle_debug(self):
-        settings.set_debug(self.debug_switch.get() == 1)
+        settings.set_debug(self.debug_checkbox.get() == 1)
 
     def _on_attack_mode_change(self, choice):
         settings.set_attack_mode(choice)
@@ -259,13 +274,6 @@ class BotInterface(ctk.CTk):
         self.extra_troops_max_entry.insert(0, str(settings.extra_troops_max))
         self.extra_troops_max_entry.bind("<KeyRelease>", self._on_extra_troops_change)
         self.extra_troops_max_entry.grid(row=7, column=0, padx=5, pady=2, sticky="ew")
-
-        self.debug_label = ctk.CTkLabel(tab_settings, text="Modo DEBUG:")
-        self.debug_label.grid(row=8, column=0, padx=5, pady=(10, 2), sticky="w")
-        self.debug_switch = ctk.CTkSwitch(tab_settings, text="Activar", command=self._toggle_debug)
-        if settings.debug_mode:
-            self.debug_switch.select()
-        self.debug_switch.grid(row=9, column=0, padx=5, pady=2, sticky="w")
 
         self.panel_window.lift()
         self.panel_window.focus_force()
