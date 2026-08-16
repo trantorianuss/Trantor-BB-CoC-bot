@@ -34,9 +34,10 @@ ATTACK_BUTTON_1 = (125, 995)         # TODO: real "Atacar" button coordinates
 FIND_BUTTON = (320, 800)             # TODO: real "Find" button coordinates
 ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordinates
 
-# Number of troops to deploy from each slot during the TH test.
-NUM_TROOPS_SLOT_1 = 1
-NUM_TROOPS_SLOT_2 = 5
+# Number of troops to deploy from each troop slot.
+# Entry 1 = Slot 1, entry 2 = Slot 2, etc.
+# The number of entries determines how many slots are used.
+TROOPS_PER_SLOT = [3, 4, 5, 2, 1]
 
 # Example troop deployment point near the edge of the main village.
 DROP_POINT = (80, 444)              # TODO: real TH drop point
@@ -165,23 +166,18 @@ def slot(n):
 
 
 def deploy_troops():
-    """Select slot 1 and slot 2, deploying the configured troop counts."""
+    """Select each configured slot and deploy its configured troop count."""
 
-    f.log("[TH] Seleccionando Slot 1")
-    slot(1)
+    for slot_number, troop_count in enumerate(TROOPS_PER_SLOT, start=1):
+        f.log(f"[TH] Seleccionando Slot {slot_number}")
+        slot(slot_number)
 
-    f.log(f"[TH] Soltando {NUM_TROOPS_SLOT_1} tropa(s) de Slot 1")
-    for _ in range(NUM_TROOPS_SLOT_1):
-        f.tap_scale(*DROP_POINT)
-        time.sleep(0.5)
-
-    f.log("[TH] Cambiando a Slot 2")
-    slot(2)
-
-    f.log(f"[TH] Soltando {NUM_TROOPS_SLOT_2} tropa(s) de Slot 2")
-    for _ in range(NUM_TROOPS_SLOT_2):
-        f.tap_scale(*DROP_POINT)
-        time.sleep(0.5)
+        f.log(
+            f"[TH] Soltando {troop_count} tropa(s) de Slot {slot_number}"
+        )
+        for _ in range(troop_count):
+            f.tap_scale(*DROP_POINT)
+            time.sleep(0.5)
 
     f.log("[TH] Despliegue de tropas terminado")
 
