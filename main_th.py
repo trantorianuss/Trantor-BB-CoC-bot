@@ -44,12 +44,7 @@ PIXEL_TOLERANCE = 10
 # -----------------------------------------------------------------------------
 
 def debug_tap_scale(x, y, name, color):
-    """Capture and mark the exact scaled tap point immediately before tapping.
-
-    The input coordinates are the same base coordinates passed to tap_scale().
-    The marker is converted with the same coords.scale() used by tap_scale(),
-    so the saved screenshot shows where ADB will actually tap.
-    """
+    """Capture and mark the exact scaled tap point immediately before tapping."""
 
     image = f.capture_screenshot()
 
@@ -63,7 +58,20 @@ def debug_tap_scale(x, y, name, color):
     if coords.REAL_W is not None and coords.REAL_H is not None:
         marked_x, marked_y = coords.scale(x, y)
 
-    # OpenCV images are BGR. Draw a visible circle at the real tap position.
+    # Log both coordinate systems explicitly.
+    f.log(
+        f"[TH DEBUG] {name}: coordenadas iniciales=({x},{y}) | "
+        f"coordenadas convertidas=({marked_x},{marked_y})"
+    )
+
+    # First draw a large, unmistakable reference circle in the center of the
+    # screenshot. This confirms that the image being saved is actually drawn on.
+    image_h, image_w = image.shape[:2]
+    center_x = image_w // 2
+    center_y = image_h // 2
+    cv2.circle(image, (center_x, center_y), 50, (0, 255, 255), 5)
+
+    # Draw the actual tap position as a circle + cross.
     cv2.circle(image, (int(marked_x), int(marked_y)), 25, color, 4)
     cv2.drawMarker(
         image,
@@ -75,9 +83,7 @@ def debug_tap_scale(x, y, name, color):
     )
 
     filename = f.save_image(f"th_debug_{name}", image)
-    f.log(
-        f"[TH DEBUG] {name}: base=({x},{y}) -> screen=({marked_x},{marked_y}) -> {filename}"
-    )
+    f.log(f"[TH DEBUG] Screenshot guardado: {filename}")
 
     # The actual tap is still performed by the normal tap_scale().
     f.tap_scale(x, y)
