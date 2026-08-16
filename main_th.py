@@ -24,8 +24,8 @@ import screen_layout as layout
 # Replace these with the real values once the flow is verified.
 # -----------------------------------------------------------------------------
 
-ELIXIR_FULL_PIXEL = (100, 100)       # TODO: real pixel position
-ELIXIR_FULL_COLOR = (255, 0, 255)    # TODO: real RGB/BGR value used by func
+ELIXIR_FULL_PIXEL = (1530, 182)       # TODO: real pixel position
+ELIXIR_FULL_COLOR = (192, 39, 192)    # TODO: real RGB/BGR value used by func
 BATTLE_END_PIXEL = (960, 960)        # TODO: real pixel position
 BATTLE_END_COLOR = (108, 187, 31)       # TODO: real RGB/BGR value used by func
 
