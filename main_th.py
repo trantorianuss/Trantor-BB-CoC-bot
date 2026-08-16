@@ -34,13 +34,37 @@ ATTACK_BUTTON_1 = (125, 995)         # TODO: real "Atacar" button coordinates
 FIND_BUTTON = (320, 800)             # TODO: real "Find" button coordinates
 ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordinates
 
-# Number of troops to deploy from each troop slot.
-# Entry 1 = Slot 1, entry 2 = Slot 2, etc.
-# The number of entries determines how many slots are used.
-TROOPS_PER_SLOT = [3, 4, 5, 2, 1]
+# Deployment sequence.
+# Each entry is: (slot, number of troops, drop area).
+# The order of entries is the order in which actions are executed.
+# Available drop areas for now: "edge" and "center".
+DEPLOY_SEQUENCE = [
+    # Troops
+    (1, 3, "edge"),
+    (2, 4, "edge"),
+    (3, 5, "edge"),
 
-# Example troop deployment point near the edge of the main village.
-DROP_POINT = (80, 444)              # TODO: real TH drop point
+    # Heroes
+    (4, 1, "edge"),
+    (5, 1, "edge"),
+
+    # Hero abilities
+    (4, 1, "edge"),
+    (5, 1, "edge"),
+
+    # Spell / special slot
+    (6, 2, "center"),
+    (6, 1, "center"),
+]
+
+# Example troop deployment points.
+# TODO: replace these with the real TH drop coordinates.
+DROP_POINTS_EDGE = [
+    (80, 444),
+    (120, 444),
+    (160, 444),
+]
+DROP_POINT_CENTER = (960, 540)
 
 PIXEL_TOLERANCE = 10
 
@@ -64,20 +88,16 @@ def debug_tap_scale(x, y, name, color):
     if coords.REAL_W is not None and coords.REAL_H is not None:
         marked_x, marked_y = coords.scale(x, y)
 
-    # Log both coordinate systems explicitly.
     f.log(
         f"[TH DEBUG] {name}: coordenadas iniciales=({x},{y}) | "
         f"coordenadas convertidas=({marked_x},{marked_y})"
     )
 
-    # First draw a large, unmistakable reference circle in the center of the
-    # screenshot. This confirms that the image being saved is actually drawn on.
     image_h, image_w = image.shape[:2]
     center_x = image_w // 2
     center_y = image_h // 2
     cv2.circle(image, (center_x, center_y), 50, (0, 255, 255), 5)
 
-    # Draw the actual tap position as a circle + cross.
     cv2.circle(image, (int(marked_x), int(marked_y)), 25, color, 4)
     cv2.drawMarker(
         image,
@@ -91,7 +111,6 @@ def debug_tap_scale(x, y, name, color):
     filename = f.save_image(f"th_debug_{name}", image)
     f.log(f"[TH DEBUG] Screenshot guardado: {filename}")
 
-    # The actual tap is still performed by the normal tap_scale().
     f.tap_scale(x, y)
 
 
@@ -143,17 +162,14 @@ def start_attack():
 
     f.log("[TH] Pressing first attack button")
     f.tap_scale(*ATTACK_BUTTON_1)
-    #debug_tap_scale(*ATTACK_BUTTON_1, "attack_1", (0, 0, 255))
     time.sleep(1)
 
     f.log("[TH] Pressing Find")
     f.tap_scale(*FIND_BUTTON)
-    #debug_tap_scale(*FIND_BUTTON, "find", (0, 255, 0))
     time.sleep(5)
 
     f.log("[TH] Pressing second attack button")
     f.tap_scale(*ATTACK_BUTTON_2)
-    #debug_tap_scale(*ATTACK_BUTTON_2, "attack_2", (255, 0, 0))
     time.sleep(2)
 
 
@@ -166,20 +182,36 @@ def slot(n):
 
 
 def deploy_troops():
-    """Select each configured slot and deploy its configured troop count."""
+    """Execute the configured deployment sequence."""
 
-    for slot_number, troop_count in enumerate(TROOPS_PER_SLOT, start=1):
-        f.log(f"[TH] Seleccionando Slot {slot_number}")
+    edge_index = 0
+
+    for slot_number, count, drop_area in DEPLOY_SEQUENCE:
+        f.log(
+            f"[TH] Slot {slot_number} | cantidad={count} | zona={drop_area}"
+        )
+
         slot(slot_number)
 
-        f.log(
-            f"[TH] Soltando {troop_count} tropa(s) de Slot {slot_number}"
-        )
-        for _ in range(troop_count):
-            f.tap_scale(*DROP_POINT)
+        if drop_area == "center":
+            drop_points = [DROP_POINT_CENTER]
+        elif drop_area == "edge":
+            drop_points = DROP_POINTS_EDGE
+        else:
+            f.log(f"[TH] Zona de despliegue desconocida: {drop_area}", color="red")
+            continue
+
+        for _ in range(count):
+            if drop_area == "edge":
+                drop_point = drop_points[edge_index % len(drop_points)]
+                edge_index += 1
+            else:
+                drop_point = drop_points[0]
+
+            f.tap_scale(*drop_point)
             time.sleep(0.5)
 
-    f.log("[TH] Despliegue de tropas terminado")
+    f.log("[TH] Despliegue terminado")
 
 
 def wait_for_battle_end():
