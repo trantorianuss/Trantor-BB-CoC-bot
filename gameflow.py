@@ -187,12 +187,22 @@ def is_elixir_full():
 def find_match():
     f.log("[GameFlow] Buscando aldea…")
 
-    # Primera prueba del screen detector: solo informa por log.
+    # 1. Pulsar Atacar.
+    # Este paso pertenece al flujo del ataque, no a func.py.
+    f.log("Pulso en Atacar", category="Find")
+    tap_scale(100, 1000)
+
+    # 2. Dar tiempo a que aparezca la pantalla con FIND.
+    t.sleep(0.3)
+
+    # 3. Primera prueba del screen detector: solo informa por log.
     # No cambia todavía la decisión del flujo.
     find_ready = screen_detector.is_find_button_visible()
     f.log(f"[ScreenDetector] FIND ready: {find_ready}")
 
-    f.find()
+    # 4. Pulsar FIND independientemente del resultado del detector.
+    f.log("Pulso en Find", category="Find")
+    tap_scale(1375, 650)
     t.sleep(5)
 
 
