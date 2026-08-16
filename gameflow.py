@@ -198,7 +198,7 @@ def find_match():
     # 3. Primera prueba del screen detector: solo informa por log.
     # No cambia todavía la decisión del flujo.
     find_ready = screen_detector.is_find_button_visible()
-    f.log(f"[ScreenDetector] FIND ready: {find_ready}", color="yellow", category="Find")
+    f.log(f"[ScreenDetector] FIND ready: {find_ready}", color="blue", category="Find")
 
     # 4. Pulsar FIND independientemente del resultado del detector.
     f.log("Pulso en Find", category="Find")
