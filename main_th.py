@@ -25,6 +25,11 @@ ELIXIR_FULL_COLOR = (255, 0, 255)    # TODO: real RGB/BGR value used by func
 BATTLE_END_PIXEL = (200, 200)        # TODO: real pixel position
 BATTLE_END_COLOR = (0, 255, 0)       # TODO: real RGB/BGR value used by func
 
+# Attack start sequence.
+ATTACK_BUTTON_1 = (400, 800)         # TODO: real "Atacar" button coordinates
+FIND_BUTTON = (600, 700)             # TODO: real "Find" button coordinates
+ATTACK_BUTTON_2 = (800, 800)         # TODO: real second "Atacar" button coordinates
+
 # Example troop deployment point near the edge of the main village.
 DROP_POINT = (300, 500)              # TODO: real TH drop point
 
@@ -43,6 +48,7 @@ def th_game_flow():
     while not is_elixir_full():
         f.log("[TH] Elixir not full -> starting attack")
 
+        start_attack()
         deploy_troops()
 
         if not wait_for_battle_end():
@@ -71,6 +77,22 @@ def is_elixir_full():
         ELIXIR_FULL_COLOR,
         tol=PIXEL_TOLERANCE,
     )
+
+
+def start_attack():
+    """Start a TH attack through the three-button sequence."""
+
+    f.log("[TH] Pressing first attack button")
+    f.tap_scale(*ATTACK_BUTTON_1)
+    time.sleep(1)
+
+    f.log("[TH] Pressing Find")
+    f.tap_scale(*FIND_BUTTON)
+    time.sleep(5)
+
+    f.log("[TH] Pressing second attack button")
+    f.tap_scale(*ATTACK_BUTTON_2)
+    time.sleep(2)
 
 
 def deploy_troops():
