@@ -27,6 +27,11 @@ BATTLE_END_PIXEL = (888, 900)
 BATTLE_END_COLOR = (180, 230, 125)
 PIXEL_TOLERANCE = 20
 
+# Initial screen detector reference for the FIND button.
+# These are deliberately provisional values and must be calibrated.
+FIND_BUTTON_PIXEL = (1700, 900)
+FIND_BUTTON_COLOR = (90, 180, 255)
+
 
 
 
