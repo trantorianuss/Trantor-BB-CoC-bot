@@ -16,6 +16,7 @@ import cv2
 
 import func as f
 import coords
+import screen_layout as layout
 
 
 # -----------------------------------------------------------------------------
@@ -32,6 +33,10 @@ BATTLE_END_COLOR = (0, 255, 0)       # TODO: real RGB/BGR value used by func
 ATTACK_BUTTON_1 = (125, 995)         # TODO: real "Atacar" button coordinates
 FIND_BUTTON = (320, 800)             # TODO: real "Find" button coordinates
 ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordinates
+
+# Number of troops to deploy from each slot during the TH test.
+NUM_TROOPS_SLOT_1 = 1
+NUM_TROOPS_SLOT_2 = 5
 
 # Example troop deployment point near the edge of the main village.
 DROP_POINT = (80, 444)              # TODO: real TH drop point
@@ -151,20 +156,34 @@ def start_attack():
     time.sleep(2)
 
 
+def slot(n):
+    """Select troop slot n using the same layout calculation as BB."""
+
+    x = layout.FIRST_SLOT_CENTER[0] + layout.SLOT_STEP * (n - 1)
+    y = layout.FIRST_SLOT_CENTER[1]
+    f.tap_scale(x, y)
+
+
 def deploy_troops():
-    """Deploy a small test group at the edge of the TH village."""
+    """Select slot 1 and slot 2, deploying the configured troop counts."""
 
-    f.log(f"[TH] Deploying test troops at {DROP_POINT}")
+    f.log("[TH] Seleccionando Slot 1")
+    slot(1)
 
-    # TODO: select the required troop slot(s).
-    # TODO: replace the test drop point with the real TH edge coordinates.
-    f.tap_scale(*DROP_POINT)
-    time.sleep(0.5)
-    f.tap_scale(*DROP_POINT)
-    time.sleep(0.5)
-    f.tap_scale(*DROP_POINT)
+    f.log(f"[TH] Soltando {NUM_TROOPS_SLOT_1} tropa(s) de Slot 1")
+    for _ in range(NUM_TROOPS_SLOT_1):
+        f.tap_scale(*DROP_POINT)
+        time.sleep(0.5)
 
-    f.log("[TH] Test troop deployment finished")
+    f.log("[TH] Cambiando a Slot 2")
+    slot(2)
+
+    f.log(f"[TH] Soltando {NUM_TROOPS_SLOT_2} tropa(s) de Slot 2")
+    for _ in range(NUM_TROOPS_SLOT_2):
+        f.tap_scale(*DROP_POINT)
+        time.sleep(0.5)
+
+    f.log("[TH] Despliegue de tropas terminado")
 
 
 def wait_for_battle_end():
@@ -187,6 +206,7 @@ def wait_for_battle_end():
             return True
 
         time.sleep(1)
+
 
 def initialize_coords():
     f.log("[coords] Inicializando resolución...")
