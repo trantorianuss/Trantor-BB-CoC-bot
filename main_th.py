@@ -35,26 +35,27 @@ FIND_BUTTON = (320, 800)             # TODO: real "Find" button coordinates
 ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordinates
 
 # Deployment sequence.
-# Each entry is: (slot, number of troops, drop area).
-# The order of entries is the order in which actions are executed.
+# Each entry is: (slot, number of troops, drop area, delay).
+# delay is the wait BEFORE executing that action.
+# count=0 means: press the slot only, without dropping troops.
 # Available drop areas for now: "edge" and "center".
 DEPLOY_SEQUENCE = [
     # Troops
-    (1, 3, "edge"),
-    (2, 4, "edge"),
-    (3, 5, "edge"),
+    (1, 3, "edge", 0.1),
+    (2, 4, "edge", 0.1),
+    (3, 5, "edge", 0.1),
 
-    # Heroes
-    (4, 1, "edge"),
-    (5, 1, "edge"),
+    # Heroes: select/deploy only
+    (4, 0, "edge", 0.1),
+    (5, 0, "edge", 0.1),
 
-    # Hero abilities
-    (4, 1, "edge"),
-    (5, 1, "edge"),
+    # Hero abilities: select slot only, later in the attack
+    (4, 0, "edge", 5.0),
+    (5, 0, "edge", 1.0),
 
     # Spell / special slot
-    (6, 2, "center"),
-    (6, 1, "center"),
+    (6, 2, "center", 3.0),
+    (6, 1, "center", 2.0),
 ]
 
 # Example troop deployment points.
@@ -186,12 +187,19 @@ def deploy_troops():
 
     edge_index = 0
 
-    for slot_number, count, drop_area in DEPLOY_SEQUENCE:
+    for slot_number, count, drop_area, delay in DEPLOY_SEQUENCE:
+        if delay > 0:
+            time.sleep(delay)
+
         f.log(
-            f"[TH] Slot {slot_number} | cantidad={count} | zona={drop_area}"
+            f"[TH] Slot {slot_number} | cantidad={count} | "
+            f"zona={drop_area} | delay={delay}s"
         )
 
         slot(slot_number)
+
+        if count == 0:
+            continue
 
         if drop_area == "center":
             drop_points = [DROP_POINT_CENTER]
