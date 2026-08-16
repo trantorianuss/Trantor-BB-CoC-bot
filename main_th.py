@@ -12,7 +12,10 @@ for screenshots, pixel checks and taps). The TH flow itself lives here.
 
 import time
 
+import cv2
+
 import func as f
+import coords
 
 
 # -----------------------------------------------------------------------------
@@ -34,6 +37,50 @@ ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordin
 DROP_POINT = (300, 500)              # TODO: real TH drop point
 
 PIXEL_TOLERANCE = 10
+
+
+# -----------------------------------------------------------------------------
+# Debug: screenshot + mark the exact point that will be used by tap_scale
+# -----------------------------------------------------------------------------
+
+def debug_tap_scale(x, y, name, color):
+    """Capture and mark the exact scaled tap point immediately before tapping.
+
+    The input coordinates are the same base coordinates passed to tap_scale().
+    The marker is converted with the same coords.scale() used by tap_scale(),
+    so the saved screenshot shows where ADB will actually tap.
+    """
+
+    image = f.capture_screenshot()
+
+    if image is None:
+        f.log(f"[TH DEBUG] No se pudo capturar screenshot para {name}", color="red")
+        f.tap_scale(x, y)
+        return
+
+    marked_x, marked_y = x, y
+
+    if coords.REAL_W is not None and coords.REAL_H is not None:
+        marked_x, marked_y = coords.scale(x, y)
+
+    # OpenCV images are BGR. Draw a visible circle at the real tap position.
+    cv2.circle(image, (int(marked_x), int(marked_y)), 25, color, 4)
+    cv2.drawMarker(
+        image,
+        (int(marked_x), int(marked_y)),
+        color,
+        markerType=cv2.MARKER_CROSS,
+        markerSize=40,
+        thickness=3,
+    )
+
+    filename = f.save_image(f"th_debug_{name}", image)
+    f.log(
+        f"[TH DEBUG] {name}: base=({x},{y}) -> screen=({marked_x},{marked_y}) -> {filename}"
+    )
+
+    # The actual tap is still performed by the normal tap_scale().
+    f.tap_scale(x, y)
 
 
 # -----------------------------------------------------------------------------
@@ -83,15 +130,15 @@ def start_attack():
     """Start a TH attack through the three-button sequence."""
 
     f.log("[TH] Pressing first attack button")
-    f.tap_scale(*ATTACK_BUTTON_1)
+    debug_tap_scale(*ATTACK_BUTTON_1, "attack_1", (0, 0, 255))
     time.sleep(1)
 
     f.log("[TH] Pressing Find")
-    f.tap_scale(*FIND_BUTTON)
+    debug_tap_scale(*FIND_BUTTON, "find", (0, 255, 0))
     time.sleep(5)
 
     f.log("[TH] Pressing second attack button")
-    f.tap_scale(*ATTACK_BUTTON_2)
+    debug_tap_scale(*ATTACK_BUTTON_2, "attack_2", (255, 0, 0))
     time.sleep(2)
 
 
