@@ -29,8 +29,8 @@ PIXEL_TOLERANCE = 20
 
 # Initial screen detector reference for the FIND button.
 # These are deliberately provisional values and must be calibrated.
-FIND_BUTTON_PIXEL = (1700, 900)
-FIND_BUTTON_COLOR = (90, 180, 255)
+FIND_BUTTON_PIXEL = (1400, 750)
+FIND_BUTTON_COLOR = (139, 212, 58)
 
 
 

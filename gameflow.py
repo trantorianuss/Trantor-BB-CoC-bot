@@ -1,3 +1,6 @@
+import time
+print(f">>> gameflow.py  starting [{time.perf_counter():.3f}]")
+
 import time as t
 import func as f
 import attacks as a
@@ -11,8 +14,6 @@ from func import tap_scale
 import settings
 import screen_layout
 import screen_detector
-
-print(">>> GameFlow.py starting")
 
 
 # -----------------------------
