@@ -10,6 +10,7 @@ import random
 from func import tap_scale
 import settings
 import screen_layout
+import screen_detector
 
 print(">>> GameFlow.py starting")
 
@@ -184,6 +185,12 @@ def is_elixir_full():
 # -----------------------------
 def find_match():
     f.log("[GameFlow] Buscando aldea…")
+
+    # Primera prueba del screen detector: solo informa por log.
+    # No cambia todavía la decisión del flujo.
+    find_ready = screen_detector.is_find_button_visible()
+    f.log(f"[ScreenDetector] FIND ready: {find_ready}")
+
     f.find()
     t.sleep(5)
 
@@ -309,7 +316,6 @@ def farm_until_full(attacks_per_cycle=None):
     f.log(">>> Almacén lleno. Fin del ciclo. <<<")
     
     return True   # ← señal para parar
-
 
 
 
