@@ -174,12 +174,6 @@ def screenshot(
     return filename
 
 
-
-
-
-
-
-
 def find_template(haystack_path, needle_path, threshold=0.8):
     """Busca una plantilla en una imagen y devuelve la posición si la confianza es suficiente."""
     screen = cv2.imread(haystack_path, cv2.IMREAD_GRAYSCALE)
@@ -474,13 +468,14 @@ def checkloot(port):
 
         loot = loot.convert('L')
         loot = ImageEnhance.Contrast(loot).enhance(2.0)
+        # Binarize (convert to black and white)
         loot = loot.point(lambda x: 0 if x < 250 else 255)
 
         loot.save(filename)
 
         checkloot.result = reader.readtext(filename, allowlist='0123456789', detail=0)
         if len(checkloot.result) < 3:
-            checkloot.result = ["0", "0", "0"]
+            checkloot.result = ["0", "0", "0"] # Default values if OCR fails
 
 
 def checktrophies(port):
@@ -511,7 +506,7 @@ def get_pixel(x, y):
 
     log(f"[func] get_pixel : (pos={x},{y})  {mi_pixel}", debug=True)
         
-    return mi_pixel
+    return mi_pixel  # devuelve (R, G, B)
 
 def get_pixel_from_image(image, x, y):
     """Devuelve el píxel de una imagen OpenCV ya capturada, sin hacer otro screenshot."""
@@ -558,6 +553,7 @@ def checkpixelBB_old(x,y):
 
 
 def calibrar_zoom(popup=None):
+    # 1. Screenshot real
     filename = screenshot(tag="calibracion")
     img = cv2.imread(filename)
 
@@ -565,11 +561,13 @@ def calibrar_zoom(popup=None):
         log("❌ Error leyendo la captura")
         return
 
+    # 2. Cargar plantilla BH
     bh_template = cv2.imread("templates/bh.png")
     if bh_template is None:
         log("❌ No se encontró plantilla BH")
         return
 
+    # 3. Matching multiescala
     scales = [0.8, 1.0, 1.2]
     best_val = -1
     best_match = None
@@ -591,6 +589,7 @@ def calibrar_zoom(popup=None):
         log("❌ No se detectó el BH. Revisa el zoom.")
         return None
 
+    # 4. Calcular datos de calibración
     result = {
         "pos": best_match["pos"],
         "size": best_match["size"],
@@ -598,6 +597,7 @@ def calibrar_zoom(popup=None):
         "confidence": best_val,
     }
 
+    # 5. Estimar zoom
     bh_w = result["size"][1]
     if bh_w < 80:
         zoom = "mínimo"
@@ -608,6 +608,7 @@ def calibrar_zoom(popup=None):
 
     result["zoom"] = zoom
 
+    # 6. Log
     log("✅ Calibración completada")
     log(f"BH detectado en {result['pos']}")
     log(f"Tamaño BH: {result['size']}")
@@ -637,8 +638,10 @@ def cleanup_screenshots(folder="screenshots", max_files=200):
     if len(files) <= max_files:
         return
 
+    # Ordenar por fecha de modificación (más antiguos primero)
     files.sort(key=lambda f: f.stat().st_mtime)
 
+    # Borrar los sobrantes
     for file in files[:-max_files]:
         try:
             file.unlink()
