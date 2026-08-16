@@ -79,16 +79,14 @@ class BotInterface(ctk.CTk):
         self.autoscroll_switch.select()
         self.autoscroll_switch.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-        self.debug_label = ctk.CTkLabel(self.log_controls_frame, text="Debug:")
-        self.debug_label.grid(row=0, column=1, padx=5, pady=(5, 0), sticky="w")
-        self.debug_switch = ctk.CTkSwitch(
+        self.debug_checkbox = ctk.CTkCheckBox(
             self.log_controls_frame,
-            text="Activar",
+            text="Debug Mode",
             command=self._toggle_debug
         )
         if settings.debug_mode:
-            self.debug_switch.select()
-        self.debug_switch.grid(row=0, column=1, padx=(55, 5), pady=5, sticky="w")
+            self.debug_checkbox.select()
+        self.debug_checkbox.grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
     # Métodos internos
     def update_bot_status(self):
@@ -128,7 +126,7 @@ class BotInterface(ctk.CTk):
 
     # ---------- Handlers de controles ----------
     def _toggle_debug(self):
-        settings.set_debug(self.debug_switch.get() == 1)
+        settings.set_debug(self.debug_checkbox.get() == 1)
 
     def _on_attack_mode_change(self, choice):
         settings.set_attack_mode(choice)
