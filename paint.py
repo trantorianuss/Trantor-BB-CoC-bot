@@ -1,3 +1,6 @@
+import time
+print(f">>> paint.py  starting [{time.perf_counter():.3f}]")
+
 import random
 from PIL import Image, ImageDraw
 
@@ -5,7 +8,6 @@ import func as f
 
 import time
 
-print(f"{time.perf_counter():.3f} >>> paint.py starting")
 
 
 # ============================================================
