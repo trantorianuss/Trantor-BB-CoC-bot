@@ -34,7 +34,7 @@ FIND_BUTTON = (320, 800)             # TODO: real "Find" button coordinates
 ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordinates
 
 # Example troop deployment point near the edge of the main village.
-DROP_POINT = (300, 500)              # TODO: real TH drop point
+DROP_POINT = (80, 444)              # TODO: real TH drop point
 
 PIXEL_TOLERANCE = 10
 
@@ -136,15 +136,18 @@ def start_attack():
     """Start a TH attack through the three-button sequence."""
 
     f.log("[TH] Pressing first attack button")
-    debug_tap_scale(*ATTACK_BUTTON_1, "attack_1", (0, 0, 255))
+    f.tap_scale(*ATTACK_BUTTON_1)
+    #debug_tap_scale(*ATTACK_BUTTON_1, "attack_1", (0, 0, 255))
     time.sleep(1)
 
     f.log("[TH] Pressing Find")
-    debug_tap_scale(*FIND_BUTTON, "find", (0, 255, 0))
+    f.tap_scale(*FIND_BUTTON)
+    #debug_tap_scale(*FIND_BUTTON, "find", (0, 255, 0))
     time.sleep(5)
 
     f.log("[TH] Pressing second attack button")
-    debug_tap_scale(*ATTACK_BUTTON_2, "attack_2", (255, 0, 0))
+    f.tap_scale(*ATTACK_BUTTON_2)
+    #debug_tap_scale(*ATTACK_BUTTON_2, "attack_2", (255, 0, 0))
     time.sleep(2)
 
 
@@ -185,10 +188,22 @@ def wait_for_battle_end():
 
         time.sleep(1)
 
+def initialize_coords():
+    f.log("[coords] Inicializando resolución...")
+    try:
+        real_w, real_h = f.get_real_resolution()
+        coords.init_resolution(real_w, real_h)
+        f.log(f"[coords] Resolución inicializada: {real_w}x{real_h}")
+    except Exception as exc:
+        f.log(f"[coords] No se pudo obtener la resolución real: {exc}")
+        coords.init_resolution(1920, 1080)
+        f.log("[coords] Usando resolución por defecto: 1920x1080")
+
 
 # -----------------------------------------------------------------------------
 # Command-line entry point
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
+    initialize_coords()
     th_game_flow()
