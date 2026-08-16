@@ -26,9 +26,9 @@ BATTLE_END_PIXEL = (200, 200)        # TODO: real pixel position
 BATTLE_END_COLOR = (0, 255, 0)       # TODO: real RGB/BGR value used by func
 
 # Attack start sequence.
-ATTACK_BUTTON_1 = (400, 800)         # TODO: real "Atacar" button coordinates
-FIND_BUTTON = (600, 700)             # TODO: real "Find" button coordinates
-ATTACK_BUTTON_2 = (800, 800)         # TODO: real second "Atacar" button coordinates
+ATTACK_BUTTON_1 = (125, 995)         # TODO: real "Atacar" button coordinates
+FIND_BUTTON = (320, 800)             # TODO: real "Find" button coordinates
+ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordinates
 
 # Example troop deployment point near the edge of the main village.
 DROP_POINT = (300, 500)              # TODO: real TH drop point
