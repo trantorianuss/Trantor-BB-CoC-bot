@@ -26,8 +26,8 @@ import screen_layout as layout
 
 ELIXIR_FULL_PIXEL = (100, 100)       # TODO: real pixel position
 ELIXIR_FULL_COLOR = (255, 0, 255)    # TODO: real RGB/BGR value used by func
-BATTLE_END_PIXEL = (200, 200)        # TODO: real pixel position
-BATTLE_END_COLOR = (0, 255, 0)       # TODO: real RGB/BGR value used by func
+BATTLE_END_PIXEL = (960, 960)        # TODO: real pixel position
+BATTLE_END_COLOR = (108, 187, 31)       # TODO: real RGB/BGR value used by func
 
 # Attack start sequence.
 ATTACK_BUTTON_1 = (125, 995)         # TODO: real "Atacar" button coordinates
@@ -41,29 +41,42 @@ ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordin
 # Available drop areas for now: "edge" and "center".
 DEPLOY_SEQUENCE = [
     # Troops
-    (1, 3, "edge", 0.1),
-    (2, 4, "edge", 0.1),
-    (3, 5, "edge", 0.1),
+    (1,  6, "edge", 0),
+    (2, 12, "edge", 0),
+    (3,  3, "edge", 0),
+    (4,  1, "edge", 0),
 
     # Heroes: select/deploy only
-    (4, 0, "edge", 0.1),
-    (5, 0, "edge", 0.1),
+    (5, 1, "edge", 0.1),
+    (6, 1, "edge", 0.1),
+    (7, 1, "edge", 0.1),
+    (8, 1, "edge", 0.1),
 
     # Hero abilities: select slot only, later in the attack
-    (4, 0, "edge", 5.0),
-    (5, 0, "edge", 1.0),
+    (5, 0, "edge", 0.1),
+    (6, 0, "edge", 0.1),
+    (7, 0, "edge", 0.1),
+    (8, 0, "edge", 0.1),
 
     # Spell / special slot
-    (6, 2, "center", 3.0),
-    (6, 1, "center", 2.0),
+    (9, 2, "center", 3.0),
+    (10, 1, "center", 2.0),
 ]
 
 # Example troop deployment points.
 # TODO: replace these with the real TH drop coordinates.
 DROP_POINTS_EDGE = [
-    (80, 444),
-    (120, 444),
-    (160, 444),
+    (240, 440),
+    (280, 400),
+    (320, 360),
+    (360, 320),
+]
+
+DROP_POINTS_EDGE_SAVE = [
+    (80, 440),
+    (120, 400),
+    (160, 360),
+    (200, 320),
 ]
 DROP_POINT_CENTER = (960, 540)
 
@@ -163,11 +176,11 @@ def start_attack():
 
     f.log("[TH] Pressing first attack button")
     f.tap_scale(*ATTACK_BUTTON_1)
-    time.sleep(1)
+    time.sleep(0.5)
 
     f.log("[TH] Pressing Find")
     f.tap_scale(*FIND_BUTTON)
-    time.sleep(5)
+    time.sleep(0.5)
 
     f.log("[TH] Pressing second attack button")
     f.tap_scale(*ATTACK_BUTTON_2)
@@ -217,7 +230,7 @@ def deploy_troops():
                 drop_point = drop_points[0]
 
             f.tap_scale(*drop_point)
-            time.sleep(0.5)
+            time.sleep(0.1)
 
     f.log("[TH] Despliegue terminado")
 
