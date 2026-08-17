@@ -20,7 +20,7 @@ import coords
 import screen_layout as layout
 
 
-ELIXIR_FULL_PIXEL = (1530, 182)
+ELIXIR_FULL_PIXEL = (1620, 130)
 ELIXIR_FULL_COLOR = (192, 39, 192)
 BATTLE_END_PIXEL = (960, 960)
 BATTLE_END_COLOR = (108, 187, 31)
