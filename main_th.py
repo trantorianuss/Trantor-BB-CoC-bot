@@ -25,21 +25,21 @@ import screen_layout as layout
 # Replace these with the real values once the flow is verified.
 # -----------------------------------------------------------------------------
 
-ELIXIR_FULL_PIXEL = (1530, 182)       # TODO: real pixel position
-ELIXIR_FULL_COLOR = (192, 39, 192)    # TODO: real RGB/BGR value used by func
-BATTLE_END_PIXEL = (960, 960)        # TODO: real pixel position
-BATTLE_END_COLOR = (108, 187, 31)       # TODO: real RGB/BGR value used by func
+ELIXIR_FULL_PIXEL = (1530, 182)
+ELIXIR_FULL_COLOR = (192, 39, 192)
+BATTLE_END_PIXEL = (960, 960)
+BATTLE_END_COLOR = (108, 187, 31)
 
 # Attack start sequence.
-ATTACK_BUTTON_1 = (125, 995)         # TODO: real "Atacar" button coordinates
-FIND_BUTTON = (320, 800)             # TODO: real "Find" button coordinates
-ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordinates
+ATTACK_BUTTON_1 = (125, 995)
+FIND_BUTTON = (320, 800)
+ATTACK_BUTTON_2 = (1700, 960)
 
 # Deployment sequence.
 # Each entry is: (slot, number of troops, drop area, delay).
 # delay is the wait BEFORE executing that action.
 # count=0 means: press the slot only, without dropping troops.
-# Available drop areas for now: "edge", "center" and "random".
+# Available drop areas: "edge", "center" and "random".
 DEPLOY_SEQUENCE = [
     # Troops
     (1,  6, "edge", 0),
@@ -47,13 +47,13 @@ DEPLOY_SEQUENCE = [
     (3,  3, "edge", 0),
     (4,  1, "edge", 0),
 
-    # Heroes: select/deploy only
+    # Heroes
     (5, 1, "edge", 0.1),
     (6, 1, "edge", 0.1),
     (7, 1, "edge", 0.1),
     (8, 1, "edge", 0.1),
 
-    # Hero abilities: select slot only, later in the attack
+    # Hero abilities
     (5, 0, "edge", 0.1),
     (6, 0, "edge", 0.1),
     (7, 0, "edge", 0.1),
@@ -64,15 +64,8 @@ DEPLOY_SEQUENCE = [
     (10, 1, "random", 0),
 ]
 
-# Example troop deployment points.
-# TODO: replace these with the real TH drop coordinates.
-DROP_POINTS_EDGE_S1 = [
-    (240, 440),
-    (280, 400),
-    (320, 360),
-    (360, 320),
-]
-
+# Fallback edge points. These are used only if no interactive edge zone
+# has been selected.
 DROP_POINTS_EDGE = [
     (80, 440),
     (120, 400),
@@ -83,11 +76,20 @@ DROP_POINTS_EDGE = [
 DROP_POINT_CENTER = (960, 540)
 
 # Random drop area: diamond representing the approximate square TH base
-# rotated 45 degrees. A point is accepted only when it falls inside the
-# diamond. Tune these three values once the real base boundaries are known.
+# rotated 45 degrees.
 DROP_DIAMOND_CENTER = (960, 540)
 DROP_DIAMOND_HALF_WIDTH = 450
 DROP_DIAMOND_HALF_HEIGHT = 450
+
+# Interactive edge zone. Set by select_edge_zone().
+EDGE_ZONE_START = None
+EDGE_ZONE_END = None
+EDGE_ZONE_POINTS = []
+
+# Size of the OpenCV selection window. The screenshot itself is kept at full
+# resolution; only the displayed copy is resized.
+ZONE_WINDOW_MAX_WIDTH = 1000
+ZONE_WINDOW_MAX_HEIGHT = 700
 
 PIXEL_TOLERANCE = 10
 
@@ -135,6 +137,120 @@ def debug_tap_scale(x, y, name, color):
     f.log(f"[TH DEBUG] Screenshot guardado: {filename}")
 
     f.tap_scale(x, y)
+
+
+# -----------------------------------------------------------------------------
+# Interactive deployment zone selection
+# -----------------------------------------------------------------------------
+
+def select_edge_zone():
+    """Show a reduced screenshot and let the user define the TH edge line."""
+
+    global EDGE_ZONE_START, EDGE_ZONE_END, EDGE_ZONE_POINTS
+
+    image = f.capture_screenshot()
+    if image is None:
+        f.log("[TH] No se pudo capturar screenshot para definir la zona", color="red")
+        return False
+
+    image_h, image_w = image.shape[:2]
+    display_scale = min(
+        1.0,
+        ZONE_WINDOW_MAX_WIDTH / image_w,
+        ZONE_WINDOW_MAX_HEIGHT / image_h,
+    )
+
+    display_w = int(image_w * display_scale)
+    display_h = int(image_h * display_scale)
+    display_image = cv2.resize(image, (display_w, display_h))
+
+    window_name = "TH - Selecciona zona EDGE (2 puntos)"
+    points = []
+
+    def mouse_callback(event, x, y, flags, param):
+        if event != cv2.EVENT_LBUTTONDOWN or len(points) >= 2:
+            return
+
+        original_x = int(x / display_scale)
+        original_y = int(y / display_scale)
+        points.append((original_x, original_y))
+
+        cv2.circle(display_image, (x, y), 7, (0, 255, 0), -1)
+        if len(points) == 2:
+            p1 = (
+                int(points[0][0] * display_scale),
+                int(points[0][1] * display_scale),
+            )
+            p2 = (
+                int(points[1][0] * display_scale),
+                int(points[1][1] * display_scale),
+            )
+            cv2.line(display_image, p1, p2, (0, 255, 255), 3)
+
+        cv2.imshow(window_name, display_image)
+
+    cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+    cv2.setMouseCallback(window_name, mouse_callback)
+
+    f.log("[TH] Haz click en los DOS extremos de la zona EDGE")
+    f.log("[TH] Pulsa ESC para cancelar")
+
+    while len(points) < 2:
+        cv2.imshow(window_name, display_image)
+        key = cv2.waitKey(50) & 0xFF
+        if key == 27:
+            cv2.destroyWindow(window_name)
+            f.log("[TH] Selección de zona EDGE cancelada")
+            return False
+
+    cv2.imshow(window_name, display_image)
+    cv2.waitKey(500)
+    cv2.destroyWindow(window_name)
+
+    EDGE_ZONE_START = points[0]
+    EDGE_ZONE_END = points[1]
+
+    # Generate enough points along the selected line so normal troop drops
+    # can be distributed instead of all landing on one coordinate.
+    distance = (
+        (EDGE_ZONE_END[0] - EDGE_ZONE_START[0]) ** 2
+        + (EDGE_ZONE_END[1] - EDGE_ZONE_START[1]) ** 2
+    ) ** 0.5
+    point_count = max(2, int(distance / 40) + 1)
+
+    EDGE_ZONE_POINTS = []
+    for i in range(point_count):
+        t = i / (point_count - 1)
+        x = int(EDGE_ZONE_START[0] + t * (EDGE_ZONE_END[0] - EDGE_ZONE_START[0]))
+        y = int(EDGE_ZONE_START[1] + t * (EDGE_ZONE_END[1] - EDGE_ZONE_START[1]))
+        EDGE_ZONE_POINTS.append((x, y))
+
+    f.log(
+        f"[TH] Zona EDGE: {EDGE_ZONE_START} -> {EDGE_ZONE_END} "
+        f"({len(EDGE_ZONE_POINTS)} puntos)"
+    )
+    return True
+
+
+def prepare_th_run():
+    """Initialize resolution and wait for the user to choose the next action."""
+
+    initialize_coords()
+
+    while True:
+        print()
+        print("Pulsa 1 para indicar zona de despliegue EDGE")
+        print("Pulsa 2 para atacar")
+        choice = input("> ").strip()
+
+        if choice == "1":
+            select_edge_zone()
+        elif choice == "2":
+            if not EDGE_ZONE_POINTS:
+                f.log("[TH] No se ha definido zona EDGE; se usarán los puntos de fallback", color="yellow")
+            return
+        else:
+            print("Opción no válida")
 
 
 # -----------------------------------------------------------------------------
@@ -215,7 +331,6 @@ def random_drop_point():
         x = random.uniform(center_x - half_width, center_x + half_width)
         y = random.uniform(center_y - half_height, center_y + half_height)
 
-        # Diamond equation: |dx|/a + |dy|/b <= 1
         if (
             abs(x - center_x) / half_width
             + abs(y - center_y) / half_height
@@ -246,7 +361,7 @@ def deploy_troops():
         if drop_area == "center":
             drop_points = [DROP_POINT_CENTER]
         elif drop_area == "edge":
-            drop_points = DROP_POINTS_EDGE
+            drop_points = EDGE_ZONE_POINTS if EDGE_ZONE_POINTS else DROP_POINTS_EDGE
         elif drop_area == "random":
             drop_points = None
         else:
@@ -308,5 +423,5 @@ def initialize_coords():
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    initialize_coords()
+    prepare_th_run()
     th_game_flow()
