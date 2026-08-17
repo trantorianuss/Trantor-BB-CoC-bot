@@ -10,6 +10,7 @@ It can be executed directly from the command line:
 import json
 import random
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import cv2
@@ -235,8 +236,7 @@ def select_edge_zone():
     cv2.waitKey(500)
     cv2.destroyWindow(window_name)
 
-    # points are in REAL screenshot coordinates. Convert them to BASE before
-    # storing them, so later tap_scale() performs REAL = BASE * scale.
+    # Clicks are in REAL screenshot coordinates. Convert to BASE before saving.
     EDGE_ZONE_START = (
         int(points[0][0] / coords.SX),
         int(points[0][1] / coords.SY),
@@ -331,6 +331,30 @@ def slot(n):
     f.tap_scale(x, y)
 
 
+def multi_tap_scale(points):
+    """Fast burst of scaled taps.
+
+    This intentionally uses several ADB input-tap commands launched in parallel.
+    It is NOT a true Android multi-pointer MotionEvent, but it removes the
+    Python-side 0.1/0.5 s delay between troops and gets the taps onto ADB as
+    close together as the host/ADB connection allows.
+    """
+    if not points:
+        return
+
+    scaled_points = [coords.scale(x, y) if coords.REAL_W is not None and coords.REAL_H is not None
+                     else (x, y) for x, y in points]
+
+    f.log(f"[TH MULTI TAP] {len(scaled_points)} taps: {scaled_points}")
+
+    def send(point):
+        x, y = point
+        f.adb(f"input tap {x} {y}")
+
+    with ThreadPoolExecutor(max_workers=len(scaled_points)) as executor:
+        list(executor.map(send, scaled_points))
+
+
 def random_drop_point():
     center_x, center_y = DROP_DIAMOND_CENTER
     half_width = DROP_DIAMOND_HALF_WIDTH
@@ -369,6 +393,7 @@ def deploy_troops():
             f.log(f"[TH] Zona de despliegue desconocida: {drop_area}", color="red")
             continue
 
+        points_to_drop = []
         for _ in range(count):
             if drop_area == "edge":
                 drop_point = drop_points[edge_index % len(drop_points)]
@@ -378,9 +403,10 @@ def deploy_troops():
                 f.log(f"[TH] Random drop -> {drop_point}")
             else:
                 drop_point = drop_points[0]
+            points_to_drop.append(drop_point)
 
-            f.tap_scale(*drop_point)
-            time.sleep(0.1)
+        # All drops for this slot are sent as a fast burst.
+        multi_tap_scale(points_to_drop)
 
     f.log("[TH] Despliegue terminado")
 
