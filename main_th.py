@@ -29,6 +29,11 @@ FIND_BUTTON = (320, 800)
 ATTACK_BUTTON_2 = (1700, 960)
 MULTITAP_MAX = 4
 
+# TH slot bar is shifted one slot to the left compared with the common
+# FIRST_SLOT_CENTER reference. Keep this offset local to TH so Builder Base
+# slot handling remains unchanged.
+TH_SLOT_OFFSET = -1
+
 DEPLOY_SEQUENCE = [
     (1,  6, "edge",   0,   True),
     (2, 12, "edge",   0,   True),
@@ -124,6 +129,13 @@ def debug_tap_scale(x, y, name, color):
     f.tap_scale(x, y)
 
 
+def get_th_slot_position(n):
+    """Return the TH slot position in base coordinates."""
+    x = layout.FIRST_SLOT_CENTER[0] + layout.SLOT_STEP * (n - 1 + TH_SLOT_OFFSET)
+    y = layout.FIRST_SLOT_CENTER[1]
+    return x, y
+
+
 def save_deployment_debug():
     image = f.capture_screenshot()
     if image is None:
@@ -137,7 +149,6 @@ def save_deployment_debug():
             return tuple(int(v) for v in coords.scale(x, y))
         return int(x), int(y)
 
-    # Draw center diamond.
     cx, cy = to_real(DROP_DIAMOND_CENTER)
     top = to_real((DROP_DIAMOND_CENTER[0], DROP_DIAMOND_CENTER[1] - DROP_DIAMOND_HALF_HEIGHT))
     right = to_real((DROP_DIAMOND_CENTER[0] + DROP_DIAMOND_HALF_WIDTH, DROP_DIAMOND_CENTER[1]))
@@ -148,7 +159,6 @@ def save_deployment_debug():
         cv2.line(image, p1, p2, (0, 255, 255), 3)
     cv2.circle(image, (cx, cy), 10, (0, 255, 255), -1)
 
-    # Draw EDGE line and candidate points.
     if EDGE_ZONE_START is not None and EDGE_ZONE_END is not None:
         start = to_real(EDGE_ZONE_START)
         end = to_real(EDGE_ZONE_END)
@@ -158,12 +168,9 @@ def save_deployment_debug():
         for point in EDGE_ZONE_POINTS:
             cv2.circle(image, to_real(point), 6, (255, 0, 0), -1)
 
-    # Mark every slot using the same calculation as slot().
-    # The number makes it immediately visible if the calculated position
-    # does not correspond to the actual slot on screen.
+    # Mark every TH slot using the same calculation as slot().
     for slot_number in range(1, 11):
-        slot_x = layout.FIRST_SLOT_CENTER[0] + layout.SLOT_STEP * (slot_number - 1)
-        slot_y = layout.FIRST_SLOT_CENTER[1]
+        slot_x, slot_y = get_th_slot_position(slot_number)
         real_x, real_y = to_real((slot_x, slot_y))
         cv2.circle(image, (real_x, real_y), 18, (0, 255, 0), 2)
         cv2.putText(image, str(slot_number), (real_x - 8, real_y + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
@@ -270,8 +277,7 @@ def start_attack():
 
 
 def slot(n):
-    x = layout.FIRST_SLOT_CENTER[0] + layout.SLOT_STEP * (n - 1)
-    y = layout.FIRST_SLOT_CENTER[1]
+    x, y = get_th_slot_position(n)
     f.tap_scale(x, y)
 
 
