@@ -266,7 +266,7 @@ def start_attack():
     time.sleep(0.5)
     f.log("[TH] Pressing second attack button")
     f.tap_scale(*ATTACK_BUTTON_2)
-    time.sleep(2)
+    time.sleep(5)  # Wait for the battle to load
 
 
 def slot(n):

@@ -1,4 +1,10 @@
 {
-  "edge_zone_start": null,
-  "edge_zone_end": null
+  "edge_zone_start": [
+    210,
+    415
+  ],
+  "edge_zone_end": [
+    606,
+    127
+  ]
 }
