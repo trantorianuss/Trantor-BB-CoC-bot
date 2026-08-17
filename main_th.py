@@ -60,20 +60,20 @@ DEPLOY_SEQUENCE = [
     (8, 0, "edge", 0.1),
 
     # Spell / special slot
-    (9, 2, "center", 3.0),
-    (10, 1, "center", 2.0),
+    (9, 10, "random", 0),
+    (10, 1, "random", 0),
 ]
 
 # Example troop deployment points.
 # TODO: replace these with the real TH drop coordinates.
-DROP_POINTS_EDGE = [
+DROP_POINTS_EDGE_S1 = [
     (240, 440),
     (280, 400),
     (320, 360),
     (360, 320),
 ]
 
-DROP_POINTS_EDGE_SAVE = [
+DROP_POINTS_EDGE = [
     (80, 440),
     (120, 400),
     (160, 360),
