@@ -33,24 +33,29 @@ ATTACK_BUTTON_1 = (125, 995)
 FIND_BUTTON = (320, 800)
 ATTACK_BUTTON_2 = (1700, 960)
 
-# Each entry: (slot, number of troops, drop area, delay before action).
+# Maximum number of taps sent in one fast multitap batch.
+MULTITAP_MAX = 4
+
+# Each entry: (slot, number of troops, drop area, delay before action, multitap).
 # count=0 means: press the slot only, without dropping troops.
+# multitap=True sends drops in batches of up to MULTITAP_MAX.
+# multitap=False sends drops one by one using the normal tap method.
 # Drop areas: "edge", "center" and "random".
 DEPLOY_SEQUENCE = [
-    (1,  6, "edge", 0),
-    (2, 12, "edge", 0),
-    (3,  3, "edge", 0),
-    (4,  1, "edge", 0),
-    (5,  1, "edge", 0.1),
-    (6,  1, "edge", 0.1),
-    (7,  1, "edge", 0.1),
-    (8,  1, "edge", 0.1),
-    (5,  0, "edge", 0.1),
-    (6,  0, "edge", 0.1),
-    (7,  0, "edge", 0.1),
-    (8,  0, "edge", 0.1),
-    (9, 10, "random", 0),
-    (10, 1, "random", 0),
+    (1,  6, "edge",   0,   True),
+    (2, 12, "edge",   0,   True),
+    (3,  3, "edge",   0,   False),
+    (4,  1, "edge",   0,   False),
+    (5,  1, "edge",   0.1, False),
+    (6,  1, "edge",   0.1, False),
+    (7,  1, "edge",   0.1, False),
+    (8,  1, "edge",   0.1, False),
+    (5,  0, "edge",   0.1, False),
+    (6,  0, "edge",   0.1, False),
+    (7,  0, "edge",   0.1, False),
+    (8,  0, "edge",   0.1, False),
+    (9, 10, "random", 0,   True),
+    (10, 1, "random", 0,   True),
 ]
 
 DROP_POINTS_EDGE = [
@@ -332,18 +337,16 @@ def slot(n):
 
 
 def multi_tap_scale(points):
-    """Fast burst of scaled taps.
-
-    This intentionally uses several ADB input-tap commands launched in parallel.
-    It is NOT a true Android multi-pointer MotionEvent, but it removes the
-    Python-side 0.1/0.5 s delay between troops and gets the taps onto ADB as
-    close together as the host/ADB connection allows.
-    """
+    """Fast burst of scaled taps, up to the configured batch size."""
     if not points:
         return
 
-    scaled_points = [coords.scale(x, y) if coords.REAL_W is not None and coords.REAL_H is not None
-                     else (x, y) for x, y in points]
+    scaled_points = [
+        coords.scale(x, y)
+        if coords.REAL_W is not None and coords.REAL_H is not None
+        else (x, y)
+        for x, y in points
+    ]
 
     f.log(f"[TH MULTI TAP] {len(scaled_points)} taps: {scaled_points}")
 
@@ -370,13 +373,13 @@ def random_drop_point():
 def deploy_troops():
     edge_index = 0
 
-    for slot_number, count, drop_area, delay in DEPLOY_SEQUENCE:
+    for slot_number, count, drop_area, delay, use_multitap in DEPLOY_SEQUENCE:
         if delay > 0:
             time.sleep(delay)
 
         f.log(
             f"[TH] Slot {slot_number} | cantidad={count} | "
-            f"zona={drop_area} | delay={delay}s"
+            f"zona={drop_area} | delay={delay}s | multitap={use_multitap}"
         )
         slot(slot_number)
 
@@ -405,8 +408,14 @@ def deploy_troops():
                 drop_point = drop_points[0]
             points_to_drop.append(drop_point)
 
-        # All drops for this slot are sent as a fast burst.
-        multi_tap_scale(points_to_drop)
+        if use_multitap:
+            for start in range(0, len(points_to_drop), MULTITAP_MAX):
+                batch = points_to_drop[start:start + MULTITAP_MAX]
+                multi_tap_scale(batch)
+        else:
+            for point in points_to_drop:
+                f.tap_scale(*point)
+                time.sleep(0.5)
 
     f.log("[TH] Despliegue terminado")
 
