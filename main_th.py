@@ -188,6 +188,52 @@ def debug_tap_scale(x, y, name, color):
     f.tap_scale(x, y)
 
 
+def save_deployment_debug():
+    """Save a screenshot showing the configured EDGE line, candidate points and diamond."""
+    image = f.capture_screenshot()
+
+    if image is None:
+        f.log("[TH DEBUG] No se pudo capturar screenshot del mapa de despliegue", color="red")
+        return
+
+    image_h, image_w = image.shape[:2]
+
+    def to_real(point):
+        x, y = point
+        if coords.REAL_W is not None and coords.REAL_H is not None:
+            return tuple(int(v) for v in coords.scale(x, y))
+        return int(x), int(y)
+
+    # Draw the center diamond used by the "random" deployment area.
+    cx, cy = to_real(DROP_DIAMOND_CENTER)
+    top = to_real((DROP_DIAMOND_CENTER[0], DROP_DIAMOND_CENTER[1] - DROP_DIAMOND_HALF_HEIGHT))
+    right = to_real((DROP_DIAMOND_CENTER[0] + DROP_DIAMOND_HALF_WIDTH, DROP_DIAMOND_CENTER[1]))
+    bottom = to_real((DROP_DIAMOND_CENTER[0], DROP_DIAMOND_CENTER[1] + DROP_DIAMOND_HALF_HEIGHT))
+    left = to_real((DROP_DIAMOND_CENTER[0] - DROP_DIAMOND_HALF_WIDTH, DROP_DIAMOND_CENTER[1]))
+    diamond = [top, right, bottom, left]
+    for p1, p2 in zip(diamond, diamond[1:] + diamond[:1]):
+        cv2.line(image, p1, p2, (0, 255, 255), 3)
+    cv2.circle(image, (cx, cy), 10, (0, 255, 255), -1)
+
+    # Draw the configured EDGE line and every pre-calculated candidate point.
+    if EDGE_ZONE_START is not None and EDGE_ZONE_END is not None:
+        start = to_real(EDGE_ZONE_START)
+        end = to_real(EDGE_ZONE_END)
+        cv2.line(image, start, end, (255, 0, 255), 4)
+        cv2.circle(image, start, 10, (255, 0, 255), -1)
+        cv2.circle(image, end, 10, (255, 0, 255), -1)
+
+        for point in EDGE_ZONE_POINTS:
+            cv2.circle(image, to_real(point), 6, (255, 0, 0), -1)
+
+    filename = f.save_image("th_deployment_debug", image)
+    f.log(
+        f"[TH DEBUG] Mapa despliegue guardado: {filename} | "
+        f"EDGE={len(EDGE_ZONE_POINTS)} puntos | "
+        f"captura={image_w}x{image_h}"
+    )
+
+
 # -----------------------------------------------------------------------------
 # Interactive deployment zone selection
 # -----------------------------------------------------------------------------
@@ -293,6 +339,7 @@ def th_game_flow():
     while not is_elixir_full():
         f.log("[TH] Elixir not full -> starting attack")
         start_attack()
+        save_deployment_debug()
         deploy_troops()
 
         if not wait_for_battle_end():
