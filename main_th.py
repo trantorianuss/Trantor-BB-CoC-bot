@@ -66,7 +66,6 @@ DROP_DIAMOND_HALF_HEIGHT = 450
 
 ATTACK_CONFIG_FILE = Path(__file__).with_name("attack_th.json")
 
-# Loaded/saved for the current configuration. These are populated at startup.
 EDGE_ZONE_START = None
 EDGE_ZONE_END = None
 EDGE_ZONE_POINTS = []
@@ -81,8 +80,6 @@ PIXEL_TOLERANCE = 10
 # -----------------------------------------------------------------------------
 
 def load_attack_config():
-    """Load the saved edge zone if attack_th.json exists."""
-
     global EDGE_ZONE_START, EDGE_ZONE_END, EDGE_ZONE_POINTS
 
     if not ATTACK_CONFIG_FILE.exists():
@@ -116,8 +113,6 @@ def load_attack_config():
 
 
 def save_attack_config():
-    """Save the selected edge zone to attack_th.json."""
-
     config = {
         "edge_zone_start": list(EDGE_ZONE_START),
         "edge_zone_end": list(EDGE_ZONE_END),
@@ -132,8 +127,7 @@ def save_attack_config():
 
 
 def build_edge_zone_points():
-    """Generate points along the selected edge line."""
-
+    """Generate points along the selected edge line in BASE coordinates."""
     global EDGE_ZONE_POINTS
 
     distance = (
@@ -241,13 +235,23 @@ def select_edge_zone():
     cv2.waitKey(500)
     cv2.destroyWindow(window_name)
 
-    EDGE_ZONE_START = points[0]
-    EDGE_ZONE_END = points[1]
+    # points are in REAL screenshot coordinates. Convert them to BASE before
+    # storing them, so later tap_scale() performs REAL = BASE * scale.
+    EDGE_ZONE_START = (
+        int(points[0][0] / coords.SX),
+        int(points[0][1] / coords.SY),
+    )
+    EDGE_ZONE_END = (
+        int(points[1][0] / coords.SX),
+        int(points[1][1] / coords.SY),
+    )
+
     build_edge_zone_points()
     save_attack_config()
 
     f.log(
-        f"[TH] Zona EDGE: {EDGE_ZONE_START} -> {EDGE_ZONE_END} "
+        f"[TH] Zona EDGE real: {points[0]} -> {points[1]} | "
+        f"base: {EDGE_ZONE_START} -> {EDGE_ZONE_END} | "
         f"({len(EDGE_ZONE_POINTS)} puntos)"
     )
     return True
@@ -255,7 +259,6 @@ def select_edge_zone():
 
 def prepare_th_run():
     """Initialize resolution, load config and wait for the next action."""
-
     initialize_coords()
     load_attack_config()
 
@@ -384,12 +387,22 @@ def deploy_troops():
 
 def wait_for_battle_end():
     f.log("[TH] Waiting for battle to finish")
+    elapsed = 0
+
     while True:
         image = f.capture_screenshot()
         x, y = BATTLE_END_PIXEL
+
         if f.check_pixel_from_image(image, x, y, BATTLE_END_COLOR, tol=PIXEL_TOLERANCE):
-            f.log("[TH] Battle finished")
+            f.log(f"[TH] Battle end button detected after {elapsed}s -> tapping")
+            f.tap_scale(*BATTLE_END_PIXEL)
+            time.sleep(1)
+            f.log("[TH] Battle end button tapped")
             return True
+
+        elapsed += 1
+        if elapsed % 5 == 0:
+            f.log(f"[TH] Battle still running... {elapsed}s")
         time.sleep(1)
 
 
