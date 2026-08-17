@@ -10,6 +10,7 @@ Only low-level functionality is reused from the application (currently func.py
 for screenshots, pixel checks and taps). The TH flow itself lives here.
 """
 
+import random
 import time
 
 import cv2
@@ -38,7 +39,7 @@ ATTACK_BUTTON_2 = (1700, 960)        # TODO: real second "Atacar" button coordin
 # Each entry is: (slot, number of troops, drop area, delay).
 # delay is the wait BEFORE executing that action.
 # count=0 means: press the slot only, without dropping troops.
-# Available drop areas for now: "edge" and "center".
+# Available drop areas for now: "edge", "center" and "random".
 DEPLOY_SEQUENCE = [
     # Troops
     (1,  6, "edge", 0),
@@ -78,7 +79,15 @@ DROP_POINTS_EDGE_SAVE = [
     (160, 360),
     (200, 320),
 ]
+
 DROP_POINT_CENTER = (960, 540)
+
+# Random drop area: diamond representing the approximate square TH base
+# rotated 45 degrees. A point is accepted only when it falls inside the
+# diamond. Tune these three values once the real base boundaries are known.
+DROP_DIAMOND_CENTER = (960, 540)
+DROP_DIAMOND_HALF_WIDTH = 450
+DROP_DIAMOND_HALF_HEIGHT = 450
 
 PIXEL_TOLERANCE = 10
 
@@ -195,6 +204,26 @@ def slot(n):
     f.tap_scale(x, y)
 
 
+def random_drop_point():
+    """Return a random point inside the configured diamond drop area."""
+
+    center_x, center_y = DROP_DIAMOND_CENTER
+    half_width = DROP_DIAMOND_HALF_WIDTH
+    half_height = DROP_DIAMOND_HALF_HEIGHT
+
+    while True:
+        x = random.uniform(center_x - half_width, center_x + half_width)
+        y = random.uniform(center_y - half_height, center_y + half_height)
+
+        # Diamond equation: |dx|/a + |dy|/b <= 1
+        if (
+            abs(x - center_x) / half_width
+            + abs(y - center_y) / half_height
+            <= 1
+        ):
+            return int(x), int(y)
+
+
 def deploy_troops():
     """Execute the configured deployment sequence."""
 
@@ -218,6 +247,8 @@ def deploy_troops():
             drop_points = [DROP_POINT_CENTER]
         elif drop_area == "edge":
             drop_points = DROP_POINTS_EDGE
+        elif drop_area == "random":
+            drop_points = None
         else:
             f.log(f"[TH] Zona de despliegue desconocida: {drop_area}", color="red")
             continue
@@ -226,6 +257,9 @@ def deploy_troops():
             if drop_area == "edge":
                 drop_point = drop_points[edge_index % len(drop_points)]
                 edge_index += 1
+            elif drop_area == "random":
+                drop_point = random_drop_point()
+                f.log(f"[TH] Random drop -> {drop_point}")
             else:
                 drop_point = drop_points[0]
 
