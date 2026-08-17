@@ -4,7 +4,7 @@ Standalone game flow for the Town Hall (main village).
 This file is intentionally independent from gameflow.py / Builder Base flow.
 It can be executed directly from the command line:
 
-    python main_th.py
+    python -m TH_Bot.main_th
 """
 
 import json
@@ -28,11 +28,6 @@ ATTACK_BUTTON_1 = (125, 995)
 FIND_BUTTON = (320, 800)
 ATTACK_BUTTON_2 = (1700, 960)
 MULTITAP_MAX = 4
-
-# TH slot bar is shifted one slot to the left compared with the common
-# FIRST_SLOT_CENTER reference. Keep this offset local to TH so Builder Base
-# slot handling remains unchanged.
-TH_SLOT_OFFSET = -1
 
 DEPLOY_SEQUENCE = [
     (1,  6, "edge",   0,   True),
@@ -60,6 +55,8 @@ ATTACK_CONFIG_FILE = Path(__file__).with_name("attack_th.json")
 EDGE_ZONE_START = None
 EDGE_ZONE_END = None
 EDGE_ZONE_POINTS = []
+TH_SLOT_1_CENTER = None
+TH_SLOT_2_CENTER = None
 ZONE_WINDOW_MAX_WIDTH = 1000
 ZONE_WINDOW_MAX_HEIGHT = 700
 PIXEL_TOLERANCE = 10
@@ -67,21 +64,34 @@ PIXEL_TOLERANCE = 10
 
 def load_attack_config():
     global EDGE_ZONE_START, EDGE_ZONE_END, EDGE_ZONE_POINTS
+    global TH_SLOT_1_CENTER, TH_SLOT_2_CENTER
+
     if not ATTACK_CONFIG_FILE.exists():
-        f.log("[TH] No existe attack_th.json; será necesario definir la zona EDGE")
+        f.log("[TH] No existe attack_th.json; será necesario definir la calibración")
         return False
     try:
         with ATTACK_CONFIG_FILE.open("r", encoding="utf-8") as file:
             config = json.load(file)
+
         start = config.get("edge_zone_start")
         end = config.get("edge_zone_end")
-        if not start or not end:
-            f.log("[TH] attack_th.json no contiene una zona EDGE válida")
-            return False
-        EDGE_ZONE_START = tuple(start)
-        EDGE_ZONE_END = tuple(end)
-        build_edge_zone_points()
-        f.log(f"[TH] Zona EDGE cargada: {EDGE_ZONE_START} -> {EDGE_ZONE_END} ({len(EDGE_ZONE_POINTS)} puntos)")
+        if start and end:
+            EDGE_ZONE_START = tuple(start)
+            EDGE_ZONE_END = tuple(end)
+            build_edge_zone_points()
+            f.log(f"[TH] Zona EDGE cargada: {EDGE_ZONE_START} -> {EDGE_ZONE_END} ({len(EDGE_ZONE_POINTS)} puntos)")
+        else:
+            f.log("[TH] Zona EDGE no definida")
+
+        slot_1 = config.get("slot_1_center")
+        slot_2 = config.get("slot_2_center")
+        TH_SLOT_1_CENTER = tuple(slot_1) if slot_1 else None
+        TH_SLOT_2_CENTER = tuple(slot_2) if slot_2 else None
+
+        if TH_SLOT_1_CENTER and TH_SLOT_2_CENTER:
+            f.log(f"[TH] Slots cargados: S1={TH_SLOT_1_CENTER} | S2={TH_SLOT_2_CENTER}")
+        else:
+            f.log("[TH] Centros de slots no definidos; será necesario calibrarlos")
         return True
     except Exception as exc:
         f.log(f"[TH] No se pudo cargar attack_th.json: {exc}", color="red")
@@ -89,7 +99,15 @@ def load_attack_config():
 
 
 def save_attack_config():
-    config = {"edge_zone_start": list(EDGE_ZONE_START), "edge_zone_end": list(EDGE_ZONE_END)}
+    config = {}
+    if EDGE_ZONE_START is not None and EDGE_ZONE_END is not None:
+        config["edge_zone_start"] = list(EDGE_ZONE_START)
+        config["edge_zone_end"] = list(EDGE_ZONE_END)
+    if TH_SLOT_1_CENTER is not None:
+        config["slot_1_center"] = list(TH_SLOT_1_CENTER)
+    if TH_SLOT_2_CENTER is not None:
+        config["slot_2_center"] = list(TH_SLOT_2_CENTER)
+
     try:
         with ATTACK_CONFIG_FILE.open("w", encoding="utf-8") as file:
             json.dump(config, file, indent=2)
@@ -130,10 +148,16 @@ def debug_tap_scale(x, y, name, color):
 
 
 def get_th_slot_position(n):
-    """Return the TH slot position in base coordinates."""
-    x = layout.FIRST_SLOT_CENTER[0] + layout.SLOT_STEP * (n - 1 + TH_SLOT_OFFSET)
-    y = layout.FIRST_SLOT_CENTER[1]
-    return x, y
+    """Return slot n using the two user-calibrated TH slot centers."""
+    if TH_SLOT_1_CENTER is None or TH_SLOT_2_CENTER is None:
+        raise RuntimeError("TH slot centers are not calibrated")
+
+    step_x = TH_SLOT_2_CENTER[0] - TH_SLOT_1_CENTER[0]
+    step_y = TH_SLOT_2_CENTER[1] - TH_SLOT_1_CENTER[1]
+    return (
+        int(TH_SLOT_1_CENTER[0] + step_x * (n - 1)),
+        int(TH_SLOT_1_CENTER[1] + step_y * (n - 1)),
+    )
 
 
 def save_deployment_debug():
@@ -168,61 +192,91 @@ def save_deployment_debug():
         for point in EDGE_ZONE_POINTS:
             cv2.circle(image, to_real(point), 6, (255, 0, 0), -1)
 
-    # Mark every TH slot using the same calculation as slot().
-    for slot_number in range(1, 11):
-        slot_x, slot_y = get_th_slot_position(slot_number)
-        real_x, real_y = to_real((slot_x, slot_y))
-        cv2.circle(image, (real_x, real_y), 18, (0, 255, 0), 2)
-        cv2.putText(image, str(slot_number), (real_x - 8, real_y + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    if TH_SLOT_1_CENTER is not None and TH_SLOT_2_CENTER is not None:
+        for slot_number in range(1, 11):
+            slot_x, slot_y = get_th_slot_position(slot_number)
+            real_x, real_y = to_real((slot_x, slot_y))
+            cv2.circle(image, (real_x, real_y), 18, (0, 255, 0), 2)
+            cv2.putText(image, str(slot_number), (real_x - 8, real_y + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
     filename = f.save_image("th_deployment_debug", image)
     f.log(f"[TH DEBUG] Mapa despliegue guardado: {filename} | EDGE={len(EDGE_ZONE_POINTS)} puntos | captura={image_w}x{image_h}")
 
 
-def select_edge_zone():
-    global EDGE_ZONE_START, EDGE_ZONE_END
+def select_two_points(title, prompt):
+    """Select two points from a scaled screenshot and return base coordinates."""
     image = f.capture_screenshot()
     if image is None:
-        f.log("[TH] No se pudo capturar screenshot para definir la zona", color="red")
-        return False
+        f.log("[TH] No se pudo capturar screenshot para la calibración", color="red")
+        return None
+
     image_h, image_w = image.shape[:2]
     display_scale = min(1.0, ZONE_WINDOW_MAX_WIDTH / image_w, ZONE_WINDOW_MAX_HEIGHT / image_h)
     display_w = int(image_w * display_scale)
     display_h = int(image_h * display_scale)
     display_image = cv2.resize(image, (display_w, display_h))
-    window_name = "TH - Selecciona zona EDGE (2 puntos)"
+    original_display = display_image.copy()
+    window_name = title
     points = []
 
     def mouse_callback(event, x, y, flags, param):
         if event != cv2.EVENT_LBUTTONDOWN or len(points) >= 2:
             return
-        points.append((int(x / display_scale), int(y / display_scale)))
+        base_x = int((x / display_scale) / coords.SX)
+        base_y = int((y / display_scale) / coords.SY)
+        points.append((base_x, base_y))
         cv2.circle(display_image, (x, y), 7, (0, 255, 0), -1)
+        cv2.putText(display_image, str(len(points)), (x + 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         if len(points) == 2:
-            p1 = tuple(int(v * display_scale) for v in points[0])
-            p2 = tuple(int(v * display_scale) for v in points[1])
+            p1 = (int(points[0][0] * coords.SX * display_scale), int(points[0][1] * coords.SY * display_scale))
+            p2 = (int(points[1][0] * coords.SX * display_scale), int(points[1][1] * coords.SY * display_scale))
             cv2.line(display_image, p1, p2, (0, 255, 255), 3)
         cv2.imshow(window_name, display_image)
 
     cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
     cv2.setMouseCallback(window_name, mouse_callback)
-    f.log("[TH] Haz click en los DOS extremos de la zona EDGE")
+    f.log(prompt)
     f.log("[TH] Pulsa ESC para cancelar")
     while len(points) < 2:
         cv2.imshow(window_name, display_image)
         key = cv2.waitKey(50) & 0xFF
         if key == 27:
             cv2.destroyWindow(window_name)
-            f.log("[TH] Selección de zona EDGE cancelada")
-            return False
+            f.log("[TH] Calibración cancelada")
+            return None
+
     cv2.imshow(window_name, display_image)
     cv2.waitKey(500)
     cv2.destroyWindow(window_name)
-    EDGE_ZONE_START = (int(points[0][0] / coords.SX), int(points[0][1] / coords.SY))
-    EDGE_ZONE_END = (int(points[1][0] / coords.SX), int(points[1][1] / coords.SY))
+    return points
+
+
+def select_edge_zone():
+    global EDGE_ZONE_START, EDGE_ZONE_END
+    points = select_two_points(
+        "TH - Selecciona zona EDGE (2 puntos)",
+        "[TH] Haz click en los DOS extremos de la zona EDGE",
+    )
+    if points is None:
+        return False
+    EDGE_ZONE_START, EDGE_ZONE_END = points
     build_edge_zone_points()
     save_attack_config()
-    f.log(f"[TH] Zona EDGE real: {points[0]} -> {points[1]} | base: {EDGE_ZONE_START} -> {EDGE_ZONE_END} | ({len(EDGE_ZONE_POINTS)} puntos)")
+    f.log(f"[TH] Zona EDGE base: {EDGE_ZONE_START} -> {EDGE_ZONE_END} | ({len(EDGE_ZONE_POINTS)} puntos)")
+    return True
+
+
+def select_slot_centers():
+    global TH_SLOT_1_CENTER, TH_SLOT_2_CENTER
+    points = select_two_points(
+        "TH - Centros Slot 1 y Slot 2",
+        "[TH] Haz click en el CENTRO del Slot 1 y después en el CENTRO del Slot 2",
+    )
+    if points is None:
+        return False
+    TH_SLOT_1_CENTER, TH_SLOT_2_CENTER = points
+    save_attack_config()
+    f.log(f"[TH] Slots guardados en resolución base: S1={TH_SLOT_1_CENTER} | S2={TH_SLOT_2_CENTER}")
     return True
 
 
@@ -231,14 +285,23 @@ def prepare_th_run():
     load_attack_config()
     while True:
         print()
-        print("Pulsa 1 para indicar/redefinir zona de despliegue EDGE")
-        print("Pulsa 2 para atacar")
+        print("1. Marcar zona de despliegue EDGE")
+        print("2. Marcar centro del Slot 1 y centro del Slot 2")
+        print("0. Ejecutar")
         choice = input("> ").strip()
         if choice == "1":
             select_edge_zone()
         elif choice == "2":
-            if not EDGE_ZONE_POINTS:
-                f.log("[TH] No se ha definido zona EDGE; se usarán los puntos de fallback", color="yellow")
+            select_slot_centers()
+        elif choice == "0":
+            missing = []
+            if TH_SLOT_1_CENTER is None:
+                missing.append("centro del Slot 1")
+            if TH_SLOT_2_CENTER is None:
+                missing.append("centro del Slot 2")
+            if missing:
+                f.log("[TH] No se puede ejecutar: falta " + " y ".join(missing) + ". Usa la opción 2.", color="yellow")
+                continue
             return
         else:
             print("Opción no válida")
@@ -273,7 +336,7 @@ def start_attack():
     time.sleep(0.5)
     f.log("[TH] Pressing second attack button")
     f.tap_scale(*ATTACK_BUTTON_2)
-    time.sleep(5)  # Wait for the battle to load
+    time.sleep(5)
 
 
 def slot(n):
@@ -286,9 +349,11 @@ def multi_tap_scale(points):
         return
     scaled_points = [coords.scale(x, y) if coords.REAL_W is not None and coords.REAL_H is not None else (x, y) for x, y in points]
     f.log(f"[TH MULTI TAP] {len(scaled_points)} taps: {scaled_points}")
+
     def send(point):
         x, y = point
         f.adb(f"input tap {x} {y}")
+
     with ThreadPoolExecutor(max_workers=len(scaled_points)) as executor:
         list(executor.map(send, scaled_points))
 
