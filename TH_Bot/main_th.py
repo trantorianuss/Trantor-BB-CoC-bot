@@ -30,6 +30,21 @@ ATTACK_BUTTON_2 = (1700, 960)
 MULTITAP_MAX = 4
 
 DEPLOY_SEQUENCE = [
+    (1, 8, "edge",   0,   True),
+    (2, 8, "edge",   0,   True),
+    (7, 10, "random", 0,   True),
+    (8, 10, "random", 0,   True),
+    (4,  1, "edge",   0,   False),
+    (5,  1, "edge",   0, False),
+    (6,  1, "edge",   0, False),
+    (7, 20, "random", 0,   True),
+    (8, 20, "random", 0,   True),
+    (4,  0, "edge",   0,   False),
+    (5,  0, "edge",   0, False),
+    (6,  0, "edge",   0, False),
+]
+
+DEPLOY_SEQUENCE_terminis_BCK = [
     (1,  6, "edge",   0,   True),
     (2, 12, "edge",   0,   True),
     (3,  3, "edge",   0,   False),
@@ -405,7 +420,7 @@ def deploy_troops():
         else:
             for point in points_to_drop:
                 f.tap_scale(*point)
-                time.sleep(0.5)
+                time.sleep(0.1)
     f.log("[TH] Despliegue terminado")
 
 
