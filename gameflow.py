@@ -29,6 +29,8 @@ def tap_surrender_button():
         detected = screen_detector.screen_detect(screen_detector.WAITING_SURRENDER)
 
         if detected == screen_detector.DETECTED_SURRENDER:
+            f.log(f"[ScreenDetector] SURRENDER ready: {detected}", color="blue", category="Surrenders")
+            
             x = random.randint(24, 246)
             y = random.randint(721, 780)
             tap_scale(x, y)
