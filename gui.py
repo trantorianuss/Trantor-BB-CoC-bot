@@ -294,18 +294,10 @@ class BotInterface(ctk.CTk):
         self.debug_categories_label.grid(row=1, column=0, columnspan=2, padx=5, pady=(0, 5), sticky="w")
 
         self.debug_category_vars = {}
-        debug_labels = {
-            "cart": "Cart",
-            "attack": "Attack",
-            "vision": "Vision / Drop",
-            "timing": "Timing",
-            "adb": "ADB",
-            "flow": "Game Flow",
-        }
-
         row = 2
-        for index, (category, label) in enumerate(debug_labels.items()):
-            variable = ctk.IntVar(value=1 if config.DEBUG.get(category, False) else 0)
+        for index, (category, enabled) in enumerate(config.DEBUG.items()):
+            label = category.replace("_", " ").title()
+            variable = ctk.IntVar(value=1 if enabled else 0)
             checkbox = ctk.CTkCheckBox(
                 tab_debug,
                 text=label,
