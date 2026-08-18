@@ -20,6 +20,27 @@ import screen_detector
 #   Surrender : Farming in Builder base
 # -----------------------------
 
+def tap_surrender_button():
+    while True:
+        if not botstate.should_run():
+            f.log("[GameFlow] Bot detenido. Se cancela la espera del botón surrender.")
+            return False
+
+        detected = screen_detector.screen_detect(screen_detector.WAITING_SURRENDER)
+
+        if detected == screen_detector.DETECTED_SURRENDER:
+            x = random.randint(24, 246)
+            y = random.randint(721, 780)
+            tap_scale(x, y)
+            return True
+
+        if detected == screen_detector.DETECTED_FIND:
+            f.log("Warning: Find button not expected", color="red")
+
+        f.log("[GameFlow] Botón surrender no está visible. Reintentando en 10 segundos.")
+        t.sleep(10)
+
+
 def confirm_surrender():
     x = random.randint(1014, 1323)
     y = random.randint(643, 752)
@@ -244,7 +265,7 @@ def perform_attack(attempt_label):
 
     # 2. Finalizar ataque según configuración
     if settings.get_attack_mode() == "surrender":
-        if not screen_detector.tap_surrender_button():
+        if not tap_surrender_button():
             return False
         t.sleep(1)
 
@@ -300,6 +321,7 @@ def farm_until_full(attacks_per_cycle=None):
     f.log(">>> Almacén lleno. Fin del ciclo. <<<")
     
     return True   # ← señal para parar
+
 
 
 
