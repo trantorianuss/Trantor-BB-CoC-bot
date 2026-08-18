@@ -29,7 +29,7 @@ def tap_surrender_button():
         detected = screen_detector.screen_detect(screen_detector.WAITING_SURRENDER)
 
         if detected == screen_detector.DETECTED_SURRENDER:
-            f.log(f"[ScreenDetector] SURRENDER ready: {detected}", color="blue", category="Surrenders")
+            f.log(f"[ScreenDetector] SURRENDER ready: {detected}", color="blue", category="detection")
             
             x = random.randint(24, 246)
             y = random.randint(721, 780)
@@ -37,7 +37,7 @@ def tap_surrender_button():
             return True
 
         if detected == screen_detector.DETECTED_FIND:
-            f.log("Warning: Find button not expected", color="red")
+            f.log("Warning: Find button not expected", color="red", category="detection")
 
         f.log("[GameFlow] Botón surrender no está visible. Reintentando en 10 segundos.")
         t.sleep(10)
@@ -194,7 +194,7 @@ def find_match():
     # 3. Primera prueba del screen detector: solo informa por log.
     # No cambia todavía la decisión del flujo.
     find_ready = screen_detector.is_find_button_visible()
-    f.log(f"[ScreenDetector] FIND ready: {find_ready}", color="blue", category="Find")
+    f.log(f"[ScreenDetector] FIND ready: {find_ready}", color="blue", category="detection")
 
     # 4. Pulsar FIND independientemente del resultado del detector.
     f.log("Pulso en Find", category="Find")

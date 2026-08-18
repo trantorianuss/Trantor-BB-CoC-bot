@@ -43,7 +43,7 @@ def log(message, debug=False, category="", color=None):
         parts.append(f"[{level}]")
 
     if category:
-        parts.append(f"[{category}]")
+        parts.append(f"<{category}>")
 
 
     parts.append(message)
