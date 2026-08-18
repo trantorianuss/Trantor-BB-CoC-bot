@@ -152,6 +152,9 @@ class BotInterface(ctk.CTk):
     def _toggle_debug_category(self, category, variable):
         config.DEBUG[category] = bool(variable.get())
 
+    def _toggle_debug_inspection(self):
+        config.DEBUG_INSPECTION = bool(self.debug_inspection_checkbox.get())
+
     def _pre_start_farm(self):
         popup = ctk.CTkToplevel(self)
         popup.title("Zoom Required")
@@ -290,11 +293,20 @@ class BotInterface(ctk.CTk):
             self.debug_checkbox.select()
         self.debug_checkbox.grid(row=0, column=0, columnspan=2, padx=5, pady=(10, 8), sticky="w")
 
+        self.debug_inspection_checkbox = ctk.CTkCheckBox(
+            tab_debug,
+            text="Show log source (file / function / line)",
+            command=self._toggle_debug_inspection,
+        )
+        if config.DEBUG_INSPECTION:
+            self.debug_inspection_checkbox.select()
+        self.debug_inspection_checkbox.grid(row=1, column=0, columnspan=2, padx=5, pady=(0, 8), sticky="w")
+
         self.debug_categories_label = ctk.CTkLabel(tab_debug, text="Log categories:")
-        self.debug_categories_label.grid(row=1, column=0, columnspan=2, padx=5, pady=(0, 5), sticky="w")
+        self.debug_categories_label.grid(row=2, column=0, columnspan=2, padx=5, pady=(0, 5), sticky="w")
 
         self.debug_category_vars = {}
-        row = 2
+        row = 3
         for index, (category, enabled) in enumerate(config.DEBUG.items()):
             label = category.replace("_", " ").title()
             variable = ctk.IntVar(value=1 if enabled else 0)
