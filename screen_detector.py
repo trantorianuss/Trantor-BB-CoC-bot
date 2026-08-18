@@ -21,26 +21,39 @@ DETECTED_FIND = "find"
 def is_surrender_button_visible(image=None):
     """Comprueba si el botón de surrender está visible.
 
-    Si se proporciona una imagen, se reutiliza esa captura. Si no, la función
-    captura la pantalla por sí misma. La función se mantiene como detección
-    individual; screen_detect() se utiliza cuando hay que comprobar varios
-    elementos sobre una misma captura.
+    Si no se proporciona una imagen, captura la pantalla. A partir de ahí
+    siempre analiza la imagen con check_pixel_from_image().
     """
-    x, y = screen_layout.SURRENDER_PIXEL
-
     if image is None:
-        return f.check_pixel(
-            x,
-            y,
-            screen_layout.SURRENDER_COLOR,
-            tol=screen_layout.PIXEL_TOLERANCE,
-        )
+        image = f.capture_screenshot()
+
+    x, y = screen_layout.SURRENDER_PIXEL
 
     return f.check_pixel_from_image(
         image,
         x,
         y,
         screen_layout.SURRENDER_COLOR,
+        tol=screen_layout.PIXEL_TOLERANCE,
+    )
+
+
+def is_find_button_visible(image=None):
+    """Comprueba si el botón FIND parece estar visible.
+
+    Si no se proporciona una imagen, captura la pantalla. A partir de ahí
+    siempre analiza la imagen con check_pixel_from_image().
+    """
+    if image is None:
+        image = f.capture_screenshot()
+
+    x, y = screen_layout.FIND_BUTTON_PIXEL
+
+    return f.check_pixel_from_image(
+        image,
+        x,
+        y,
+        screen_layout.FIND_BUTTON_COLOR,
         tol=screen_layout.PIXEL_TOLERANCE,
     )
 
@@ -60,41 +73,11 @@ def screen_detect(state):
         if is_surrender_button_visible(image):
             return DETECTED_SURRENDER
 
-        x, y = screen_layout.FIND_BUTTON_PIXEL
-        if f.check_pixel_from_image(
-            image,
-            x,
-            y,
-            screen_layout.FIND_BUTTON_COLOR,
-            tol=screen_layout.PIXEL_TOLERANCE,
-        ):
+        if is_find_button_visible(image):
             return DETECTED_FIND
 
     elif state == WAITING_FIND:
-        x, y = screen_layout.FIND_BUTTON_PIXEL
-        if f.check_pixel_from_image(
-            image,
-            x,
-            y,
-            screen_layout.FIND_BUTTON_COLOR,
-            tol=screen_layout.PIXEL_TOLERANCE,
-        ):
+        if is_find_button_visible(image):
             return DETECTED_FIND
 
     return None
-
-
-def is_find_button_visible():
-    """Comprueba si el botón FIND parece estar visible.
-
-    Función sencilla mantenida por compatibilidad. La nueva función
-    screen_detect() centraliza las comprobaciones sobre una captura.
-    """
-    x, y = screen_layout.FIND_BUTTON_PIXEL
-
-    return f.check_pixel(
-        x,
-        y,
-        screen_layout.FIND_BUTTON_COLOR,
-        tol=screen_layout.PIXEL_TOLERANCE,
-    )
