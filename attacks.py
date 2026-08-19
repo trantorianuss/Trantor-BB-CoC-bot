@@ -7,6 +7,7 @@ import config
 import drop_finder as df
 from logger import log
 import settings
+import machine_state as ms
 
 
 def Slot(n):
@@ -78,5 +79,7 @@ def BBFarm():
         for _ in range(tropas):
             f.human_tap_area(area)
             t.sleep(0.35)
+
+    ms.set_state(ms.WAITING_SURRENDER)
 
     t.sleep(0.5)
