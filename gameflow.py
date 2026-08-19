@@ -8,6 +8,7 @@ import attacks as a
 import cart_calibration
 
 import botstate
+import machine_state
 
 import random
 from func import tap_scale
@@ -190,16 +191,22 @@ def find_match():
 
     # 2. Dar tiempo a que aparezca la pantalla con FIND.
     t.sleep(0.3)
+    machine_state.set_state(machine_state.WAITING_FIND)
 
-    # 3. Primera prueba del screen detector: solo informa por log.
-    # No cambia todavía la decisión del flujo.
+    # 3. Comprobar si FIND está realmente visible.
     find_ready = screen_detector.is_find_button_visible()
     f.log(f"[ScreenDetector] FIND ready: {find_ready}", color="blue", category="detection")
 
-    # 4. Pulsar FIND independientemente del resultado del detector.
+    if not find_ready:
+        f.log("Warning: FIND button not detected", color="red", category="detection")
+        return False
+
+    # 4. Pulsar FIND y pasar al estado de ataque.
     f.log("Pulso en Find", category="Find")
     tap_scale(1375, 650)
     t.sleep(5)
+    machine_state.set_state(machine_state.ATTACKING)
+    return True
 
 
 # -----------------------------
