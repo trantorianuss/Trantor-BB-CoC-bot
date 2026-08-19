@@ -45,7 +45,7 @@ def set_state(new_state):
     message = f"STATE: {previous_state} -> {new_state}"
 
     # Visible in the normal application logger.
-    log(message, category="State")
+    log(message, debug=True, category="state")
 
     # Keep a simple historical state-transition log independent of the GUI.
     os.makedirs(_STATE_LOG_DIR, exist_ok=True)

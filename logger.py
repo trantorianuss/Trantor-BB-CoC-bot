@@ -24,7 +24,7 @@ def _should_emit_log(debug=False, category=""):
 
     # Si tienen categoría, comprobar si está habilitada
     if category:
-        return config.DEBUG.get(category, False)
+        return config.DEBUG.get(category, True)
 
     return True
 

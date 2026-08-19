@@ -28,6 +28,7 @@ DEBUG = {
     "flow": True,
     "detection": True,
     "drop": True,
+    "state": True, 
 }
 
 DEBUG_INSPECTION = False # used to print the file, function, and line number of the log message
