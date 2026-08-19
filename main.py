@@ -15,6 +15,7 @@ import elixir_cart
 import logger as l 
 from gui import BotInterface
 import calibration
+import machine_state
 
 
 # Helper
@@ -30,6 +31,7 @@ def parse_int(value, default=0):
 
 
 def bttn_start_Farm():
+    machine_state.set_state(machine_state.STARTING)
     controller.start_farm()
 
 def bttn_stop():
@@ -178,11 +180,3 @@ def initialize_coords():
 # -----------------------------
 
 l.log("  Clash of Clans Trantor Bot")
-l.log("  Initializing application...")
-
-f.cleanup_screenshots()
-initialize_coords()
-
-
-if __name__ == "__main__":
-    app.mainloop()
