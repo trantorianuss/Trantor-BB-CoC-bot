@@ -150,9 +150,12 @@ def set_debug(enabled):
 
 
 def set_attack_mode(mode):
-    """Actualizar modo de ataque."""
+    """Actualizar modo de ataque, aceptando también las etiquetas visibles de la GUI."""
     global attack_mode
-    attack_mode = mode
+    attack_mode = {
+        "Surrender": "surrender",
+        "Full attack (Beta)": "full",
+    }.get(mode, mode)
     save_state()
 
 
