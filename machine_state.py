@@ -7,6 +7,7 @@ The states and transitions are expected to evolve as the flow grows.
 import os
 import time
 
+import config
 from logger import log
 
 
@@ -48,6 +49,7 @@ def set_state(new_state):
     log(message, category="State")
 
     # Keep a simple historical state-transition log independent of the GUI.
-    os.makedirs(_STATE_LOG_DIR, exist_ok=True)
-    with open(_STATE_LOG_FILE, "a", encoding="utf-8") as file:
-        file.write(f"{timestamp} - {previous_state} - {new_state}\n")
+    if config.DEBUG_FILE_LOGS.get("state_machine", False):
+        os.makedirs(_STATE_LOG_DIR, exist_ok=True)
+        with open(_STATE_LOG_FILE, "a", encoding="utf-8") as file:
+            file.write(f"{timestamp} - {previous_state} - {new_state}\n")
