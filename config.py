@@ -23,7 +23,7 @@ DEBUG = {
     "cart": True,
     "attack": True,
     "vision": True,
-    "timing": True,
+    "timing": False,
     "adb": False,
     "flow": True,
     "detection": True,
