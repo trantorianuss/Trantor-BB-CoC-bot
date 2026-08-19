@@ -16,6 +16,7 @@ import logger as l
 from gui import BotInterface
 import calibration
 import machine_state
+import debug_file_logs_gui
 
 
 # Helper
@@ -158,6 +159,8 @@ app = BotInterface(
     on_calibrar_zoom=bttn_calibrar_zoom,
     on_calibrate=bttn_calibrate   
 )
+
+debug_file_logs_gui.install(app)
 
 # Conectar el logger central con la UI para que toda la app use la misma salida
 l.set_log_sink(app.log)
