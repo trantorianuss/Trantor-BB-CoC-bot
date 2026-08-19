@@ -15,6 +15,7 @@ import elixir_cart
 import logger as l 
 from gui import BotInterface
 import calibration
+import machine_state
 
 
 # Helper
@@ -30,6 +31,7 @@ def parse_int(value, default=0):
 
 
 def bttn_start_Farm():
+    machine_state.set_state(machine_state.STARTING)
     controller.start_farm()
 
 def bttn_stop():
