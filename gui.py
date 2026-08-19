@@ -155,6 +155,9 @@ class BotInterface(ctk.CTk):
     def _toggle_debug_inspection(self):
         config.DEBUG_INSPECTION = bool(self.debug_inspection_checkbox.get())
 
+    def _toggle_debug_file_log(self, log_name, variable):
+        config.DEBUG_FILE_LOGS[log_name] = bool(variable.get())
+
     def _pre_start_farm(self):
         popup = ctk.CTkToplevel(self)
         popup.title("Zoom Required")
@@ -318,6 +321,23 @@ class BotInterface(ctk.CTk):
             )
             checkbox.grid(row=row + index // 2, column=index % 2, padx=5, pady=3, sticky="w")
             self.debug_category_vars[category] = variable
+
+        file_logs_row = row + (len(config.DEBUG) + 1) // 2 + 1
+        self.debug_file_logs_label = ctk.CTkLabel(tab_debug, text="Diagnostic file logs:")
+        self.debug_file_logs_label.grid(row=file_logs_row, column=0, columnspan=2, padx=5, pady=(10, 5), sticky="w")
+
+        self.debug_file_log_vars = {}
+        for index, (log_name, enabled) in enumerate(config.DEBUG_FILE_LOGS.items()):
+            label = log_name.replace("_", " ").title()
+            variable = ctk.IntVar(value=1 if enabled else 0)
+            checkbox = ctk.CTkCheckBox(
+                tab_debug,
+                text=f"Write {label} history",
+                variable=variable,
+                command=lambda n=log_name, v=variable: self._toggle_debug_file_log(n, v),
+            )
+            checkbox.grid(row=file_logs_row + 1 + index // 2, column=index % 2, padx=5, pady=3, sticky="w")
+            self.debug_file_log_vars[log_name] = variable
 
         self.panel_window.lift()
         self.panel_window.focus_force()
