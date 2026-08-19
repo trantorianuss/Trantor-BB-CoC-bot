@@ -5,6 +5,7 @@ import func as f
 import attacks as a
 import gameflow as gf
 import botstate
+import machine_state
 
 Bbot_thread = None
 
@@ -36,4 +37,6 @@ def farm_loop(attacks_per_cycle=None):
             break
 
     botstate.set_stopped()
-    f.log("Bot stopped.")
+    machine_state.set_state(machine_state.IDLE)
+
+    f.log(">>>  Bot stopped.")
