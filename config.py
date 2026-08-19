@@ -34,6 +34,13 @@ DEBUG = {
 DEBUG_INSPECTION = False # used to print the file, function, and line number of the log message
 # old ... DROP_ANALYZER = True # used to analyze the drop point and visualize it on the screenshot
 
+# Controls whether diagnostic history files are written.
+# These are independent from the on-screen debug logger.
+DEBUG_FILE_LOGS = {
+    "drop_finder": True,
+    "state_machine": True,
+}
+
 # -----------------------------------------------------------------------------
 # Drop Analyzer
 # -----------------------------------------------------------------------------

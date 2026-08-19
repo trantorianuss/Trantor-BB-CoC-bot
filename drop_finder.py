@@ -15,6 +15,9 @@ MIN_DROP_RADIUS = 5
 
 def _write_drop_history(**data):
     """Append one diagnostic record to the drop finder history file."""
+    if not config.DEBUG_FILE_LOGS.get("drop_finder", False):
+        return
+
     os.makedirs(os.path.dirname(DROP_HISTORY_FILE), exist_ok=True)
 
     timestamp = t.strftime("%Y-%m-%d %H:%M:%S")
