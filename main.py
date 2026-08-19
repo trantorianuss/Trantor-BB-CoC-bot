@@ -180,3 +180,11 @@ def initialize_coords():
 # -----------------------------
 
 l.log("  Clash of Clans Trantor Bot")
+l.log("  Initializing application...")
+
+f.cleanup_screenshots()
+initialize_coords()
+
+
+if __name__ == "__main__":
+    app.mainloop()
