@@ -323,7 +323,7 @@ class BotInterface(ctk.CTk):
             self.debug_category_vars[category] = variable
 
         file_logs_row = row + (len(config.DEBUG) + 1) // 2 + 1
-        self.debug_file_logs_label = ctk.CTkLabel(tab_debug, text="Diagnostic file logs:")
+        self.debug_file_logs_label = ctk.CTkLabel(tab_debug, text="Diagnostic file logs history:")
         self.debug_file_logs_label.grid(row=file_logs_row, column=0, columnspan=2, padx=5, pady=(10, 5), sticky="w")
 
         self.debug_file_log_vars = {}
@@ -332,7 +332,7 @@ class BotInterface(ctk.CTk):
             variable = ctk.IntVar(value=1 if enabled else 0)
             checkbox = ctk.CTkCheckBox(
                 tab_debug,
-                text=f"Write {label} history",
+                text=f"{label}",
                 variable=variable,
                 command=lambda n=log_name, v=variable: self._toggle_debug_file_log(n, v),
             )
