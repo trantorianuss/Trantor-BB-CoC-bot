@@ -2,7 +2,7 @@ import time
 print(f">>> main.py  starting [{time.perf_counter():.3f}]")
 
 import threading
-from PIL import Image
+import cv2
 import ocr
 
 import func as f
@@ -40,14 +40,22 @@ def bttn_stop():
 
 def bttn_screenshot():
     try:
-        filename = f.screenshot()
+        image = f.capture_screenshot()
+
+        if image is None:
+            raise RuntimeError("Screenshot capture returned no image")
 
         if app.screenshot_resize_checkbox.get() == 1:
-            with Image.open(filename) as image:
-                resized = image.resize((coords.BASE_W, coords.BASE_H), Image.Resampling.LANCZOS)
-            resized.save(filename)
+            height, width = image.shape[:2]
+            if (width, height) != (coords.BASE_W, coords.BASE_H):
+                image = cv2.resize(
+                    image,
+                    (coords.BASE_W, coords.BASE_H),
+                    interpolation=cv2.INTER_AREA,
+                )
             app.log(f"Screenshot resized to base resolution: {coords.BASE_W}x{coords.BASE_H}")
 
+        filename = f.save_image("screen", image)
         app.log(f"Screenshot saved: {filename}")
     except Exception as e:
         app.log(f"Screenshot failed: {e}")
