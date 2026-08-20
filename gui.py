@@ -251,6 +251,13 @@ class BotInterface(ctk.CTk):
         self.button_Screenshot = ctk.CTkButton(tab_tools, text="Screenshot", command=self.on_screenshot)
         self.button_Screenshot.grid(row=0, column=0, padx=5, pady=10, sticky="ew")
 
+        self.screenshot_resize_checkbox = ctk.CTkCheckBox(
+            tab_tools,
+            text="Resize screenshot to base resolution (1920x1080)",
+        )
+        self.screenshot_resize_checkbox.select()
+        self.screenshot_resize_checkbox.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="w")
+
         # ---------------- Dev Tools ----------------
         tab_dev_tools = self.tabs.add("Dev Tools")
         tab_dev_tools.columnconfigure(0, weight=1)
