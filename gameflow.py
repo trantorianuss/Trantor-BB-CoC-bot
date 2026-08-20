@@ -30,7 +30,7 @@ def tap_surrender_button():
         detected = screen_detector.screen_detect(screen_detector.WAITING_SURRENDER)
 
         if detected == screen_detector.DETECTED_SURRENDER:
-            f.log(f"[ScreenDetector] SURRENDER ready: {detected}", color="blue", category="detection")
+            f.log(f"SURRENDER ready: {detected}", color="blue", category="detection")
             
             x = random.randint(24, 246)
             y = random.randint(721, 780)
@@ -195,14 +195,14 @@ def find_match():
 
     # 3. Comprobar si FIND está realmente visible.
     find_ready = screen_detector.is_find_button_visible()
-    f.log(f"[ScreenDetector] FIND ready: {find_ready}", color="blue", category="detection")
+    f.log(f"FIND ready: {find_ready}", color="blue", category="detection")
 
     if not find_ready:
         f.log("Warning: FIND button not detected", color="red", category="detection")
         return False
 
     # 4. Pulsar FIND y pasar al estado de ataque.
-    f.log("Pulso en Find", category="Find")
+    f.log("Pulso en Find")
     tap_scale(1375, 650)
     t.sleep(5)
     machine_state.set_state(machine_state.ATTACKING)
@@ -213,7 +213,7 @@ def find_match():
 #   ESPERAR FIN DE BATALLA
 # -----------------------------
 def wait_for_battle_end():
-    f.log("[GameFlow] Esperando fin de batalla…")
+    f.log("Esperando fin de batalla…")
 
     while botstate.should_run():
         x, y = screen_layout.BATTLE_END_PIXEL
@@ -224,12 +224,12 @@ def wait_for_battle_end():
             screen_layout.BATTLE_END_COLOR,
             tol=screen_layout.PIXEL_TOLERANCE,
         ):
-            f.log("[GameFlow] Batalla terminada")
+            f.log("Batalla terminada")
             return True
 
         t.sleep(1)
 
-    f.log("[GameFlow] Bot detenido mientras esperaba el fin de batalla.")
+    f.log("Bot detenido mientras esperaba el fin de batalla.")
     return False
 
 
@@ -237,7 +237,7 @@ def wait_for_battle_end():
 #   RECOGER BOTÍN
 # -----------------------------
 def collect_loot():
-    f.log("[GameFlow] Recogiendo botín…")
+    f.log("Recogiendo botín…")
 
     f.tap_scale(950, 900)
     t.sleep(2)
@@ -305,25 +305,25 @@ def farm_until_full(attacks_per_cycle=None):
 
         # --- INTENTAR RECOGER ELIXIR ---
         if try_collect_pink_elixir():
-            f.log("[GameFlow] Recogido elixir rosa. Nuevo ciclo de ataques.")
+            f.log("Recogido elixir rosa. Nuevo ciclo de ataques.")
             continue
 
         # --- ATAQUES EXTRA HASTA QUE HAYA ELIXIR ---
-        f.log("[GameFlow] No había elixir rosa. Iniciando ataques extra...")
+        f.log("No había elixir rosa. Iniciando ataques extra...")
 
         while True:
              
             if not botstate.should_run():
                 return False   
 
-            f.log("[GameFlow] Ataque extra...")
+            f.log("Ataque extra...")
             perform_attack("extra")
 
             if try_collect_pink_elixir():
-                f.log("[GameFlow] Recogido elixir rosa tras ataque extra. Nuevo ciclo.")
+                f.log("Recogido elixir rosa tras ataque extra. Nuevo ciclo.")
                 break   # ← vuelve al while principal (nuevo ciclo)
 
-            f.log("[GameFlow] Aún no hay elixir rosa. Otro ataque extra...")
+            f.log("Aún no hay elixir rosa. Otro ataque extra...")
 
         # vuelve al inicio del while principal
 
