@@ -19,7 +19,7 @@ DROP_RADIUS_FACTOR = 0.70  # used to calculate the drop radius based on the maxi
 # Debug
 # ------------------------------------------------------------
 
-DEBUG = {
+DEBUG_CATEGORIES = {
     "cart": True,
     "attack": True,
     "vision": True,
@@ -75,4 +75,11 @@ LOG_COLORS = {
     "blue": "blue",
     "gray": "gray",
     "yellow": "yellow",
+    "purple": "purple",
+    "pink": "pink",
+    "cyan": "cyan",
+    "magenta": "magenta",
+    "brown": "brown",
+    "white": "white",
+    "black": "black",
 }

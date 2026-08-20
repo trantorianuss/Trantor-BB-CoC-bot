@@ -30,7 +30,7 @@ def tap_surrender_button():
         detected = screen_detector.screen_detect(screen_detector.WAITING_SURRENDER)
 
         if detected == screen_detector.DETECTED_SURRENDER:
-            f.log(f"SURRENDER ready: {detected}", color="blue", category="detection")
+            f.log(f"SURRENDER ready: {detected}", debug=True, color="blue", category="detection")
             
             x = random.randint(24, 246)
             y = random.randint(721, 780)
@@ -40,7 +40,7 @@ def tap_surrender_button():
         if detected == screen_detector.DETECTED_FIND:
             f.log("Warning: Find button not expected", color="red", category="detection")
 
-        f.log("[GameFlow] Botón surrender no está visible. Reintentando en 10 segundos.")
+        f.log("Botón surrender no está visible. Reintentando en 10 segundos.")
         t.sleep(10)
 
 
@@ -254,7 +254,7 @@ def collect_loot():
     f.tap_scale(1600, 100)
     t.sleep(1)
 
-    f.log("[GameFlow] Botín recogido")
+    f.log("Botín recogido")
 
 
 # -----------------------------

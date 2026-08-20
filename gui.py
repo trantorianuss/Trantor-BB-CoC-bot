@@ -150,7 +150,7 @@ class BotInterface(ctk.CTk):
         settings.set_debug(self.debug_checkbox.get() == 1)
 
     def _toggle_debug_category(self, category, variable):
-        config.DEBUG[category] = bool(variable.get())
+        config.DEBUG_CATEGORIES[category] = bool(variable.get())
 
     def _toggle_debug_inspection(self):
         config.DEBUG_INSPECTION = bool(self.debug_inspection_checkbox.get())
@@ -317,7 +317,7 @@ class BotInterface(ctk.CTk):
 
         self.debug_category_vars = {}
         row = 3
-        for index, (category, enabled) in enumerate(config.DEBUG.items()):
+        for index, (category, enabled) in enumerate(config.DEBUG_CATEGORIES.items()):
             label = category.replace("_", " ").title()
             variable = ctk.IntVar(value=1 if enabled else 0)
             checkbox = ctk.CTkCheckBox(
@@ -329,7 +329,7 @@ class BotInterface(ctk.CTk):
             checkbox.grid(row=row + index // 2, column=index % 2, padx=5, pady=3, sticky="w")
             self.debug_category_vars[category] = variable
 
-        file_logs_row = row + (len(config.DEBUG) + 1) // 2 + 1
+        file_logs_row = row + (len(config.DEBUG_CATEGORIES) + 1) // 2 + 1
         self.debug_file_logs_label = ctk.CTkLabel(tab_debug, text="Diagnostic file logs history:")
         self.debug_file_logs_label.grid(row=file_logs_row, column=0, columnspan=2, padx=5, pady=(10, 5), sticky="w")
 

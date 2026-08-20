@@ -34,7 +34,7 @@ def find_drop_point():
 
     if img is None:
         _write_drop_history(result="NO_SCREENSHOT", image_file="N/A")
-        log("[Drop] No se pudo capturar la pantalla", color="red")
+        log("No se pudo capturar la pantalla", category="Drop", color="red")
         return None
 
     height, width = img.shape[:2]
@@ -82,8 +82,9 @@ def find_drop_point():
             green_ratio="0.000%",
         )
         log(
-            f"[Drop] No se encontró zona verde: components={component_count}",
+            f"No se encontró zona verde: components={component_count}",
             color="red",
+            category="Drop"
         )
         return None
 
@@ -112,9 +113,10 @@ def find_drop_point():
             reason=f"area<{MIN_GREEN_AREA}",
         )
         log(
-            f"[Drop] Zona rechazada: area={best_area} < {MIN_GREEN_AREA}",
+            f"Zona rechazada: area={best_area} < {MIN_GREEN_AREA}",
+            debug=True,
             color="red",
-            category="BB Farm",
+            category="Drop",
         )
         return None
 
@@ -166,9 +168,9 @@ def find_drop_point():
             reason=f"radius<{MIN_DROP_RADIUS}",
         )
         log(
-            f"[Drop] Zona rechazada: radius={radius} < {MIN_DROP_RADIUS}",
+            f"Zona rechazada: radius={radius} < {MIN_DROP_RADIUS}",
             color="red",
-            category="BB Farm",
+            category="Drop",
         )
         return None
 
@@ -186,10 +188,10 @@ def find_drop_point():
     )
 
     log(
-        f"[Drop] Zona encontrada: area={best_area}, "
+        f"Zona encontrada: area={best_area}, "
         f"ratio={green_ratio:.3f}%, components={component_count}, "
         f"radius={radius}",
-        category="BB Farm",
+        category="Drop",
         color="green" if radius >= MIN_DROP_RADIUS else "red"
     )
 

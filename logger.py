@@ -24,7 +24,7 @@ def _should_emit_log(debug=False, category=""):
 
     # Si tienen categoría, comprobar si está habilitada
     if category:
-        return config.DEBUG.get(category, True)
+        return config.DEBUG_CATEGORIES.get(category, True)
 
     return True
 
@@ -51,7 +51,9 @@ def log(message, debug=False, category="", color=None):
     formatted = " ".join(parts)
 
     if color is None:
-        if debug:
+        if category and category not in config.DEBUG_CATEGORIES:
+            color = "cyan"
+        elif debug:
             color = "orange"
         else:
             color = "default"
