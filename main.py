@@ -46,8 +46,8 @@ def bttn_screenshot():
             with Image.open(filename) as image:
                 if image.size != (coords.BASE_W, coords.BASE_H):
                     resized = image.resize((coords.BASE_W, coords.BASE_H), Image.Resampling.LANCZOS)
-                    resized.save(filename)
-                    app.log(f"Screenshot resized to base resolution: {coords.BASE_W}x{coords.BASE_H}")
+            resized.save(filename)
+            app.log(f"Screenshot resized to base resolution: {coords.BASE_W}x{coords.BASE_H}")
 
         app.log(f"Screenshot saved: {filename}")
     except Exception as e:
