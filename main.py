@@ -76,18 +76,18 @@ def _run_search_cart(dy, debug):
     try:
         elixir_cart.search_cart(total_offset=dy, debug=debug)
     except Exception as e:
-        l.log(f"Buscar Carro failed: {e}")
+        l.log(f"Find Cart failed: {e}")
 
 
 def bttn_buscar_carro():
     try:
         _, dy_val = app.get_swipe_values()
         dy = parse_int(dy_val, default=400)
-        l.log("Buscar Carro iniciado...")
+        l.log("Find Cart started...")
         thread = threading.Thread(target=_run_search_cart, args=(dy, True), daemon=True)
         thread.start()
     except Exception as e:
-        l.log(f"Buscar Carro failed: {e}")
+        l.log(f"Find Cart failed: {e}")
 
 def bttn_test():
     try:
@@ -98,9 +98,9 @@ def bttn_test():
         xi = 1850
         yi = 350
 
-        l.log("=== TEST: detectar puntos ===")
+        l.log("=== TEST: detecting points ===")
 
-        l.log("=== TEST: hago SWIPE ===")
+        l.log("=== TEST: performing SWIPE ===")
         f.stable_swipe(xi, yi, xi, yi + dy, 1500)
 
 
@@ -121,20 +121,20 @@ def bttn_test():
 
         vision.print_resultados(resultados)
 
-        l.log("=== FIN TEST ===")
+        l.log("=== TEST FINISHED ===")
 
     except Exception as e:
-        l.log(f"Test detectar_puntos failed: {e}")
+        l.log(f"Test detect_points failed: {e}")
 
 
 def bttn_calibrar_zoom(popup=None):
-    l.log("Test de Calibrar Zoom")
+    l.log("Zoom Calibration Test")
     try:
-        l.log("=== TEST INICIADO ===")
+        l.log("=== TEST STARTED ===")
         result = f.calibrar_zoom(popup=popup)
 
         if result is None:
-            l.log("Calibración no detectó el BH.")
+            l.log("Calibration did not detect the BH.")
             return
 
         state_calibration.set_calibration(
@@ -144,10 +144,10 @@ def bttn_calibrar_zoom(popup=None):
             zoom=result["zoom"],
         )
 
-        l.log(f"Calibración OK: zoom={result['zoom']} pos={result['pos']} size={result['size']}")
+        l.log(f"Calibration OK: zoom={result['zoom']} pos={result['pos']} size={result['size']}")
 
     except Exception as e:
-        l.log(f"Calibración falló: {e}")
+        l.log(f"Calibration failed: {e}")
 
 def bttn_calibrate(popup=None):
 
@@ -184,15 +184,15 @@ l.set_log_sink(app.log)
 
 
 def initialize_coords():
-    l.log("[coords] Inicializando resolución...")
+    l.log("[coords] Initializing resolution...")
     try:
         real_w, real_h = f.get_real_resolution()
         coords.init_resolution(real_w, real_h)
-        l.log(f"[coords] Resolución inicializada: {real_w}x{real_h}")
+        l.log(f"[coords] Resolution initialized: {real_w}x{real_h}")
     except Exception as exc:
-        l.log(f"[coords] No se pudo obtener la resolución real: {exc}")
+        l.log(f"[coords] Could not obtain actual resolution: {exc}")
         coords.init_resolution(1920, 1080)
-        l.log("[coords] Usando resolución por defecto: 1920x1080")
+        l.log("[coords] Using default resolution: 1920x1080")
 
 
 # -----------------------------
