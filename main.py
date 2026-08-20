@@ -53,37 +53,41 @@ def bttn_screenshot():
                     (coords.BASE_W, coords.BASE_H),
                     interpolation=cv2.INTER_AREA,
                 )
-            app.log(f"Screenshot resized to base resolution: {coords.BASE_W}x{coords.BASE_H}")
+            l.log(f"Screenshot resized to base resolution: {coords.BASE_W}x{coords.BASE_H}")
 
-        filename = f.save_image("screen", image)
-        app.log(f"Screenshot saved: {filename}")
+        if app.screenshot_resize_checkbox.get() == 1:
+            filename = f.save_image("screen_resized", image)
+        else:
+            filename = f.save_image("screen", image)
+
+        l.log(f"Screenshot saved: {filename}")
     except Exception as e:
-        app.log(f"Screenshot failed: {e}")
+        l.log(f"Screenshot failed: {e}")
 
 def bttn_recognize():
     try:
         filename = f.screenshot()
         result = ocr.ocr_image(filename)
-        app.log(f"OCR result: {result}")
+        l.log(f"OCR result: {result}")
     except Exception as e:
-        app.log(f"Image recognition failed: {e}")
+        l.log(f"Image recognition failed: {e}")
 
 def _run_search_cart(dy, debug):
     try:
         elixir_cart.search_cart(total_offset=dy, debug=debug)
     except Exception as e:
-        app.log(f"Buscar Carro failed: {e}")
+        l.log(f"Buscar Carro failed: {e}")
 
 
 def bttn_buscar_carro():
     try:
         _, dy_val = app.get_swipe_values()
         dy = parse_int(dy_val, default=400)
-        app.log("Buscar Carro iniciado...")
+        l.log("Buscar Carro iniciado...")
         thread = threading.Thread(target=_run_search_cart, args=(dy, True), daemon=True)
         thread.start()
     except Exception as e:
-        app.log(f"Buscar Carro failed: {e}")
+        l.log(f"Buscar Carro failed: {e}")
 
 def bttn_test():
     try:
@@ -94,9 +98,9 @@ def bttn_test():
         xi = 1850
         yi = 350
 
-        app.log("=== TEST: detectar puntos ===")
+        l.log("=== TEST: detectar puntos ===")
 
-        app.log("=== TEST: hago SWIPE ===")
+        l.log("=== TEST: hago SWIPE ===")
         f.stable_swipe(xi, yi, xi, yi + dy, 1500)
 
 
@@ -117,20 +121,20 @@ def bttn_test():
 
         vision.print_resultados(resultados)
 
-        app.log("=== FIN TEST ===")
+        l.log("=== FIN TEST ===")
 
     except Exception as e:
-        app.log(f"Test detectar_puntos failed: {e}")
+        l.log(f"Test detectar_puntos failed: {e}")
 
 
 def bttn_calibrar_zoom(popup=None):
-    app.log("Test de Calibrar Zoom")
+    l.log("Test de Calibrar Zoom")
     try:
-        app.log("=== TEST INICIADO ===")
+        l.log("=== TEST INICIADO ===")
         result = f.calibrar_zoom(popup=popup)
 
         if result is None:
-            app.log("Calibración no detectó el BH.")
+            l.log("Calibración no detectó el BH.")
             return
 
         state_calibration.set_calibration(
@@ -140,14 +144,14 @@ def bttn_calibrar_zoom(popup=None):
             zoom=result["zoom"],
         )
 
-        app.log(f"Calibración OK: zoom={result['zoom']} pos={result['pos']} size={result['size']}")
+        l.log(f"Calibración OK: zoom={result['zoom']} pos={result['pos']} size={result['size']}")
 
     except Exception as e:
-        app.log(f"Calibración falló: {e}")
+        l.log(f"Calibración falló: {e}")
 
 def bttn_calibrate(popup=None):
 
-    app.log("Starting calibration...")
+    l.log("Starting calibration...")
 
     screenshot_path = f.screenshot("calibration")
 
@@ -180,15 +184,15 @@ l.set_log_sink(app.log)
 
 
 def initialize_coords():
-    app.log("[coords] Inicializando resolución...")
+    l.log("[coords] Inicializando resolución...")
     try:
         real_w, real_h = f.get_real_resolution()
         coords.init_resolution(real_w, real_h)
-        app.log(f"[coords] Resolución inicializada: {real_w}x{real_h}")
+        l.log(f"[coords] Resolución inicializada: {real_w}x{real_h}")
     except Exception as exc:
-        app.log(f"[coords] No se pudo obtener la resolución real: {exc}")
+        l.log(f"[coords] No se pudo obtener la resolución real: {exc}")
         coords.init_resolution(1920, 1080)
-        app.log("[coords] Usando resolución por defecto: 1920x1080")
+        l.log("[coords] Usando resolución por defecto: 1920x1080")
 
 
 # -----------------------------
@@ -203,4 +207,9 @@ initialize_coords()
 
 
 if __name__ == "__main__":
+
+    app.log("================================================")
+    app.log(">>> Trantor Bot ready... Waiting for user input.")
+    app.log("================================================")
+
     app.mainloop()
