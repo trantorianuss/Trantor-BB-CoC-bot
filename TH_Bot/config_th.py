@@ -5,7 +5,7 @@ active, then turn it off again when the normal post-battle flow is restored.
 """
 
 # Temporary event flow switch.
-EVENT_REWARD_ENABLED = False
+EVENT_REWARD_ENABLED = True
 
 # Claim Reward button detection.
 CLAIM_REWARD_BUTTON_PIXEL = (835, 945)
