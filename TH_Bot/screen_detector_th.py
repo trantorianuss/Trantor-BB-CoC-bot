@@ -5,7 +5,7 @@ Kept separate from the BB detector so TH can evolve independently.
 
 import func as f
 
-from TH_Bot import config_th
+from TH_Bot import config_th, screen_layout_th
 
 
 WAITING_FIND = "waiting_find"
@@ -23,36 +23,31 @@ WAITING_RETURN_HOME = "waiting_return_home"
 DETECTED_RETURN_HOME = "return_home"
 RETURN_HOME_DETECTED = DETECTED_RETURN_HOME
 
-FIND_BUTTON_PIXEL = (160, 825)
-FIND_BUTTON_COLOR = (249, 173, 44)
-NEXT_BUTTON_PIXEL = (1630, 840)
-NEXT_BUTTON_COLOR = (230, 84, 13)
-
 
 def is_pixel_visible(image, pixel, color):
     return f.check_pixel_from_image(image, pixel[0], pixel[1], color, tol=config_th.PIXEL_TOLERANCE)
 
 
 def is_find_button_visible(image):
-    result = is_pixel_visible(image, FIND_BUTTON_PIXEL, FIND_BUTTON_COLOR)
+    result = is_pixel_visible(image, screen_layout_th.FIND_BUTTON, screen_layout_th.FIND_BUTTON_COLOR if hasattr(screen_layout_th, "FIND_BUTTON_COLOR") else (249, 173, 44))
     f.log(f"[TH DETECTOR] FIND pixel check -> {result}")
     return result
 
 
 def is_next_button_visible(image):
-    result = is_pixel_visible(image, NEXT_BUTTON_PIXEL, NEXT_BUTTON_COLOR)
+    result = is_pixel_visible(image, screen_layout_th.NEXT_BUTTON_PIXEL, screen_layout_th.NEXT_BUTTON_COLOR)
     f.log(f"[TH DETECTOR] NEXT pixel check -> {result}")
     return result
 
 
 def is_claim_reward_button_visible(image):
-    result = is_pixel_visible(image, config_th.CLAIM_REWARD_BUTTON_PIXEL, config_th.CLAIM_REWARD_BUTTON_COLOR)
+    result = is_pixel_visible(image, screen_layout_th.CLAIM_REWARD_BUTTON_PIXEL, screen_layout_th.CLAIM_REWARD_BUTTON_COLOR)
     f.log(f"[TH DETECTOR] Claim Reward pixel check -> {result}")
     return result
 
 
 def is_return_home_button_visible(image):
-    result = is_pixel_visible(image, config_th.RETURN_HOME_BUTTON_PIXEL, config_th.RETURN_HOME_BUTTON_COLOR)
+    result = is_pixel_visible(image, screen_layout_th.RETURN_HOME_BUTTON_PIXEL, screen_layout_th.RETURN_HOME_BUTTON_COLOR)
     f.log(f"[TH DETECTOR] Return Home pixel check -> {result}")
     return result
 
