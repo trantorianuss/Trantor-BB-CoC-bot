@@ -10,8 +10,8 @@ WAITING_NEXT = "waiting_next"
 DETECTED_NEXT = "next"
 
 # Current provisional TH values. They can be moved to a TH layout/config file later.
-NEXT_BUTTON_PIXEL = (960, 960)
-NEXT_BUTTON_COLOR = (108, 187, 31)
+NEXT_BUTTON_PIXEL = (1630, 840)
+NEXT_BUTTON_COLOR = (230, 84, 13)
 PIXEL_TOLERANCE = 10
 
 
