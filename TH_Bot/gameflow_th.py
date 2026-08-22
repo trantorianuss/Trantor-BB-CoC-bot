@@ -1,5 +1,7 @@
 """Game flow for the Town Hall (main village)."""
 
+import random
+
 import func as f
 import machine_state
 
@@ -94,7 +96,7 @@ def wait_for_battle_end(ctx):
 
 
 def wait_for_claim_reward(ctx):
-    """Wait for the temporary event Claim Reward button and tap it."""
+    """Wait for Claim Reward, tap it, then perform the three reward taps."""
     machine_state.set_state(machine_state.WAITING_REWARD)
     f.log("[TH] Waiting for Claim Reward")
     elapsed = 0
@@ -108,9 +110,28 @@ def wait_for_claim_reward(ctx):
             machine_state.set_state(machine_state.COLLECTING_REWARD)
             f.log(f"[TH] Claim Reward detected after {elapsed}s -> tapping")
             f.tap_scale(*config_th.CLAIM_REWARD_BUTTON_PIXEL)
+
             if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
                 return False
-            f.log("[TH] Claim Reward tapped")
+
+            f.log("[TH] Claim Reward tapped -> performing 3 reward taps")
+            for _ in range(3):
+                if ctx.exit_requested():
+                    return False
+
+                x = random.randint(
+                    config_th.REWARD_TAP_CENTER[0] - config_th.REWARD_TAP_RADIUS,
+                    config_th.REWARD_TAP_CENTER[0] + config_th.REWARD_TAP_RADIUS,
+                )
+                y = random.randint(
+                    config_th.REWARD_TAP_CENTER[1] - config_th.REWARD_TAP_RADIUS,
+                    config_th.REWARD_TAP_CENTER[1] + config_th.REWARD_TAP_RADIUS,
+                )
+                f.log(f"[TH] Reward tap -> ({x}, {y})")
+                f.tap_scale(x, y)
+                if not ctx.sleep_with_exit(ctx.REWARD_TAP_DELAY):
+                    return False
+
             return True
 
         elapsed += ctx.SCREEN_DETECT_DELAY
