@@ -9,6 +9,19 @@ import func as f
 
 # (slot, number of troops, deployment zone, delay, use_multitap)
 DEPLOY_SEQUENCE = [
+    (1, 12, "edge",   0,   False),
+    (2, 16, "edge",   0,   False),
+    (3,  1, "edge",   0,   False),
+    (4,  1, "edge",   0, False),
+    (5,  1, "edge",   0, False),
+    #(3,  1, "edge",   0, False),
+    (6, 4, "random", 0,   False),
+    (7, 3, "random", 0,   False),
+    (3,  0, "edge",   0,   False),
+    (4,  0, "edge",   0, False),
+    (5,  0, "edge",   0, False),
+]
+DEPLOY_SEQUENCE_Terminus_elefantes = [
     (1, 8, "edge",   0,   False),
     (2, 8, "edge",   0,   False),
     (4,  1, "edge",   0,   False),
