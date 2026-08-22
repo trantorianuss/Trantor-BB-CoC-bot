@@ -26,7 +26,6 @@ def th_game_flow(ctx):
         if not start_attack(ctx):
             return
 
-        # Debug screenshot is taken after the attack has actually reached NEXT.
         ctx.save_deployment_debug()
 
         if not deploy_troops(ctx):
@@ -67,8 +66,6 @@ def start_attack(ctx):
     f.log("[TH] Pressing second attack button")
     f.tap_scale(*ctx.ATTACK_BUTTON_2)
 
-    # Do not guess that the attack screen is ready just because a fixed number
-    # of seconds elapsed. Wait until the NEXT button is actually visible.
     f.log("[TH] Waiting for NEXT button")
     while True:
         if ctx.exit_requested():
@@ -199,8 +196,25 @@ def wait_for_battle_end(ctx):
             f.tap_scale(*screen_detector_th.NEXT_BUTTON_PIXEL)
             if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
                 return False
-            f.log("[TH] NEXT button tapped")
-            return True
+            f.log("[TH] NEXT button tapped -> waiting for Return Home")
+
+            while True:
+                if ctx.exit_requested():
+                    return False
+
+                result = screen_detector_th.screen_detect(
+                    screen_detector_th.WAITING_RETURN_HOME
+                )
+                if result == screen_detector_th.DETECTED_RETURN_HOME:
+                    f.log("[TH] Return Home detected -> tapping")
+                    f.tap_scale(*screen_detector_th.RETURN_HOME_BUTTON_PIXEL)
+                    if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
+                        return False
+                    f.log("[TH] Return Home tapped")
+                    return True
+
+                if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
+                    return False
 
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
