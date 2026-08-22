@@ -5,7 +5,6 @@ TH flow can later grow into a proper state machine without growing main_th.py.
 """
 
 import random
-import time
 from concurrent.futures import ThreadPoolExecutor
 
 import coords
@@ -183,38 +182,24 @@ def deploy_troops(ctx):
 
 
 def wait_for_battle_end(ctx):
-    f.log("[TH] Waiting for battle to finish")
+    """Wait for the battle to finish, then detect and tap Return Home."""
+    f.log("[TH] Waiting for battle to finish -> waiting for Return Home")
     elapsed = 0
 
     while True:
         if ctx.exit_requested():
             return False
 
-        result = screen_detector_th.screen_detect(screen_detector_th.WAITING_NEXT)
-        if result == screen_detector_th.DETECTED_NEXT:
-            f.log(f"[TH] NEXT detected after {elapsed}s -> tapping")
-            f.tap_scale(*screen_detector_th.NEXT_BUTTON_PIXEL)
+        result = screen_detector_th.screen_detect(
+            screen_detector_th.WAITING_RETURN_HOME
+        )
+        if result == screen_detector_th.DETECTED_RETURN_HOME:
+            f.log(f"[TH] Return Home detected after {elapsed}s -> tapping")
+            f.tap_scale(*screen_detector_th.RETURN_HOME_BUTTON_PIXEL)
             if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
                 return False
-            f.log("[TH] NEXT button tapped -> waiting for Return Home")
-
-            while True:
-                if ctx.exit_requested():
-                    return False
-
-                result = screen_detector_th.screen_detect(
-                    screen_detector_th.WAITING_RETURN_HOME
-                )
-                if result == screen_detector_th.DETECTED_RETURN_HOME:
-                    f.log("[TH] Return Home detected -> tapping")
-                    f.tap_scale(*screen_detector_th.RETURN_HOME_BUTTON_PIXEL)
-                    if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
-                        return False
-                    f.log("[TH] Return Home tapped")
-                    return True
-
-                if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
-                    return False
+            f.log("[TH] Return Home tapped -> back to main screen")
+            return True
 
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
