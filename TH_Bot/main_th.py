@@ -31,6 +31,14 @@ FIND_BUTTON = (320, 800)
 ATTACK_BUTTON_2 = (1700, 960)
 MULTITAP_MAX = 4
 
+# Timing values used by the TH test flow. Keep these together so they are easy
+# to tune while testing.
+ATTACK_BUTTON_DELAY = 0.5
+AFTER_ATTACK_SEARCH_DELAY = 5.0
+BETWEEN_TROOPS_DELAY = 0.1
+AFTER_BATTLE_END_DELAY = 1.0
+EXIT_POLL_INTERVAL = 0.05
+
 DROP_POINTS_EDGE = [(80, 440), (120, 400), (160, 360), (200, 320)]
 DROP_POINT_CENTER = (960, 540)
 DROP_DIAMOND_CENTER = (960, 540)
@@ -60,11 +68,13 @@ def exit_requested():
 def sleep_with_exit(seconds):
     """Sleep while still allowing the user to abort with X."""
     end_time = time.time() + seconds
-    while time.time() < end_time:
+    while True:
         if exit_requested():
             return False
-        time.sleep(min(0.05, end_time - time.time()))
-    return True
+        remaining = end_time - time.time()
+        if remaining <= 0:
+            return True
+        time.sleep(min(EXIT_POLL_INTERVAL, remaining))
 
 
 def load_attack_config():
@@ -332,15 +342,15 @@ def is_elixir_full():
 def start_attack():
     f.log("[TH] Pressing first attack button")
     f.tap_scale(*ATTACK_BUTTON_1)
-    if not sleep_with_exit(0.5):
+    if not sleep_with_exit(ATTACK_BUTTON_DELAY):
         return False
     f.log("[TH] Pressing Find")
     f.tap_scale(*FIND_BUTTON)
-    if not sleep_with_exit(0.5):
+    if not sleep_with_exit(ATTACK_BUTTON_DELAY):
         return False
     f.log("[TH] Pressing second attack button")
     f.tap_scale(*ATTACK_BUTTON_2)
-    return sleep_with_exit(5)
+    return sleep_with_exit(AFTER_ATTACK_SEARCH_DELAY)
 
 
 def slot(n):
@@ -418,7 +428,7 @@ def deploy_troops():
                 if exit_requested():
                     return False
                 f.tap_scale(*point)
-                if not sleep_with_exit(0.1):
+                if not sleep_with_exit(BETWEEN_TROOPS_DELAY):
                     return False
     f.log("[TH] Despliegue terminado")
     return True
@@ -435,7 +445,7 @@ def wait_for_battle_end():
         if f.check_pixel_from_image(image, x, y, BATTLE_END_COLOR, tol=PIXEL_TOLERANCE):
             f.log(f"[TH] Battle end button detected after {elapsed}s -> tapping")
             f.tap_scale(*BATTLE_END_PIXEL)
-            if not sleep_with_exit(1):
+            if not sleep_with_exit(AFTER_BATTLE_END_DELAY):
                 return False
             f.log("[TH] Battle end button tapped")
             return True
