@@ -22,7 +22,7 @@ DEPLOY_SEQUENCE = [
     (5,  0, "edge",   0, False),
 ]
 DEPLOY_SEQUENCE_Terminus_elefantes = [
-    (1, 8, "edge",   0,   False),
+    (1, 12, "edge",   0,   False),
     (2, 8, "edge",   0,   False),
     (4,  1, "edge",   0,   False),
     (5,  1, "edge",   0, False),
