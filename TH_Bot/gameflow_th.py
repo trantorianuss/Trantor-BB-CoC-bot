@@ -55,38 +55,43 @@ def is_elixir_full(ctx):
 
 
 def start_attack(ctx):
-    machine_state.set_state(machine_state.STARTING)
-
-    f.log("[TH] Pressing first attack button")
+    machine_state.set_state(machine_state.WAITING_FIND)
+    f.log("[TH] Starting attack")
     f.tap_scale(*ctx.ATTACK_BUTTON_1)
     if not ctx.sleep_with_exit(ctx.ATTACK_BUTTON_DELAY):
         return False
 
-    machine_state.set_state(machine_state.WAITING_FIND)
-    f.log("[TH] Pressing Find")
-    f.tap_scale(*ctx.FIND_BUTTON)
-    if not ctx.sleep_with_exit(ctx.ATTACK_BUTTON_DELAY):
-        return False
-
-    f.log("[TH] Pressing second attack button")
-    f.tap_scale(*ctx.ATTACK_BUTTON_2)
-
-    f.log("[TH] Waiting for NEXT button")
+    elapsed = 0
     while True:
         if ctx.exit_requested():
             return False
 
-        if screen_detector_th.screen_detect(screen_detector_th.WAITING_NEXT) == screen_detector_th.DETECTED_NEXT:
-            f.log("[TH] NEXT button detected -> attack screen ready")
+        result = screen_detector_th.screen_detect(screen_detector_th.WAITING_FIND)
+        if result == screen_detector_th.FIND_DETECTED:
+            f.log("[TH] Find detected -> tapping")
+            f.tap_scale(*ctx.FIND_BUTTON)
+            if not ctx.sleep_with_exit(ctx.ATTACK_BUTTON_DELAY):
+                return False
+            f.tap_scale(*ctx.ATTACK_BUTTON_2)
+            if not ctx.sleep_with_exit(ctx.ATTACK_BUTTON_DELAY):
+                return False
             return True
+
+        elapsed += ctx.SCREEN_DETECT_DELAY
+        if int(elapsed) % 5 == 0:
+            f.log(f"[TH] Waiting for Find... {int(elapsed)}s")
 
         if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
             return False
 
 
 def wait_for_battle_end(ctx):
-    """Wait for battle end and optionally collect the temporary event reward."""
+    """Wait for battle result, optionally collect the event reward, then Return Home."""
     machine_state.set_state(machine_state.WAITING_RESULT)
+    f.log("[TH] Waiting for battle to finish")
+
+    if not wait_for_battle_result(ctx):
+        return False
 
     if config_th.EVENT_REWARD_ENABLED:
         if not wait_for_claim_reward(ctx):
@@ -95,8 +100,31 @@ def wait_for_battle_end(ctx):
     return wait_for_return_home(ctx)
 
 
+def wait_for_battle_result(ctx):
+    """Wait until the battle result screen is detected."""
+    elapsed = 0
+    while True:
+        if ctx.exit_requested():
+            return False
+
+        result = screen_detector_th.screen_detect(screen_detector_th.WAITING_NEXT)
+        if result == screen_detector_th.RETURN_HOME_DETECTED:
+            f.log("[TH] Return Home detected")
+            return True
+        if result == screen_detector_th.CLAIM_REWARD_DETECTED:
+            f.log("[TH] Claim Reward detected")
+            return True
+
+        elapsed += ctx.SCREEN_DETECT_DELAY
+        if int(elapsed) % 10 == 0:
+            f.log(f"[TH] Battle still running... {int(elapsed)}s")
+
+        if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
+            return False
+
+
 def wait_for_claim_reward(ctx):
-    """Wait for Claim Reward, tap it, then perform the three reward taps."""
+    """Wait for, tap and complete the temporary event reward screen."""
     machine_state.set_state(machine_state.WAITING_REWARD)
     f.log("[TH] Waiting for Claim Reward")
     elapsed = 0
@@ -106,7 +134,7 @@ def wait_for_claim_reward(ctx):
             return False
 
         result = screen_detector_th.screen_detect(screen_detector_th.WAITING_REWARD)
-        if result == screen_detector_th.DETECTED_REWARD:
+        if result == screen_detector_th.CLAIM_REWARD_DETECTED:
             machine_state.set_state(machine_state.COLLECTING_REWARD)
             f.log(f"[TH] Claim Reward detected after {elapsed}s -> tapping")
             f.tap_scale(*config_th.CLAIM_REWARD_BUTTON_PIXEL)
@@ -129,7 +157,7 @@ def wait_for_claim_reward(ctx):
                 )
                 f.log(f"[TH] Reward tap -> ({x}, {y})")
                 f.tap_scale(x, y)
-                if not ctx.sleep_with_exit(ctx.REWARD_TAP_DELAY):
+                if not ctx.sleep_with_exit(config_th.REWARD_TAP_DELAY):
                     return False
 
             return True
@@ -153,17 +181,16 @@ def wait_for_return_home(ctx):
             return False
 
         result = screen_detector_th.screen_detect(screen_detector_th.WAITING_RETURN_HOME)
-        if result == screen_detector_th.DETECTED_RETURN_HOME:
+        if result == screen_detector_th.RETURN_HOME_DETECTED:
             f.log(f"[TH] Return Home detected after {elapsed}s -> tapping")
             f.tap_scale(*config_th.RETURN_HOME_BUTTON_PIXEL)
             if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
                 return False
-            f.log("[TH] Return Home tapped -> back to main screen")
             return True
 
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
-            f.log(f"[TH] Battle still running... {int(elapsed)}s")
+            f.log(f"[TH] Waiting for Return Home... {int(elapsed)}s")
 
         if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
             return False
