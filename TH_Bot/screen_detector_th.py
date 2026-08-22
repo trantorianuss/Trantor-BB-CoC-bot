@@ -8,11 +8,28 @@ import func as f
 
 WAITING_NEXT = "waiting_next"
 DETECTED_NEXT = "next"
+WAITING_RETURN_HOME = "waiting_return_home"
+DETECTED_RETURN_HOME = "return_home"
 
 # Current provisional TH values. They can be moved to a TH layout/config file later.
 NEXT_BUTTON_PIXEL = (1630, 840)
 NEXT_BUTTON_COLOR = (230, 84, 13)
+
+# Set these to the real Return Home button pixel/color when available.
+RETURN_HOME_BUTTON_PIXEL = (0, 0)
+RETURN_HOME_BUTTON_COLOR = (0, 0, 0)
+
 PIXEL_TOLERANCE = 10
+
+
+def is_pixel_visible(image, pixel, color):
+    return f.check_pixel_from_image(
+        image,
+        pixel[0],
+        pixel[1],
+        color,
+        tol=PIXEL_TOLERANCE,
+    )
 
 
 def is_next_button_visible(image=None):
@@ -26,14 +43,22 @@ def is_next_button_visible(image=None):
         f.log("[TH DETECTOR] Screenshot unavailable", color="red")
         return False
 
-    result = f.check_pixel_from_image(
-        image,
-        NEXT_BUTTON_PIXEL[0],
-        NEXT_BUTTON_PIXEL[1],
-        NEXT_BUTTON_COLOR,
-        tol=PIXEL_TOLERANCE,
-    )
+    result = is_pixel_visible(image, NEXT_BUTTON_PIXEL, NEXT_BUTTON_COLOR)
     f.log(f"[TH DETECTOR] NEXT pixel check -> {result}")
+    return result
+
+
+def is_return_home_button_visible(image):
+    """Return True when the TH Return Home button is detected."""
+    if RETURN_HOME_BUTTON_PIXEL == (0, 0):
+        return False
+
+    result = is_pixel_visible(
+        image,
+        RETURN_HOME_BUTTON_PIXEL,
+        RETURN_HOME_BUTTON_COLOR,
+    )
+    f.log(f"[TH DETECTOR] Return Home pixel check -> {result}")
     return result
 
 
@@ -49,5 +74,8 @@ def screen_detect(state):
 
     if state == WAITING_NEXT and is_next_button_visible(image):
         return DETECTED_NEXT
+
+    if state == WAITING_RETURN_HOME and is_return_home_button_visible(image):
+        return DETECTED_RETURN_HOME
 
     return None
