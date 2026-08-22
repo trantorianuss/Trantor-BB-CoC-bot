@@ -8,6 +8,7 @@ It can be executed directly from the command line:
 """
 
 import json
+import msvcrt
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -18,6 +19,7 @@ import cv2
 import func as f
 import coords
 import screen_layout as layout
+from TH_Bot.troops_th import DEPLOY_SEQUENCE
 
 
 ELIXIR_FULL_PIXEL = (1620, 130)
@@ -28,38 +30,6 @@ ATTACK_BUTTON_1 = (125, 995)
 FIND_BUTTON = (320, 800)
 ATTACK_BUTTON_2 = (1700, 960)
 MULTITAP_MAX = 4
-
-DEPLOY_SEQUENCE = [
-    (1, 8, "edge",   0,   True),
-    (2, 8, "edge",   0,   True),
-    (7, 10, "random", 0,   True),
-    (8, 10, "random", 0,   True),
-    (4,  1, "edge",   0,   False),
-    (5,  1, "edge",   0, False),
-    (6,  1, "edge",   0, False),
-    (7, 20, "random", 0,   True),
-    (8, 20, "random", 0,   True),
-    (4,  0, "edge",   0,   False),
-    (5,  0, "edge",   0, False),
-    (6,  0, "edge",   0, False),
-]
-
-DEPLOY_SEQUENCE_terminis_BCK = [
-    (1,  6, "edge",   0,   True),
-    (2, 12, "edge",   0,   True),
-    (3,  3, "edge",   0,   False),
-    (4,  1, "edge",   0,   False),
-    (5,  1, "edge",   0.1, False),
-    (6,  1, "edge",   0.1, False),
-    (7,  1, "edge",   0.1, False),
-    (8,  1, "edge",   0.1, False),
-    (5,  0, "edge",   0.1, False),
-    (6,  0, "edge",   0.1, False),
-    (7,  0, "edge",   0.1, False),
-    (8,  0, "edge",   0.1, False),
-    (9, 10, "random", 0,   True),
-    (10, 1, "random", 0,   True),
-]
 
 DROP_POINTS_EDGE = [(80, 440), (120, 400), (160, 360), (200, 320)]
 DROP_POINT_CENTER = (960, 540)
@@ -75,6 +45,26 @@ TH_SLOT_2_CENTER = None
 ZONE_WINDOW_MAX_WIDTH = 1000
 ZONE_WINDOW_MAX_HEIGHT = 700
 PIXEL_TOLERANCE = 10
+
+
+def exit_requested():
+    """Return True when the user has pressed X during execution."""
+    if msvcrt.kbhit():
+        key = msvcrt.getwch()
+        if key.lower() == "x":
+            f.log("[TH] X pulsada -> saliendo de la rutina", color="yellow")
+            return True
+    return False
+
+
+def sleep_with_exit(seconds):
+    """Sleep while still allowing the user to abort with X."""
+    end_time = time.time() + seconds
+    while time.time() < end_time:
+        if exit_requested():
+            return False
+        time.sleep(min(0.05, end_time - time.time()))
+    return True
 
 
 def load_attack_config():
@@ -148,7 +138,7 @@ def debug_tap_scale(x, y, name, color):
     if image is None:
         f.log(f"[TH DEBUG] No se pudo capturar screenshot para {name}", color="red")
         f.tap_scale(x, y)
-        return
+        return not exit_requested()
     marked_x, marked_y = x, y
     if coords.REAL_W is not None and coords.REAL_H is not None:
         marked_x, marked_y = coords.scale(x, y)
@@ -160,6 +150,7 @@ def debug_tap_scale(x, y, name, color):
     filename = f.save_image(f"th_debug_{name}", image)
     f.log(f"[TH DEBUG] Screenshot guardado: {filename}")
     f.tap_scale(x, y)
+    return not exit_requested()
 
 
 def get_th_slot_position(n):
@@ -219,7 +210,6 @@ def save_deployment_debug():
 
 
 def select_two_points(title, prompt):
-    """Select two points from a scaled screenshot and return base coordinates."""
     image = f.capture_screenshot()
     if image is None:
         f.log("[TH] No se pudo capturar screenshot para la calibración", color="red")
@@ -230,7 +220,6 @@ def select_two_points(title, prompt):
     display_w = int(image_w * display_scale)
     display_h = int(image_h * display_scale)
     display_image = cv2.resize(image, (display_w, display_h))
-    original_display = display_image.copy()
     window_name = title
     points = []
 
@@ -268,10 +257,7 @@ def select_two_points(title, prompt):
 
 def select_edge_zone():
     global EDGE_ZONE_START, EDGE_ZONE_END
-    points = select_two_points(
-        "TH - Selecciona zona EDGE (2 puntos)",
-        "[TH] Haz click en los DOS extremos de la zona EDGE",
-    )
+    points = select_two_points("TH - Selecciona zona EDGE (2 puntos)", "[TH] Haz click en los DOS extremos de la zona EDGE")
     if points is None:
         return False
     EDGE_ZONE_START, EDGE_ZONE_END = points
@@ -283,10 +269,7 @@ def select_edge_zone():
 
 def select_slot_centers():
     global TH_SLOT_1_CENTER, TH_SLOT_2_CENTER
-    points = select_two_points(
-        "TH - Centros Slot 1 y Slot 2",
-        "[TH] Haz click en el CENTRO del Slot 1 y después en el CENTRO del Slot 2",
-    )
+    points = select_two_points("TH - Centros Slot 1 y Slot 2", "[TH] Haz click en el CENTRO del Slot 1 y después en el CENTRO del Slot 2")
     if points is None:
         return False
     TH_SLOT_1_CENTER, TH_SLOT_2_CENTER = points
@@ -325,10 +308,14 @@ def prepare_th_run():
 def th_game_flow():
     f.log("[TH] Starting standalone TH game flow")
     while not is_elixir_full():
+        if exit_requested():
+            return
         f.log("[TH] Elixir not full -> starting attack")
-        start_attack()
+        if not start_attack():
+            return
         save_deployment_debug()
-        deploy_troops()
+        if not deploy_troops():
+            return
         if not wait_for_battle_end():
             f.log("[TH] Battle did not finish. Leaving flow.")
             return
@@ -345,13 +332,15 @@ def is_elixir_full():
 def start_attack():
     f.log("[TH] Pressing first attack button")
     f.tap_scale(*ATTACK_BUTTON_1)
-    time.sleep(0.5)
+    if not sleep_with_exit(0.5):
+        return False
     f.log("[TH] Pressing Find")
     f.tap_scale(*FIND_BUTTON)
-    time.sleep(0.5)
+    if not sleep_with_exit(0.5):
+        return False
     f.log("[TH] Pressing second attack button")
     f.tap_scale(*ATTACK_BUTTON_2)
-    time.sleep(5)
+    return sleep_with_exit(5)
 
 
 def slot(n):
@@ -361,7 +350,9 @@ def slot(n):
 
 def multi_tap_scale(points):
     if not points:
-        return
+        return True
+    if exit_requested():
+        return False
     scaled_points = [coords.scale(x, y) if coords.REAL_W is not None and coords.REAL_H is not None else (x, y) for x, y in points]
     f.log(f"[TH MULTI TAP] {len(scaled_points)} taps: {scaled_points}")
 
@@ -371,6 +362,7 @@ def multi_tap_scale(points):
 
     with ThreadPoolExecutor(max_workers=len(scaled_points)) as executor:
         list(executor.map(send, scaled_points))
+    return not exit_requested()
 
 
 def random_drop_point():
@@ -387,8 +379,10 @@ def random_drop_point():
 def deploy_troops():
     edge_index = 0
     for slot_number, count, drop_area, delay, use_multitap in DEPLOY_SEQUENCE:
-        if delay > 0:
-            time.sleep(delay)
+        if exit_requested():
+            return False
+        if delay > 0 and not sleep_with_exit(delay):
+            return False
         f.log(f"[TH] Slot {slot_number} | cantidad={count} | zona={drop_area} | delay={delay}s | multitap={use_multitap}")
         slot(slot_number)
         if count == 0:
@@ -404,6 +398,8 @@ def deploy_troops():
             continue
         points_to_drop = []
         for _ in range(count):
+            if exit_requested():
+                return False
             if drop_area == "edge":
                 drop_point = drop_points[edge_index % len(drop_points)]
                 edge_index += 1
@@ -415,31 +411,39 @@ def deploy_troops():
             points_to_drop.append(drop_point)
         if use_multitap:
             for start in range(0, len(points_to_drop), MULTITAP_MAX):
-                batch = points_to_drop[start:start + MULTITAP_MAX]
-                multi_tap_scale(batch)
+                if not multi_tap_scale(points_to_drop[start:start + MULTITAP_MAX]):
+                    return False
         else:
             for point in points_to_drop:
+                if exit_requested():
+                    return False
                 f.tap_scale(*point)
-                time.sleep(0.1)
+                if not sleep_with_exit(0.1):
+                    return False
     f.log("[TH] Despliegue terminado")
+    return True
 
 
 def wait_for_battle_end():
     f.log("[TH] Waiting for battle to finish")
     elapsed = 0
     while True:
+        if exit_requested():
+            return False
         image = f.capture_screenshot()
         x, y = BATTLE_END_PIXEL
         if f.check_pixel_from_image(image, x, y, BATTLE_END_COLOR, tol=PIXEL_TOLERANCE):
             f.log(f"[TH] Battle end button detected after {elapsed}s -> tapping")
             f.tap_scale(*BATTLE_END_PIXEL)
-            time.sleep(1)
+            if not sleep_with_exit(1):
+                return False
             f.log("[TH] Battle end button tapped")
             return True
         elapsed += 1
         if elapsed % 5 == 0:
             f.log(f"[TH] Battle still running... {elapsed}s")
-        time.sleep(1)
+        if not sleep_with_exit(1):
+            return False
 
 
 def initialize_coords():
