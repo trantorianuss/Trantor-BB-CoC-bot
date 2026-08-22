@@ -1,4 +1,7 @@
-"""Screen detection for the Town Hall flow."""
+"""Screen detection for the Town Hall flow.
+
+Kept separate from the BB detector so TH can evolve independently.
+"""
 
 import func as f
 
@@ -7,15 +10,23 @@ from TH_Bot import config_th
 
 WAITING_FIND = "waiting_find"
 FIND_DETECTED = "find"
-WAITING_NEXT = "waiting_next"
+
+WAITING_RESULT = "waiting_result"
+WAITING_NEXT = "waiting_next"  # compatibility with older calls
 DETECTED_NEXT = "next"
+
 WAITING_REWARD = "waiting_reward"
 DETECTED_REWARD = "reward"
+CLAIM_REWARD_DETECTED = DETECTED_REWARD
+
 WAITING_RETURN_HOME = "waiting_return_home"
 DETECTED_RETURN_HOME = "return_home"
+RETURN_HOME_DETECTED = DETECTED_RETURN_HOME
 
 FIND_BUTTON_PIXEL = (320, 800)
 FIND_BUTTON_COLOR = (230, 84, 13)
+NEXT_BUTTON_PIXEL = (1630, 840)
+NEXT_BUTTON_COLOR = (230, 84, 13)
 
 
 def is_pixel_visible(image, pixel, color):
@@ -28,13 +39,8 @@ def is_find_button_visible(image):
     return result
 
 
-def is_next_button_visible(image=None):
-    if image is None:
-        image = f.capture_screenshot()
-    if image is None:
-        f.log("[TH DETECTOR] Screenshot unavailable", color="red")
-        return False
-    result = is_pixel_visible(image, (1630, 840), (230, 84, 13))
+def is_next_button_visible(image):
+    result = is_pixel_visible(image, NEXT_BUTTON_PIXEL, NEXT_BUTTON_COLOR)
     f.log(f"[TH DETECTOR] NEXT pixel check -> {result}")
     return result
 
@@ -58,8 +64,17 @@ def screen_detect(state):
     if image is None:
         f.log("[TH DETECTOR] screen_detect -> no screenshot", color="red")
         return None
+
     if state == WAITING_FIND and is_find_button_visible(image):
         return FIND_DETECTED
+
+    if state == WAITING_RESULT:
+        if is_claim_reward_button_visible(image):
+            return DETECTED_REWARD
+        if is_return_home_button_visible(image):
+            return DETECTED_RETURN_HOME
+        return None
+
     if state == WAITING_NEXT and is_next_button_visible(image):
         return DETECTED_NEXT
     if state == WAITING_REWARD and is_claim_reward_button_visible(image):
