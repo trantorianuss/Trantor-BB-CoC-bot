@@ -30,7 +30,7 @@ def tap_surrender_button():
         detected = screen_detector.screen_detect(screen_detector.WAITING_SURRENDER)
 
         if detected == screen_detector.DETECTED_SURRENDER:
-            f.log(f"SURRENDER ready: {detected}", debug=True, color="blue", category="detection")
+            f.log(f"SURRENDER ready: {detected}", debug=True, color="magenta", category="detection")
             
             x = random.randint(24, 246)
             y = random.randint(721, 780)
@@ -195,7 +195,7 @@ def find_match():
 
     # 3. Comprobar si FIND está realmente visible.
     find_ready = screen_detector.is_find_button_visible()
-    f.log(f"FIND ready: {find_ready}", color="blue", category="detection")
+    f.log(f"FIND ready: {find_ready}", color="magenta", category="detection")
 
     if not find_ready:
         f.log("Warning: FIND button not detected", color="red", category="detection")

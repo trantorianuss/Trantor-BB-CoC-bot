@@ -43,7 +43,7 @@ def set_state(new_state):
     current_state = new_state
 
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    message = f"STATE: {previous_state} -> {new_state}"
+    message = f"{previous_state} -> {new_state}"
 
     # Visible in the normal application logger.
     log(message, debug=True, category="state")

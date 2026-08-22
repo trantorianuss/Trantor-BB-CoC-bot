@@ -39,4 +39,4 @@ def farm_loop(attacks_per_cycle=None):
     botstate.set_stopped()
     machine_state.set_state(machine_state.IDLE)
 
-    f.log(">>>  Bot stopped.")
+    f.log(">>>>>  Bot stopped.  <<<<<", color="red")

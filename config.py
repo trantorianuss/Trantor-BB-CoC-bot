@@ -67,17 +67,19 @@ DROP_ANALYZER_DEBUG = 1
 # ------------------------------------------------------------
 
 # Colors available for log messages in the GUI.
+
+
 LOG_COLORS = {
     "default": None,
     "green": "green",
     "red": "red",
-    "orange": "orange",
+    "orange": "orange",     # Debugging color for warnings and important messages.
     "blue": "blue",
-    "gray": "gray",
+    "gray": "gray",         # Debugging color for DEBUG_INSPECTION.
     "yellow": "yellow",
     "purple": "purple",
     "pink": "pink",
-    "cyan": "cyan",
+    "cyan": "cyan",         # Debugging color for messages that don't fit other categories.
     "magenta": "magenta",
     "brown": "brown",
     "white": "white",

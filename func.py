@@ -504,7 +504,7 @@ def get_pixel(x, y):
     checkp = Image.open(filename).convert("RGB")
     mi_pixel = checkp.getpixel((x, y))
 
-    log(f"[func] get_pixel : (pos={x},{y})  {mi_pixel}", debug=True)
+    log(f"get_pixel : (pos={x},{y})  {mi_pixel}", debug=True, category="func")
         
     return mi_pixel  # devuelve (R, G, B)
 
@@ -516,7 +516,7 @@ def get_pixel_from_image(image, x, y):
     b, g, r = image[y, x]
     mi_pixel = (int(r), int(g), int(b))
 
-    log(f"[func] get_pixel_from_image : pos=({x},{y}) RGB={mi_pixel}", debug=True)
+    log(f"get_pixel_from_image : pos=({x},{y}) RGB={mi_pixel}", debug=True, category="func")
 
     return mi_pixel
 
