@@ -98,10 +98,7 @@ def wait_for_battle_end(ctx):
         if not wait_for_claim_reward(ctx):
             return False
     elif result == screen_detector_th.RETURN_HOME_DETECTED:
-        if config_th.EVENT_REWARD_ENABLED:
-            f.log("[TH] Return Home detected before Claim Reward")
-        else:
-            f.log("[TH] Return Home detected")
+        f.log("[TH] Return Home detected")
     else:
         return False
 
@@ -150,7 +147,7 @@ def wait_for_claim_reward(ctx):
             f.log(f"[TH] Claim Reward detected after {elapsed}s -> tapping")
             f.tap_scale(*config_th.CLAIM_REWARD_BUTTON_PIXEL)
 
-            if not ctx.sleep_with_exit(config_th.AFTER_BATTLE_END_DELAY if hasattr(config_th, "AFTER_BATTLE_END_DELAY") else ctx.AFTER_BATTLE_END_DELAY):
+            if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
                 return False
 
             f.log("[TH] Claim Reward tapped -> performing 3 reward taps")
