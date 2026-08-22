@@ -14,8 +14,8 @@ DETECTED_REWARD = "reward"
 WAITING_RETURN_HOME = "waiting_return_home"
 DETECTED_RETURN_HOME = "return_home"
 
-FIND_BUTTON_PIXEL = (320, 800)
-FIND_BUTTON_COLOR = (230, 84, 13)
+FIND_BUTTON_PIXEL = (160, 825)
+FIND_BUTTON_COLOR = (249, 173, 44)
 
 
 def is_pixel_visible(image, pixel, color):
