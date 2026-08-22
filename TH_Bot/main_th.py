@@ -1,11 +1,4 @@
-"""TH bot entry point and calibration tools.
-
-Attack execution lives in gameflow_th.py. This file keeps the TH-specific
-startup, calibration and runtime configuration.
-
-Run from the repository root with:
-    python -m TH_Bot.main_th
-"""
+"""TH bot entry point and calibration tools."""
 
 import json
 import msvcrt
@@ -28,34 +21,28 @@ ATTACK_BUTTON_1 = (125, 995)
 FIND_BUTTON = (320, 800)
 ATTACK_BUTTON_2 = (1700, 960)
 MULTITAP_MAX = 4
-
-# Timing values used by the TH test flow. Keep these together for easy tuning.
 ATTACK_BUTTON_DELAY = 0.5
 BETWEEN_TROOPS_DELAY = 0
 AFTER_BATTLE_END_DELAY = 1.0
 SCREEN_DETECT_DELAY = 2
 EXIT_POLL_INTERVAL = 0.05
-
 DROP_POINTS_EDGE = [(80, 440), (120, 400), (160, 360), (200, 320)]
 DROP_POINT_CENTER = (960, 540)
 DROP_DIAMOND_CENTER = (960, 540)
 DROP_DIAMOND_HALF_WIDTH = 450
 DROP_DIAMOND_HALF_HEIGHT = 450
-
 ATTACK_CONFIG_FILE = Path(__file__).with_name("attack_th.json")
 EDGE_ZONE_START = None
 EDGE_ZONE_END = None
 EDGE_ZONE_POINTS = []
 TH_SLOT_1_CENTER = None
 TH_SLOT_2_CENTER = None
-
 ZONE_WINDOW_MAX_WIDTH = 1000
 ZONE_WINDOW_MAX_HEIGHT = 700
 PIXEL_TOLERANCE = 10
 
 
 def exit_requested():
-    """Return True when the user presses X during execution."""
     if msvcrt.kbhit():
         key = msvcrt.getwch()
         if key.lower() == "x":
@@ -65,7 +52,6 @@ def exit_requested():
 
 
 def sleep_with_exit(seconds):
-    """Sleep while checking for X without ever passing a negative value to sleep."""
     end_time = time.time() + seconds
     while True:
         if exit_requested():
@@ -77,17 +63,13 @@ def sleep_with_exit(seconds):
 
 
 def load_attack_config():
-    global EDGE_ZONE_START, EDGE_ZONE_END, EDGE_ZONE_POINTS
-    global TH_SLOT_1_CENTER, TH_SLOT_2_CENTER
-
+    global EDGE_ZONE_START, EDGE_ZONE_END, EDGE_ZONE_POINTS, TH_SLOT_1_CENTER, TH_SLOT_2_CENTER
     if not ATTACK_CONFIG_FILE.exists():
         f.log("[TH] No existe attack_th.json; será necesario definir la calibración")
         return False
-
     try:
         with ATTACK_CONFIG_FILE.open("r", encoding="utf-8") as file:
             config = json.load(file)
-
         start = config.get("edge_zone_start")
         end = config.get("edge_zone_end")
         if start and end:
@@ -97,12 +79,10 @@ def load_attack_config():
             f.log(f"[TH] Zona EDGE cargada: {EDGE_ZONE_START} -> {EDGE_ZONE_END} ({len(EDGE_ZONE_POINTS)} puntos)")
         else:
             f.log("[TH] Zona EDGE no definida")
-
         slot_1 = config.get("slot_1_center")
         slot_2 = config.get("slot_2_center")
         TH_SLOT_1_CENTER = tuple(slot_1) if slot_1 else None
         TH_SLOT_2_CENTER = tuple(slot_2) if slot_2 else None
-
         if TH_SLOT_1_CENTER and TH_SLOT_2_CENTER:
             f.log(f"[TH] Slots cargados: S1={TH_SLOT_1_CENTER} | S2={TH_SLOT_2_CENTER}")
         else:
@@ -122,7 +102,6 @@ def save_attack_config():
         config["slot_1_center"] = list(TH_SLOT_1_CENTER)
     if TH_SLOT_2_CENTER is not None:
         config["slot_2_center"] = list(TH_SLOT_2_CENTER)
-
     try:
         with ATTACK_CONFIG_FILE.open("w", encoding="utf-8") as file:
             json.dump(config, file, indent=2)
@@ -147,11 +126,8 @@ def get_th_slot_position(n):
     if TH_SLOT_1_CENTER is None or TH_SLOT_2_CENTER is None:
         raise RuntimeError("TH slot centers are not calibrated")
     step_x = TH_SLOT_2_CENTER[0] - TH_SLOT_1_CENTER[0]
-    step_y = TH_SLOT_2_CENTER[1] - TH_SLOT_1_CENTER[1]
-    return (
-        int(TH_SLOT_1_CENTER[0] + step_x * (n - 1)),
-        int(TH_SLOT_1_CENTER[1] + step_y * (n - 1)),
-    )
+    fixed_y = (TH_SLOT_1_CENTER[1] + TH_SLOT_2_CENTER[1]) / 2
+    return int(TH_SLOT_1_CENTER[0] + step_x * (n - 1)), int(fixed_y)
 
 
 def debug_tap_scale(x, y, name, color):
@@ -160,11 +136,9 @@ def debug_tap_scale(x, y, name, color):
         f.log(f"[TH DEBUG] No se pudo capturar screenshot para {name}", color="red")
         f.tap_scale(x, y)
         return not exit_requested()
-
     marked_x, marked_y = x, y
     if coords.REAL_W is not None and coords.REAL_H is not None:
         marked_x, marked_y = coords.scale(x, y)
-
     f.log(f"[TH DEBUG] {name}: coordenadas iniciales=({x},{y}) | coordenadas convertidas=({marked_x},{marked_y})")
     image_h, image_w = image.shape[:2]
     cv2.circle(image, (image_w // 2, image_h // 2), 50, (0, 255, 255), 5)
@@ -181,13 +155,11 @@ def save_deployment_debug():
     if image is None:
         f.log("[TH DEBUG] No se pudo capturar screenshot del mapa de despliegue", color="red")
         return
-
     def to_real(point):
         x, y = point
         if coords.REAL_W is not None and coords.REAL_H is not None:
             return tuple(int(v) for v in coords.scale(x, y))
         return int(x), int(y)
-
     center = to_real(DROP_DIAMOND_CENTER)
     diamond = [
         to_real((DROP_DIAMOND_CENTER[0], DROP_DIAMOND_CENTER[1] - DROP_DIAMOND_HALF_HEIGHT)),
@@ -198,7 +170,6 @@ def save_deployment_debug():
     for p1, p2 in zip(diamond, diamond[1:] + diamond[:1]):
         cv2.line(image, p1, p2, (0, 255, 255), 3)
     cv2.circle(image, center, 10, (0, 255, 255), -1)
-
     if EDGE_ZONE_START is not None and EDGE_ZONE_END is not None:
         start = to_real(EDGE_ZONE_START)
         end = to_real(EDGE_ZONE_END)
@@ -207,13 +178,11 @@ def save_deployment_debug():
         cv2.circle(image, end, 10, (255, 0, 255), -1)
         for point in EDGE_ZONE_POINTS:
             cv2.circle(image, to_real(point), 6, (255, 0, 0), -1)
-
     if TH_SLOT_1_CENTER is not None and TH_SLOT_2_CENTER is not None:
         for slot_number in range(1, 11):
             x, y = to_real(get_th_slot_position(slot_number))
             cv2.circle(image, (x, y), 18, (0, 255, 0), 2)
             cv2.putText(image, str(slot_number), (x - 8, y + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
     filename = f.save_image("th_deployment_debug", image)
     f.log(f"[TH DEBUG] Mapa despliegue guardado: {filename}")
 
@@ -223,14 +192,12 @@ def select_two_points(title, prompt):
     if image is None:
         f.log("[TH] No se pudo capturar screenshot para la calibración", color="red")
         return None
-
     image_h, image_w = image.shape[:2]
     display_scale = min(1.0, ZONE_WINDOW_MAX_WIDTH / image_w, ZONE_WINDOW_MAX_HEIGHT / image_h)
     display_w = int(image_w * display_scale)
     display_h = int(image_h * display_scale)
     display_image = cv2.resize(image, (display_w, display_h))
     points = []
-
     def mouse_callback(event, x, y, flags, param):
         if event != cv2.EVENT_LBUTTONDOWN or len(points) >= 2:
             return
@@ -244,7 +211,6 @@ def select_two_points(title, prompt):
             p2 = (int(points[1][0] * coords.SX * display_scale), int(points[1][1] * coords.SY * display_scale))
             cv2.line(display_image, p1, p2, (0, 255, 255), 3)
         cv2.imshow(title, display_image)
-
     cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
     cv2.setMouseCallback(title, mouse_callback)
     f.log(prompt)
@@ -256,7 +222,6 @@ def select_two_points(title, prompt):
             cv2.destroyWindow(title)
             f.log("[TH] Calibración cancelada")
             return None
-
     cv2.imshow(title, display_image)
     cv2.waitKey(500)
     cv2.destroyWindow(title)
@@ -291,12 +256,16 @@ def prepare_th_run():
         print()
         print("1. Marcar zona de despliegue EDGE")
         print("2. Marcar centro del Slot 1 y centro del Slot 2")
+        print("X. Exit")
         print("0. Ejecutar")
         choice = input("> ").strip()
         if choice == "1":
             select_edge_zone()
         elif choice == "2":
             select_slot_centers()
+        elif choice.lower() == "x":
+            f.log("[TH] X. Exit -> saliendo del menú", color="yellow")
+            return False
         elif choice == "0":
             missing = []
             if TH_SLOT_1_CENTER is None:
@@ -306,7 +275,7 @@ def prepare_th_run():
             if missing:
                 f.log("[TH] No se puede ejecutar: falta " + " y ".join(missing) + ". Usa la opción 2.", color="yellow")
                 continue
-            return
+            return True
         else:
             print("Opción no válida")
 
@@ -351,5 +320,5 @@ def build_context():
 
 
 if __name__ == "__main__":
-    prepare_th_run()
-    th_game_flow(build_context())
+    if prepare_th_run():
+        th_game_flow(build_context())
