@@ -118,10 +118,10 @@ def wait_for_battle_result(ctx):
         if result == screen_detector_th.RETURN_HOME_DETECTED:
             f.log("[TH] Return Home detected")
             return result
-        elapsed += ctx.SCREEN_DETECT_DELAY
+        elapsed += config_th.BATTLE_RESULT_CHECK_DELAY
         if int(elapsed) % 10 == 0:
             f.log(f"[TH] Battle still running... {int(elapsed)}s")
-        if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
+        if not ctx.sleep_with_exit(config_th.BATTLE_RESULT_CHECK_DELAY):
             return None
 
 
