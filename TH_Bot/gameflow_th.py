@@ -72,23 +72,26 @@ def wait_for_battle_end(ctx):
     f.log("[TH] Waiting for battle to finish")
     result = wait_for_battle_result(ctx)
     if result == screen_detector_th.CLAIM_REWARD_DETECTED:
-        if not config_th.EVENT_REWARD_ENABLED or not wait_for_claim_reward(ctx):
+        if not wait_for_claim_reward(ctx):
             return False
-    elif result != screen_detector_th.RETURN_HOME_DETECTED:
+    elif result == screen_detector_th.RETURN_HOME_DETECTED:
+        f.log("[TH] Return Home detected directly")
+    else:
         return False
     return wait_for_return_home(ctx)
 
 
 def wait_for_battle_result(ctx):
+    """Wait until the post-battle screen shows either Claim Reward or Return Home."""
     elapsed = 0
     while True:
         if ctx.exit_requested():
             return None
         result = screen_detector_th.screen_detect(screen_detector_th.WAITING_RESULT)
-        if config_th.EVENT_REWARD_ENABLED and result == screen_detector_th.CLAIM_REWARD_DETECTED:
+        if result == screen_detector_th.CLAIM_REWARD_DETECTED:
             f.log("[TH] Claim Reward detected")
             return result
-        if not config_th.EVENT_REWARD_ENABLED and result == screen_detector_th.RETURN_HOME_DETECTED:
+        if result == screen_detector_th.RETURN_HOME_DETECTED:
             f.log("[TH] Return Home detected")
             return result
         elapsed += ctx.SCREEN_DETECT_DELAY
