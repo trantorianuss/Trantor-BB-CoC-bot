@@ -5,7 +5,7 @@ active, then turn it off again when the normal post-battle flow is restored.
 """
 
 # Temporary event flow switch.
-EVENT_REWARD_ENABLED = False
+EVENT_REWARD_ENABLED = True
 
 # After Claim Reward, the game shows a reward screen that accepts three taps
 # around the center. The exact point is randomized within this radius.
