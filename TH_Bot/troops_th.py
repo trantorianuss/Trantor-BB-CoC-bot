@@ -9,6 +9,26 @@ import func as f
 
 # (slot, number of troops, deployment zone, delay, use_multitap)
 
+DEPLOY_SEQUENCE = [
+    (1,  5, "edge",   0,   False), # elefante
+    (2,  6, "edge",   0,   False), # barbaros
+    (3,  1, "edge",   0,   False), # carro
+
+    (4,  1, "edge",   0, False), # Hero 1
+    (5,  1, "edge",   0, False), # Hero 2
+    # (6,  1, "edge",   0, False),
+
+    (6, 2, "random", 0,   False), # Rabia
+    (7, 2, "random", 0,   False), # congela
+
+    (1,  6, "edge",   0,   False),
+    (2, 10, "edge",   0,   False), # barbaros
+
+    (6, 2, "random", 0,   False), # Rabia
+    (7, 1, "random", 0,   False), # congela
+
+]
+
 DEPLOY_SEQUENCE_tresheroes = [
     (1, 12, "edge",   0,   False),
     (2, 16, "edge",   0,   False),
@@ -23,16 +43,7 @@ DEPLOY_SEQUENCE_tresheroes = [
     (5,  0, "edge",   0, False),
 ]
 
-DEPLOY_SEQUENCE = [
-    (1, 12, "edge",   0,   False),
-    (2, 16, "edge",   0,   False),
-    (3,  1, "edge",   0,   False),
-    (4,  1, "edge",   0, False),
-    (6, 4, "random", 0,   False),
-    (5, 3, "random", 0,   False),
-    (3,  0, "edge",   0,   False),
-    (4,  0, "edge",   0, False),
-]
+
 DEPLOY_SEQUENCE_Terminus_elefantes = [
     (1, 12, "edge",   0,   False),
     (2, 8, "edge",   0,   False),
