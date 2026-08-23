@@ -105,20 +105,26 @@ def wait_for_battle_end(ctx):
 def wait_for_battle_result(ctx):
     """Wait until the post-battle screen shows either Claim Reward or Return Home."""
     elapsed = 0
+    checks = 0
+    f.log(f"[TH] Battle result check started (delay={config_th.BATTLE_RESULT_CHECK_DELAY}s)")
     while True:
         if ctx.exit_requested():
+            f.log(f"[TH] Battle result check stopped after {checks} checks / {elapsed}s")
             return None
+        checks += 1
+        f.log(f"[TH] Battle result check #{checks} ({elapsed}s elapsed)")
         result = screen_detector_th.screen_detect(screen_detector_th.WAITING_RESULT)
         if result == screen_detector_th.CLAIM_REWARD_DETECTED:
-            f.log("[TH] Claim Reward detected")
+            f.log(f"[TH] Claim Reward detected after {checks} checks / {elapsed}s")
             return result
         if result == screen_detector_th.RETURN_HOME_DETECTED:
-            f.log("[TH] Return Home detected")
+            f.log(f"[TH] Return Home detected after {checks} checks / {elapsed}s")
             return result
         elapsed += config_th.BATTLE_RESULT_CHECK_DELAY
         if int(elapsed) % 10 == 0:
-            f.log(f"[TH] Battle still running... {int(elapsed)}s")
+            f.log(f"[TH] Battle still running... {int(elapsed)}s ({checks} checks)")
         if not ctx.sleep_with_exit(config_th.BATTLE_RESULT_CHECK_DELAY):
+            f.log(f"[TH] Battle result check stopped after {checks} checks / {elapsed}s")
             return None
 
 
