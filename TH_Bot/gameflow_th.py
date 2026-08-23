@@ -22,6 +22,9 @@ def th_game_flow(ctx):
             return
         machine_state.set_state(machine_state.ATTACKING)
         ctx.save_deployment_debug()
+        if not wait_for_next_screen(ctx):
+            machine_state.set_state(machine_state.IDLE)
+            return
         if not deploy_troops(ctx):
             machine_state.set_state(machine_state.IDLE)
             return
@@ -63,6 +66,27 @@ def start_attack(ctx):
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Find... {int(elapsed)}s")
+        if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
+            return False
+
+
+def wait_for_next_screen(ctx):
+    machine_state.set_state(machine_state.WAITING_NEXT)
+    f.log("[TH] Waiting for Next before deployment")
+    elapsed = 0
+    while True:
+        if ctx.exit_requested():
+            return False
+        image = f.capture_screenshot()
+        f.save_image(image, "th_waiting_next.png")
+        x, y = screen_layout_th.NEXT_BUTTON_PIXEL
+        pixel = f.get_pixel_from_image(image, x, y)
+        detected = f.pixel_matches(pixel, screen_layout_th.NEXT_BUTTON_COLOR, tol=ctx.PIXEL_TOLERANCE)
+        f.log(f"[TH] NEXT pixel check -> {detected}")
+        if detected:
+            f.log(f"[TH] Next detected after {elapsed}s -> starting deployment")
+            return True
+        elapsed += ctx.SCREEN_DETECT_DELAY
         if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
             return False
 
