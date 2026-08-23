@@ -21,10 +21,11 @@ def th_game_flow(ctx):
             machine_state.set_state(machine_state.IDLE)
             return
         machine_state.set_state(machine_state.ATTACKING)
-        ctx.save_deployment_debug()
-        if not wait_for_next_screen(ctx):
+        deployment_image = wait_for_next_screen(ctx)
+        if deployment_image is None:
             machine_state.set_state(machine_state.IDLE)
             return
+        ctx.save_deployment_debug(deployment_image)
         if not deploy_troops(ctx):
             machine_state.set_state(machine_state.IDLE)
             return
@@ -76,16 +77,15 @@ def wait_for_next_screen(ctx):
     elapsed = 0
     while True:
         if ctx.exit_requested():
-            return False
+            return None
         image = f.capture_screenshot()
-        f.save_image("th_waiting_next", image)
         detected = screen_detector_th.is_next_button_visible(image)
         if detected:
             f.log(f"[TH] Next detected after {elapsed}s -> starting deployment")
-            return True
+            return image
         elapsed += ctx.SCREEN_DETECT_DELAY
         if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
-            return False
+            return None
 
 
 def wait_for_battle_end(ctx):
@@ -105,26 +105,20 @@ def wait_for_battle_end(ctx):
 def wait_for_battle_result(ctx):
     """Wait until the post-battle screen shows either Claim Reward or Return Home."""
     elapsed = 0
-    checks = 0
-    f.log(f"[TH] Battle result check started (delay={config_th.BATTLE_RESULT_CHECK_DELAY}s)")
     while True:
         if ctx.exit_requested():
-            f.log(f"[TH] Battle result check stopped after {checks} checks / {elapsed}s")
             return None
-        checks += 1
-        f.log(f"[TH] Battle result check #{checks} ({elapsed}s elapsed)")
         result = screen_detector_th.screen_detect(screen_detector_th.WAITING_RESULT)
         if result == screen_detector_th.CLAIM_REWARD_DETECTED:
-            f.log(f"[TH] Claim Reward detected after {checks} checks / {elapsed}s")
+            f.log("[TH] Claim Reward detected")
             return result
         if result == screen_detector_th.RETURN_HOME_DETECTED:
-            f.log(f"[TH] Return Home detected after {checks} checks / {elapsed}s")
+            f.log("[TH] Return Home detected")
             return result
         elapsed += config_th.BATTLE_RESULT_CHECK_DELAY
         if int(elapsed) % 10 == 0:
-            f.log(f"[TH] Battle still running... {int(elapsed)}s ({checks} checks)")
+            f.log(f"[TH] Battle still running... {int(elapsed)}s")
         if not ctx.sleep_with_exit(config_th.BATTLE_RESULT_CHECK_DELAY):
-            f.log(f"[TH] Battle result check stopped after {checks} checks / {elapsed}s")
             return None
 
 
