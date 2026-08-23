@@ -7,6 +7,9 @@ active, then turn it off again when the normal post-battle flow is restored.
 # Temporary event flow switch.
 EVENT_REWARD_ENABLED = True
 
+# Delay between checks while waiting for the battle result screen.
+BATTLE_RESULT_CHECK_DELAY = 5
+
 # After Claim Reward, the game shows a reward screen that accepts three taps
 # around the center. The exact point is randomized within this radius.
 REWARD_TAP_CENTER = (640, 640)
