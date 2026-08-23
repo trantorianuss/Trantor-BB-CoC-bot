@@ -150,10 +150,9 @@ def debug_tap_scale(x, y, name, color):
     return not exit_requested()
 
 
-def save_deployment_debug():
-    image = f.capture_screenshot()
+def save_deployment_debug(image):
     if image is None:
-        f.log("[TH DEBUG] No se pudo capturar screenshot del mapa de despliegue", color="red")
+        f.log("[TH DEBUG] No se pudo usar screenshot del mapa de despliegue", color="red")
         return
     def to_real(point):
         x, y = point
