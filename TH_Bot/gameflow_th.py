@@ -79,10 +79,7 @@ def wait_for_next_screen(ctx):
             return False
         image = f.capture_screenshot()
         f.save_image("th_waiting_next", image)
-        x, y = screen_layout_th.NEXT_BUTTON_PIXEL
-        pixel = f.get_pixel_from_image(image, x, y)
-        detected = f.pixel_matches(pixel, screen_layout_th.NEXT_BUTTON_COLOR, tol=ctx.PIXEL_TOLERANCE)
-        f.log(f"[TH] NEXT pixel check -> {detected}")
+        detected = screen_detector_th.is_next_button_visible(image)
         if detected:
             f.log(f"[TH] Next detected after {elapsed}s -> starting deployment")
             return True
