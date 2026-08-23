@@ -78,7 +78,7 @@ def wait_for_next_screen(ctx):
         if ctx.exit_requested():
             return False
         image = f.capture_screenshot()
-        f.save_image(image, "th_waiting_next.png")
+        f.save_image("th_waiting_next", image)
         x, y = screen_layout_th.NEXT_BUTTON_PIXEL
         pixel = f.get_pixel_from_image(image, x, y)
         detected = f.pixel_matches(pixel, screen_layout_th.NEXT_BUTTON_COLOR, tol=ctx.PIXEL_TOLERANCE)
