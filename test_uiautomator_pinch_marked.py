@@ -3,10 +3,10 @@ import uiautomator2 as u2
 
 DEVICE = "emulator-5554"
 
-P1 = (750, 457)  # dedo 1 inicial
-P2 = (509, 698)  # dedo 2 inicial
-P3 = (650, 520)  # dedo 1 final
-P4 = (600, 620)  # dedo 2 final
+P1 = (1140, 340)  # dedo 1 inicial
+P2 = ( 140, 340)  # dedo 2 inicial
+P3 = ( 940, 340)  # dedo 1 final
+P4 = ( 340, 340)  # dedo 2 final
 
 
 def mark_point(image, point, label):
