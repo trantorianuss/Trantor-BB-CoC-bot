@@ -7,3 +7,4 @@ pure-python-adb
 requests
 pywin32
 easyocr
+uiautomator2
