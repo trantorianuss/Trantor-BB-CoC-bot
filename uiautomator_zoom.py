@@ -20,11 +20,13 @@ def zoom():
         log("[ZOOM] CoC stage initialized")
 
     _STAGE.gesture(
-        (750, 457),
-        (509, 698),
-        (650, 520),
-        (600, 620),
+        (1140, 340),  # P1: dedo 1 inicial
+        ( 140, 340),  # P2: dedo 2 inicial
+        ( 940, 340),  # P3: dedo 1 final
+        ( 340, 340),  # P4: dedo 2 final
+
         steps=20,
     )
 
     log("[ZOOM] Zoom gesture completed")
+
