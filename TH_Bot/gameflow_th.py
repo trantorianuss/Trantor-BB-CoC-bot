@@ -1,6 +1,7 @@
 """Game flow for the Town Hall (main village)."""
 
 import random
+import time
 
 import func as f
 import machine_state
@@ -27,6 +28,10 @@ def th_game_flow(ctx):
             machine_state.set_state(machine_state.IDLE)
             return
         ctx.save_deployment_debug(deployment_image)
+        f.log("[TH] Next detected -> waiting 1s before zoom")
+        if not ctx.sleep_with_exit(1.0):
+            machine_state.set_state(machine_state.IDLE)
+            return
         uiautomator_zoom.zoom()
         if not deploy_troops(ctx):
             machine_state.set_state(machine_state.IDLE)
