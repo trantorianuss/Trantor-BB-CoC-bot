@@ -1,9 +1,11 @@
 """Game flow for the Town Hall (main village)."""
 
 import random
+import time
 
 import func as f
 import machine_state
+import uiautomator_zoom
 
 from TH_Bot import config_th, screen_detector_th, screen_layout_th
 from TH_Bot.troops_th import deploy_troops
@@ -25,6 +27,14 @@ def th_game_flow(ctx):
         if deployment_image is None:
             machine_state.set_state(machine_state.IDLE)
             return
+        f.log("[TH] Next detected -> waiting 1s before zoom")
+        if not ctx.sleep_with_exit(1.0):
+            machine_state.set_state(machine_state.IDLE)
+            return
+        uiautomator_zoom.zoom()
+        # Capture AFTER the zoom so the debug image has the correct
+        # village/slot geometry for the coordinates used during deployment.
+        deployment_image = f.capture_screenshot()
         ctx.save_deployment_debug(deployment_image)
         if not deploy_troops(ctx):
             machine_state.set_state(machine_state.IDLE)
