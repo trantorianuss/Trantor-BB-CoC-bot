@@ -4,6 +4,7 @@ import random
 
 import func as f
 import machine_state
+import uiautomator_zoom
 
 from TH_Bot import config_th, screen_detector_th, screen_layout_th
 from TH_Bot.troops_th import deploy_troops
@@ -26,6 +27,7 @@ def th_game_flow(ctx):
             machine_state.set_state(machine_state.IDLE)
             return
         ctx.save_deployment_debug(deployment_image)
+        uiautomator_zoom.zoom()
         if not deploy_troops(ctx):
             machine_state.set_state(machine_state.IDLE)
             return
