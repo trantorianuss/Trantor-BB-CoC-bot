@@ -1,9 +1,12 @@
 # coords.py
 # -----------------------------------------
-# Gestión de resoluciones, escalado y taps
+# Gestión de resoluciones, escalado
 # -----------------------------------------
 
-import func as f
+import time
+print(f">>> coords.py  starting [{time.perf_counter():.3f}]")
+
+from logger import log
 
 # Resolución base (la que usaste para medir tus taps)
 BASE_W = 1920
@@ -29,8 +32,8 @@ def init_resolution(real_w, real_h):
     SX = REAL_W / BASE_W
     SY = REAL_H / BASE_H
 
-    f.log(f"[coords] Resolución real: {REAL_W}x{REAL_H}")
-    f.log(f"[coords] Escala SX={SX:.3f}, SY={SY:.3f}")
+    log(f"[coords] Real resolution: {REAL_W}x{REAL_H}", category="coords")
+    log(f"[coords] Scale SX={SX:.3f}, SY={SY:.3f}", category="coords")
 
 
 def scale(x, y):

@@ -19,6 +19,8 @@ import coords
 import settings
 from logger import log
 
+from adb_utils import get_real_resolution
+
 BASE_W = 1920
 BASE_H = 1080
 
@@ -55,15 +57,6 @@ class Timer:
         dt = (t.perf_counter() - self.t0) * 1000
         log(f"[TIME] {self.nombre}: {dt:.1f} ms", category="timing")
 
-def get_real_resolution():
-    out = adb("wm size")
-    if not out:
-        raise RuntimeError("No se pudo obtener la resolución desde ADB")
-
-    # Ejemplo de salida: "Physical size: 1920x1080"
-    size_part = out.split(":")[-1].strip()
-    w, h = map(int, size_part.split("x"))
-    return w, h
 
 def save_image(name, image, timestamp=True):
 
