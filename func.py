@@ -19,8 +19,11 @@ import coords
 import settings
 from logger import log
 
+# puente de migracions
 from adb_utils import get_real_resolution, adb, capture_screenshot, screenshot
 from adb_utils import tap_scale, tap_absolute, human_tap_absolute, human_tap_area, human_tap_scale
+from adb_utils import swipe
+from screen_utils import wait_for_stable_screen, stable_swipe
 
 #BASE_W = 1920
 #BASE_H = 1080
@@ -126,68 +129,7 @@ def find_template_on_screen(template_path, threshold=0.8):
     screenshot_path = screenshot()
     return find_template(screenshot_path, template_path, threshold=threshold)
 
-def wait_for_stable_screen(timeout=5):
-    start = t.time()
-    last = screenshot("stable_check")
 
-    while t.time() - start < timeout:
-        t.sleep(0.3)
-        current = screenshot("stable_check2")
-
-        img1 = cv2.imread(last)
-        img2 = cv2.imread(current)
-
-        if img1 is None or img2 is None:
-            last = current
-            continue
-
-        diff = cv2.absdiff(img1, img2)
-        nonzero = np.count_nonzero(diff)
-
-        if nonzero < 500:  # pantalla estable
-            return current  # DEVUELVE LA CAPTURA ESTABLE
-
-        last = current
-
-    return last  # aunque no esté perfecta, devolvemos la última
-
-def stable_swipe(x1, y1, x2, y2, duration=500):
-    log("[STABLE SWIPE] esperando pantalla estable...")
-    before = wait_for_stable_screen()  # solo 1 captura
-
-    swipe(x1, y1, x2, y2, duration)
-    t.sleep(0.5)
-
-    after = screenshot("after_swipe")  # solo 1 captura
-
-    img1 = cv2.imread(before)
-    img2 = cv2.imread(after)
-
-    diff = cv2.absdiff(img1, img2)
-    nonzero = np.count_nonzero(diff)
-
-    if nonzero < 500:
-        log("[STABLE SWIPE] swipe NO ejecutado, reintentando...")
-        t.sleep(0.5)
-        swipe(x1, y1, x2, y2, duration)
-    else:
-        log("[STABLE SWIPE] swipe ejecutado correctamente")
-
-
-
-def swipe(x1, y1, x2, y2, duration_ms):
-    """
-    Swipe genérico usando ADB.
-    x1, y1 = punto inicial
-    x2, y2 = punto final
-    duration_ms = duración en milisegundos
-    """
-    if coords.REAL_W is not None and coords.REAL_H is not None:
-        x1, y1 = coords.scale(x1, y1)
-        x2, y2 = coords.scale(x2, y2)
-
-    log(f"[SWIPE] x1={x1}, y1={y1}, x2={x2}, y2={y2}, dur={duration_ms}ms")
-    adb(f"input touchscreen swipe {x1} {y1} {x2} {y2} {duration_ms}")
 
 
 def swipe_test():  # borrar si no esta en uso 

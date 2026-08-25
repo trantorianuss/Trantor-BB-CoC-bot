@@ -11,8 +11,8 @@ import math
 
 
 import config
-from logger import log
 import coords
+from logger import log
 
 
 def adb(cmd_rest):
@@ -220,3 +220,19 @@ def human_tap_area(area):
     tap_absolute(cx, cy)
 
     return (cx, cy)
+
+def swipe(x1, y1, x2, y2, duration_ms):
+    """
+    Swipe genérico usando ADB.
+    x1, y1 = punto inicial
+    x2, y2 = punto final
+    duration_ms = duración en milisegundos
+    """
+    if coords.REAL_W is not None and coords.REAL_H is not None:
+        x1, y1 = coords.scale(x1, y1)
+        x2, y2 = coords.scale(x2, y2)
+
+    log(f"[SWIPE] x1={x1}, y1={y1}, x2={x2}, y2={y2}, dur={duration_ms}ms")
+    adb(f"input touchscreen swipe {x1} {y1} {x2} {y2} {duration_ms}")
+
+
