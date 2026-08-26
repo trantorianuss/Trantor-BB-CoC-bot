@@ -27,10 +27,10 @@ def th_game_flow(ctx):
         if deployment_image is None:
             machine_state.set_state(machine_state.IDLE)
             return
-        f.log("[TH] Next detected -> waiting 1s before zoom")
-        if not ctx.sleep_with_exit(1.0):
-            machine_state.set_state(machine_state.IDLE)
-            return
+        # f.log("[TH] Next detected -> waiting 1s before zoom")
+        # if not ctx.sleep_with_exit(1.0):
+        #     machine_state.set_state(machine_state.IDLE)
+        #     return
         uiautomator_zoom.zoom()
         deployment_image = f.capture_screenshot()
         ctx.save_deployment_debug(deployment_image)
