@@ -50,6 +50,8 @@ def th_game_flow(ctx):
 
 def is_elixir_full(ctx):
     image = f.capture_screenshot()
+    debug_path = f.save_image("th_elixir_check", image)
+    f.log(f"[TH] Elixir check screenshot: {debug_path}", debug=True, category="detection")
     x, y = screen_layout_th.ELIXIR_FULL_PIXEL
     return f.check_pixel_from_image(image, x, y, screen_layout_th.ELIXIR_FULL_COLOR, tol=ctx.PIXEL_TOLERANCE)
 
