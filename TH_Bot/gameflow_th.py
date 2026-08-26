@@ -32,8 +32,6 @@ def th_game_flow(ctx):
             machine_state.set_state(machine_state.IDLE)
             return
         uiautomator_zoom.zoom()
-        # Capture AFTER the zoom so the debug image has the correct
-        # village/slot geometry for the coordinates used during deployment.
         deployment_image = f.capture_screenshot()
         ctx.save_deployment_debug(deployment_image)
         if not deploy_troops(ctx):
@@ -157,10 +155,31 @@ def wait_for_claim_reward(ctx):
                 f.tap_scale(x, y)
                 if not ctx.sleep_with_exit(config_th.REWARD_TAP_DELAY):
                     return False
-            return True
+            return wait_for_claim_reward_continue(ctx)
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Claim Reward... {int(elapsed)}s")
+        if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
+            return False
+
+
+def wait_for_claim_reward_continue(ctx):
+    machine_state.set_state(machine_state.WAITING_RETURN_HOME)
+    f.log("[TH] Waiting for Claim Reward Continue")
+    elapsed = 0
+    while True:
+        if ctx.exit_requested():
+            return False
+        result = screen_detector_th.screen_detect(screen_detector_th.WAITING_REWARD_CONTINUE)
+        if result == screen_detector_th.CLAIM_REWARD_CONTINUE_DETECTED:
+            f.log(f"[TH] Claim Reward Continue detected after {elapsed}s -> tapping")
+            f.tap_scale(*screen_layout_th.CLAIM_REWARD_CONTINUE_PIXEL)
+            if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
+                return False
+            return True
+        elapsed += ctx.SCREEN_DETECT_DELAY
+        if int(elapsed) % 5 == 0:
+            f.log(f"[TH] Waiting for Claim Reward Continue... {int(elapsed)}s")
         if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
             return False
 
