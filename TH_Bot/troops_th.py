@@ -21,6 +21,10 @@ DEPLOY_SEQUENCE = [
     (6, 2, "random", 0,   False), # Rabia
     (7, 2, "random", 0,   False), # congela
 
+    (4,  0, "edge",   0, False), # Hero 1
+    (5,  0, "edge",   0, False), # Hero 2
+    # (6,  0, "edge",   0, False),
+
     (1,  6, "edge",   0,   False),
     (2, 10, "edge",   0,   False), # barbaros
 

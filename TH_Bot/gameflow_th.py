@@ -27,13 +27,11 @@ def th_game_flow(ctx):
         if deployment_image is None:
             machine_state.set_state(machine_state.IDLE)
             return
-        f.log("[TH] Next detected -> waiting 1s before zoom")
-        if not ctx.sleep_with_exit(1.0):
-            machine_state.set_state(machine_state.IDLE)
-            return
+        # f.log("[TH] Next detected -> waiting 1s before zoom")
+        # if not ctx.sleep_with_exit(1.0):
+        #     machine_state.set_state(machine_state.IDLE)
+        #     return
         uiautomator_zoom.zoom()
-        # Capture AFTER the zoom so the debug image has the correct
-        # village/slot geometry for the coordinates used during deployment.
         deployment_image = f.capture_screenshot()
         ctx.save_deployment_debug(deployment_image)
         if not deploy_troops(ctx):
@@ -50,6 +48,8 @@ def th_game_flow(ctx):
 
 def is_elixir_full(ctx):
     image = f.capture_screenshot()
+    debug_path = f.save_image("th_elixir_check", image)
+    f.log(f"[TH] Elixir check screenshot: {debug_path}", debug=True, category="detection")
     x, y = screen_layout_th.ELIXIR_FULL_PIXEL
     return f.check_pixel_from_image(image, x, y, screen_layout_th.ELIXIR_FULL_COLOR, tol=ctx.PIXEL_TOLERANCE)
 
@@ -103,13 +103,16 @@ def wait_for_battle_end(ctx):
     f.log("[TH] Waiting for battle to finish")
     result = wait_for_battle_result(ctx)
     if result == screen_detector_th.CLAIM_REWARD_DETECTED:
-        if not wait_for_claim_reward(ctx):
-            return False
+        # Claim Reward path ends after Claim Reward Continue sends us home.
+        return wait_for_claim_reward(ctx)
     elif result == screen_detector_th.RETURN_HOME_DETECTED:
         f.log("[TH] Return Home detected directly")
+        f.tap_scale(*screen_layout_th.RETURN_HOME_BUTTON_PIXEL)
+        if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
+            return False
+        return True
     else:
         return False
-    return wait_for_return_home(ctx)
 
 
 def wait_for_battle_result(ctx):
@@ -155,7 +158,7 @@ def wait_for_claim_reward(ctx):
                 f.tap_scale(x, y)
                 if not ctx.sleep_with_exit(config_th.REWARD_TAP_DELAY):
                     return False
-            return True
+            return wait_for_claim_reward_continue(ctx)
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Claim Reward... {int(elapsed)}s")
@@ -163,22 +166,27 @@ def wait_for_claim_reward(ctx):
             return False
 
 
-def wait_for_return_home(ctx):
+def wait_for_claim_reward_continue(ctx):
     machine_state.set_state(machine_state.WAITING_RETURN_HOME)
-    f.log("[TH] Waiting for Return Home")
+    f.log("[TH] Waiting for Claim Reward Continue")
     elapsed = 0
     while True:
         if ctx.exit_requested():
             return False
-        result = screen_detector_th.screen_detect(screen_detector_th.WAITING_RETURN_HOME)
-        if result == screen_detector_th.RETURN_HOME_DETECTED:
-            f.log(f"[TH] Return Home detected after {elapsed}s -> tapping")
-            f.tap_scale(*screen_layout_th.RETURN_HOME_BUTTON_PIXEL)
+        result = screen_detector_th.screen_detect(screen_detector_th.WAITING_REWARD_CONTINUE)
+        if result == screen_detector_th.CLAIM_REWARD_CONTINUE_DETECTED:
+            f.log(f"[TH] Claim Reward Continue detected after {elapsed}s -> tapping")
+            f.tap_scale(*screen_layout_th.CLAIM_REWARD_CONTINUE_PIXEL)
             if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
                 return False
             return True
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
-            f.log(f"[TH] Waiting for Return Home... {int(elapsed)}s")
+            f.log(f"[TH] Waiting for Claim Reward Continue... {int(elapsed)}s")
         if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
             return False
+
+
+def wait_for_return_home(ctx):
+    """Compatibility wrapper; direct Return Home is handled by wait_for_battle_end."""
+    return True
