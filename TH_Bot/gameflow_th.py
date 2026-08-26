@@ -103,13 +103,16 @@ def wait_for_battle_end(ctx):
     f.log("[TH] Waiting for battle to finish")
     result = wait_for_battle_result(ctx)
     if result == screen_detector_th.CLAIM_REWARD_DETECTED:
-        if not wait_for_claim_reward(ctx):
-            return False
+        # Claim Reward path ends after Claim Reward Continue sends us home.
+        return wait_for_claim_reward(ctx)
     elif result == screen_detector_th.RETURN_HOME_DETECTED:
         f.log("[TH] Return Home detected directly")
+        f.tap_scale(*screen_layout_th.RETURN_HOME_BUTTON_PIXEL)
+        if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
+            return False
+        return True
     else:
         return False
-    return wait_for_return_home(ctx)
 
 
 def wait_for_battle_result(ctx):
@@ -185,21 +188,5 @@ def wait_for_claim_reward_continue(ctx):
 
 
 def wait_for_return_home(ctx):
-    machine_state.set_state(machine_state.WAITING_RETURN_HOME)
-    f.log("[TH] Waiting for Return Home")
-    elapsed = 0
-    while True:
-        if ctx.exit_requested():
-            return False
-        result = screen_detector_th.screen_detect(screen_detector_th.WAITING_RETURN_HOME)
-        if result == screen_detector_th.RETURN_HOME_DETECTED:
-            f.log(f"[TH] Return Home detected after {elapsed}s -> tapping")
-            f.tap_scale(*screen_layout_th.RETURN_HOME_BUTTON_PIXEL)
-            if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
-                return False
-            return True
-        elapsed += ctx.SCREEN_DETECT_DELAY
-        if int(elapsed) % 5 == 0:
-            f.log(f"[TH] Waiting for Return Home... {int(elapsed)}s")
-        if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
-            return False
+    """Compatibility wrapper; direct Return Home is handled by wait_for_battle_end."""
+    return True
