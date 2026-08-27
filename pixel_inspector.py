@@ -6,24 +6,25 @@ import tkinter as tk
 import cv2
 import func as f
 import logger as l
+import coords
 
 
 class PixelInspector:
-    """Display a screenshot in a resizable window and report clicked pixels."""
+    """Display the current emulator screenshot and report pixel information."""
 
     def __init__(self, parent):
         self.parent = parent
         self.window = None
         self.image = None
         self.display_image = None
-        self.scale = 1.0
+        self.display_scale = 1.0
         self.offset_x = 0
         self.offset_y = 0
         self.canvas = None
         self.info_label = None
 
     def open(self):
-        """Capture a screenshot and open the interactive pixel inspector."""
+        """Capture a screenshot at the emulator's current resolution."""
         try:
             image = f.capture_screenshot()
             if image is None:
@@ -47,7 +48,7 @@ class PixelInspector:
 
             self.info_label = tk.Label(
                 self.window,
-                text="Click a pixel to inspect its coordinates and RGB color.",
+                text=self._resolution_text(),
                 anchor="w",
                 padx=8,
                 pady=6,
@@ -66,6 +67,14 @@ class PixelInspector:
         except Exception as exc:
             l.log(f"Pixel Inspector failed: {exc}")
 
+    def _resolution_text(self):
+        image_h, image_w = self.image.shape[:2]
+        return (
+            f"Real: {image_w}x{image_h}    |    "
+            f"Base: {coords.BASE_W}x{coords.BASE_H}    |    "
+            "Click a pixel to inspect"
+        )
+
     def _redraw(self, _event=None):
         if self.image is None or self.canvas is None:
             return
@@ -76,18 +85,17 @@ class PixelInspector:
             return
 
         image_h, image_w = self.image.shape[:2]
-        self.scale = min(canvas_w / image_w, canvas_h / image_h)
-        display_w = max(1, int(image_w * self.scale))
-        display_h = max(1, int(image_h * self.scale))
+        self.display_scale = min(canvas_w / image_w, canvas_h / image_h)
+        display_w = max(1, int(image_w * self.display_scale))
+        display_h = max(1, int(image_h * self.display_scale))
 
         resized = cv2.resize(
             self.image,
             (display_w, display_h),
-            interpolation=cv2.INTER_AREA if self.scale < 1 else cv2.INTER_LINEAR,
+            interpolation=cv2.INTER_AREA if self.display_scale < 1 else cv2.INTER_LINEAR,
         )
         rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
 
-        # Tkinter PhotoImage can load PPM data without an extra Pillow dependency.
         header = f"P6\\n{display_w} {display_h}\\n255\\n".encode("ascii")
         ppm_data = base64.b64encode(header + rgb.tobytes())
         self.display_image = tk.PhotoImage(data=ppm_data, format="PPM")
@@ -104,23 +112,34 @@ class PixelInspector:
         )
 
     def _on_click(self, event):
-        if self.image is None:
+        if self.image is None or self.display_scale <= 0:
             return
 
         image_h, image_w = self.image.shape[:2]
-        x = int((event.x - self.offset_x) / self.scale)
-        y = int((event.y - self.offset_y) / self.scale)
+        real_x = int((event.x - self.offset_x) / self.display_scale)
+        real_y = int((event.y - self.offset_y) / self.display_scale)
 
-        if not (0 <= x < image_w and 0 <= y < image_h):
+        if not (0 <= real_x < image_w and 0 <= real_y < image_h):
             return
 
         # OpenCV stores pixels as BGR; report the requested RGB order.
-        b, g, r = (int(value) for value in self.image[y, x])
+        b, g, r = (int(value) for value in self.image[real_y, real_x])
         rgb = (r, g, b)
 
-        text = f"Pixel: ({x}, {y})    RGB: {rgb}"
+        # Convert the real emulator coordinates back to the bot's base resolution.
+        base_x = int(real_x * coords.BASE_W / image_w)
+        base_y = int(real_y * coords.BASE_H / image_h)
+
+        text = (
+            f"Real: ({real_x}, {real_y})    "
+            f"Base: ({base_x}, {base_y})    "
+            f"RGB: {rgb}"
+        )
         self.info_label.configure(text=text)
-        l.log(f"Pixel Inspector: ({x}, {y}) RGB={rgb}")
+        l.log(
+            f"Pixel Inspector: real=({real_x}, {real_y}) "
+            f"base=({base_x}, {base_y}) RGB={rgb}"
+        )
 
     def _close(self):
         if self.window is not None and self.window.winfo_exists():
