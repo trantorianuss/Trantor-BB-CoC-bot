@@ -32,6 +32,13 @@ PIXEL_TOLERANCE = 20
 FIND_BUTTON_PIXEL = (1400, 750)
 FIND_BUTTON_COLOR = (139, 212, 58)
 
+# Daily star bonus screen detection.
+# Provisional values: replace with measured coordinates/color from the game.
+STAR_BONUS_PIXEL = (960, 500)
+STAR_BONUS_COLOR = (255, 255, 255)
+# Provisional point inside the button used to dismiss the bonus window.
+STAR_BONUS_BUTTON = (960, 850)
+
 
 
 
