@@ -63,6 +63,7 @@ class PixelInspector:
             self.window.protocol("WM_DELETE_WINDOW", self._close)
             self.window.lift()
             self.window.focus_force()
+            self.window.after(50, self._redraw)
 
         except Exception as exc:
             l.log(f"Pixel Inspector failed: {exc}")
@@ -96,8 +97,10 @@ class PixelInspector:
         )
         rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
 
-        header = f"P6\\n{display_w} {display_h}\\n255\\n".encode("ascii")
-        ppm_data = base64.b64encode(header + rgb.tobytes())
+        # Tk PhotoImage understands PPM data. Build a real PPM header with
+        # newline characters (not the literal characters '\\n').
+        header = f"P6\n{display_w} {display_h}\n255\n".encode("ascii")
+        ppm_data = base64.b64encode(header + rgb.tobytes()).decode("ascii")
         self.display_image = tk.PhotoImage(data=ppm_data, format="PPM")
 
         self.offset_x = (canvas_w - display_w) // 2
