@@ -34,10 +34,10 @@ FIND_BUTTON_COLOR = (139, 212, 58)
 
 # Daily star bonus screen detection.
 # Provisional values: replace with measured coordinates/color from the game.
-STAR_BONUS_PIXEL = (960, 500)
-STAR_BONUS_COLOR = (255, 255, 255)
+STAR_BONUS_PIXEL = (855, 810)
+STAR_BONUS_COLOR = (187, 233, 135)
 # Provisional point inside the button used to dismiss the bonus window.
-STAR_BONUS_BUTTON = (960, 850)
+STAR_BONUS_BUTTON = (855, 810)
 
 
 

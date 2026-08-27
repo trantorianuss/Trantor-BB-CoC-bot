@@ -206,7 +206,7 @@ def perform_attack(attempt_label):
     # Ambos modos convergen aquí: primero volver a Home.
     f.log(">>> Return Home <<<")
     tap_return_home()
-    t.sleep(1)
+    t.sleep(3)
 
     # Después de Home puede aparecer, de forma opcional, la ventana del bonus estelar.
     handle_star_bonus()
