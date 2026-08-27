@@ -1,6 +1,5 @@
 """Interactive screenshot tool for inspecting pixel coordinates and RGB values."""
 
-import base64
 import tkinter as tk
 
 import cv2
@@ -24,11 +23,15 @@ class PixelInspector:
         self.info_label = None
 
     def open(self):
-        """Capture a screenshot at the emulator's current resolution."""
+        """Capture the current emulator screenshot and open the inspector."""
         try:
-            image = f.capture_screenshot()
+            # Use the project's existing screenshot path instead of
+            # capture_screenshot(), so Pixel Inspector uses exactly the same
+            # ADB capture method as the normal Screenshot tool.
+            filename = f.screenshot(name="pixel_inspector", timestamp=False)
+            image = cv2.imread(filename, cv2.IMREAD_COLOR)
             if image is None:
-                raise RuntimeError("Screenshot capture returned no image")
+                raise RuntimeError(f"Could not read screenshot: {filename}")
 
             self.image = image
 
@@ -97,10 +100,11 @@ class PixelInspector:
         )
         rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
 
-        # Tk PhotoImage understands PPM data. Build a real PPM header with
-        # newline characters (not the literal characters '\\n').
-        header = f"P6\n{display_w} {display_h}\n255\n".encode("ascii")
-        ppm_data = base64.b64encode(header + rgb.tobytes()).decode("ascii")
+        # Tkinter PhotoImage supports PPM directly. Build a valid PPM header.
+        ppm_data = (
+            f"P6\n{display_w} {display_h}\n255\n".encode("ascii")
+            + rgb.tobytes()
+        )
         self.display_image = tk.PhotoImage(data=ppm_data, format="PPM")
 
         self.offset_x = (canvas_w - display_w) // 2
