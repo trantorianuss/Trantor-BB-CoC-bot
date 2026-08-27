@@ -122,11 +122,9 @@ class PixelInspector:
         if not (0 <= real_x < image_w and 0 <= real_y < image_h):
             return
 
-        # OpenCV stores pixels as BGR; report the requested RGB order.
         b, g, r = (int(value) for value in self.image[real_y, real_x])
         rgb = (r, g, b)
 
-        # Convert the real emulator coordinates back to the bot's base resolution.
         base_x = int(real_x * coords.BASE_W / image_w)
         base_y = int(real_y * coords.BASE_H / image_h)
 
@@ -148,27 +146,12 @@ class PixelInspector:
         self.display_image = None
 
 
-def install(app):
-    """Install the Pixel Inspector button when the existing Tools tab is created."""
-    inspector = PixelInspector(app)
-    app.pixel_inspector = inspector
+_inspector = None
 
-    # The side panel and its Tools tab are created lazily by the existing GUI.
-    original_show_side_panel = app._show_side_panel
 
-    def show_side_panel_with_inspector():
-        original_show_side_panel()
-
-        tab_tools = app.tabs.tab("Tools")
-        if hasattr(app, "button_Pixel_Inspector"):
-            return
-
-        button = tk.Button(
-            tab_tools,
-            text="Pixel Inspector",
-            command=inspector.open,
-        )
-        button.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="ew")
-        app.button_Pixel_Inspector = button
-
-    app._show_side_panel = show_side_panel_with_inspector
+def open(parent):
+    """Open the Pixel Inspector using the given GUI parent window."""
+    global _inspector
+    if _inspector is None or _inspector.parent != parent:
+        _inspector = PixelInspector(parent)
+    _inspector.open()
