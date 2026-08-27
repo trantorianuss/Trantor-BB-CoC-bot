@@ -149,13 +149,26 @@ class PixelInspector:
 
 
 def install(app):
-    """Add the Pixel Inspector button to the existing Tools tab."""
+    """Install the Pixel Inspector button when the existing Tools tab is created."""
     inspector = PixelInspector(app)
-    tab_tools = app.tabs.tab("Tools")
-    button = tk.Button(
-        tab_tools,
-        text="Pixel Inspector",
-        command=inspector.open,
-    )
-    button.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="ew")
     app.pixel_inspector = inspector
+
+    # The side panel and its Tools tab are created lazily by the existing GUI.
+    original_show_side_panel = app._show_side_panel
+
+    def show_side_panel_with_inspector():
+        original_show_side_panel()
+
+        tab_tools = app.tabs.tab("Tools")
+        if hasattr(app, "button_Pixel_Inspector"):
+            return
+
+        button = tk.Button(
+            tab_tools,
+            text="Pixel Inspector",
+            command=inspector.open,
+        )
+        button.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="ew")
+        app.button_Pixel_Inspector = button
+
+    app._show_side_panel = show_side_panel_with_inspector
