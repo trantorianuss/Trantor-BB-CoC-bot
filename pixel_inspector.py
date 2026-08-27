@@ -1,5 +1,6 @@
 """Interactive screenshot tool for inspecting pixel coordinates and RGB values."""
 
+import base64
 import tkinter as tk
 
 import cv2
@@ -88,7 +89,8 @@ class PixelInspector:
 
         # Tkinter PhotoImage can load PPM data without an extra Pillow dependency.
         header = f"P6\\n{display_w} {display_h}\\n255\\n".encode("ascii")
-        self.display_image = tk.PhotoImage(data=header + rgb.tobytes(), format="PPM")
+        ppm_data = base64.b64encode(header + rgb.tobytes())
+        self.display_image = tk.PhotoImage(data=ppm_data, format="PPM")
 
         self.offset_x = (canvas_w - display_w) // 2
         self.offset_y = (canvas_h - display_h) // 2
