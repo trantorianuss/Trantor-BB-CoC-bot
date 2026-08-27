@@ -189,24 +189,29 @@ def find_match():
     f.log("Pulso en Atacar", category="Find")
     tap_scale(100, 1000)
 
-    # 2. Dar tiempo a que aparezca la pantalla con FIND.
-    t.sleep(0.3)
+    # 2. Esperar hasta que FIND esté realmente visible.
     machine_state.set_state(machine_state.WAITING_FIND)
 
-    # 3. Comprobar si FIND está realmente visible.
-    find_ready = screen_detector.is_find_button_visible()
-    f.log(f"FIND ready: {find_ready}", color="magenta", category="detection")
+    while botstate.should_run():
+        find_ready = screen_detector.is_find_button_visible()
 
-    if not find_ready:
-        f.log("Warning: FIND button not detected", color="red", category="detection")
-        return False
+        color = "magenta" if find_ready else "red"
 
-    # 4. Pulsar FIND y pasar al estado de ataque.
-    f.log("Pulso en Find")
-    tap_scale(1375, 650)
-    t.sleep(5)
-    machine_state.set_state(machine_state.ATTACKING)
-    return True
+        f.log(f"FIND ready: {find_ready}", debug=True, color="magenta", category="detection")
+
+        if find_ready:
+            # 3. Pulsar FIND y pasar al estado de ataque.
+            f.log("Pulso en Find")
+            tap_scale(1375, 650)
+            t.sleep(5)
+            machine_state.set_state(machine_state.ATTACKING)
+            return True
+
+        f.log("Warning: FIND button not detected. Esperando…", color="red", category="detection")
+        t.sleep(1)
+
+    f.log("[GameFlow] Bot detenido mientras esperaba FIND.")
+    return False
 
 
 # -----------------------------
@@ -266,7 +271,9 @@ def perform_attack(attempt_label):
     f.log(f">>> Ataque {attempt_label} <<<")
 
     # 0. Buscar aldea
-    find_match()
+    if not find_match():
+        return False
+
     t.sleep(2)          # ← necesario para que cargue la aldea
 
     # 1. Atacar
@@ -330,8 +337,3 @@ def farm_until_full(attacks_per_cycle=None):
     f.log(">>> Almacén lleno. Fin del ciclo. <<<")
     
     return True   # ← señal para parar
-
-
-
-
-
