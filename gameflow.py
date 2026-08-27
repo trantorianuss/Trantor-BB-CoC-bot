@@ -50,6 +50,25 @@ def confirm_surrender():
     tap_scale(x, y)
 
 
+def handle_star_bonus():
+    """Handle the optional daily star bonus window after surrender.
+
+    The pixel and button coordinates are provisional and must be calibrated
+    against a real bonus-window screenshot.
+    """
+    image = f.capture_screenshot()
+
+    if screen_detector.is_star_bonus_visible(image):
+        f.log("[GameFlow] Bonus estelar detectado. Pulsando botón para continuar.")
+        x, y = screen_layout.STAR_BONUS_BUTTON
+        tap_scale(x, y)
+        t.sleep(1)
+        return True
+
+    f.log("[GameFlow] No hay bonus estelar. Continuando a Return Home.", debug=True)
+    return False
+
+
 def tap_return_home():
     # Ajusta estos valores si tu botón está en otra zona
     x = random.randint(850, 1065)
@@ -288,12 +307,15 @@ def perform_attack(attempt_label):
         # 3. Confirmar rendición
         confirm_surrender()
         t.sleep(1)
+
+        # 4. Bonus estelar opcional antes de volver a Home
+        handle_star_bonus()
     else:
         # 3. Esperar a que termine la batalla
         if not wait_for_battle_end():
             return False
 
-    # 4. Volver a Home
+    # 5. Volver a Home
     f.log(">>> Return Home <<<")
     tap_return_home()
     t.sleep(1)
