@@ -194,7 +194,10 @@ def find_match():
 
     while botstate.should_run():
         find_ready = screen_detector.is_find_button_visible()
-        f.log(f"FIND ready: {find_ready}", color="magenta", category="detection")
+
+        color = "magenta" if find_ready else "red"
+
+        f.log(f"FIND ready: {find_ready}", debug=True, color="magenta", category="detection")
 
         if find_ready:
             # 3. Pulsar FIND y pasar al estado de ataque.
