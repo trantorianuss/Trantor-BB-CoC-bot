@@ -29,6 +29,7 @@ DEBUG_CATEGORIES = {
     "detection": True,
     "drop": True,
     "state": True, 
+    "func": False,
 }
 
 DEBUG_INSPECTION = False # used to print the file, function, and line number of the log message

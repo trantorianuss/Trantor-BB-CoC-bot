@@ -17,21 +17,16 @@ import screen_layout
 import screen_detector
 
 
-# -----------------------------
-#   Surrender : Farming in Builder base
-# -----------------------------
-
 def tap_surrender_button():
     while True:
         if not botstate.should_run():
-            f.log("[GameFlow] Bot detenido. Se cancela la espera del botón surrender.")
+            f.log("[GameFlow] Bot stopped. Cancelling surrender button wait.")
             return False
 
         detected = screen_detector.screen_detect(screen_detector.WAITING_SURRENDER)
 
         if detected == screen_detector.DETECTED_SURRENDER:
             f.log(f"SURRENDER ready: {detected}", debug=True, color="magenta", category="detection")
-            
             x = random.randint(24, 246)
             y = random.randint(721, 780)
             tap_scale(x, y)
@@ -40,7 +35,7 @@ def tap_surrender_button():
         if detected == screen_detector.DETECTED_FIND:
             f.log("Warning: Find button not expected", color="red", category="detection")
 
-        f.log("Botón surrender no está visible. Reintentando en 10 segundos.")
+        f.log("Surrender button not visible. Retrying in 10 seconds.")
         t.sleep(10)
 
 
@@ -50,110 +45,85 @@ def confirm_surrender():
     tap_scale(x, y)
 
 
+def handle_star_bonus():
+    """Handle the optional daily star bonus window after returning Home."""
+    image = f.capture_screenshot()
+
+    if screen_detector.is_star_bonus_visible(image):
+        f.log("[GameFlow] Star Bonus detected. Pressing button to continue.")
+        x, y = screen_layout.STAR_BONUS_BUTTON
+        tap_scale(x, y)
+        t.sleep(1)
+        return True
+
+    f.log("[GameFlow] No Star Bonus. Continuing.", debug=True)
+    return False
+
+
 def tap_return_home():
-    # Ajusta estos valores si tu botón está en otra zona
     x = random.randint(850, 1065)
     y = random.randint(875, 950)
     tap_scale(x, y)
 
-# -------------------------
-#  RECOGER ELIXIR ROSA
-# -------------------------
+
 def collect_pink_elixir():
-    f.log("[Elixir] Moviendo cámara y abriendo Carro…")
-
-    #if not elixir_cart.search_cart(total_offset=600, debug=True):
+    f.log("[Elixir] Moving camera and opening Cart…")
     if not open_cart(debug=True):
-    
-        f.log("[Elixir] Carro no encontrado, no se hace tap de recogida.")
+        f.log("[Elixir] Cart not found; collection tap skipped.")
         return
-
-    f.log("[Elixir] Pulsando botón Recoger…")
-
-    # Botón verde "Recoger"
+    f.log("[Elixir] Pressing Collect button…")
     f.log("[Elixir] AQUI L TAP COMMENTED.")
     f.human_tap_scale(1301, 871, 1510, 944)
-
-    f.log("[Elixir] Recompensa recogida.")
-    t.sleep(5)  # Espera un segundo para asegurar que la acción se complete
-    
-    # Botón Rojo "Cerrar Ventana"
-    f.log("[Elixir] Cerrando Ventana.")
+    f.log("[Elixir] Reward collected.")
+    t.sleep(5)
+    f.log("[Elixir] Closing window.")
     f.human_tap_scale(1583, 60, 1630, 132)
-
-    f.log("[Elixir] Recompensa recogida.")
-    t.sleep(5)  # Espera un segundo para asegurar que la acción se complete
+    f.log("[Elixir] Reward collected.")
+    t.sleep(5)
     return True
+
 
 def open_cart(debug=False):
-
-    # Swipe desde zona alta
     xi = 1850
     yi = 350
-
     dx, dy = settings.swipe_dx, settings.swipe_dy
-    
     f.wait_for_stable_screen()
-
     f.stable_swipe(xi, yi, xi + dx, yi + dy, 1500)
-
     screenshot_path = f.screenshot("cart_search")
-
     position = cart_calibration.locate_cart(screenshot_path, debug=debug)
-
     if position is None:
-        f.log("[Elixir] Carro no encontrado.")
+        f.log("[Elixir] Cart not found.")
         return False
-
     x, y = position
-
     f.log(f"TAP REAL EN: {x}, {y}")
-
     f.tap_absolute(x, y)
-
     t.sleep(0.4)
-
     return True
-    
 
 
 def try_collect_pink_elixir():
-    f.log("[Elixir] Intentando recoger elixir rosa…")
+    f.log("[Elixir] Trying to collect pink elixir…")
     if collect_pink_elixir():
-        f.log("[Elixir] Elixir rosa recogido correctamente.")
+        f.log("[Elixir] Pink elixir collected successfully.")
         return True
-
-    f.log("[Elixir] No había elixir rosa listo para recoger.")
+    f.log("[Elixir] No pink elixir ready to collect.")
     return False
 
-# -------------------------
-#  COMPROBAR NIVEL DE ELIXIR
-# -------------------------
 
 def get_elixir_level():
-    """Devuelve el nivel detectado del elixir para mostrarlo en el log.
-
-    FULL es el único nivel que afecta al flujo del bot. Los niveles 75/50/25
-    son únicamente informativos y sus coordenadas quedan pendientes de medir.
-    """
     levels = (
         ("FULL", screen_layout.ELIXIR_FULL_PIXEL),
         ("75%", screen_layout.ELIXIR_75_PIXEL),
         ("50%", screen_layout.ELIXIR_50_PIXEL),
         ("25%", screen_layout.ELIXIR_25_PIXEL),
     )
-
-    f.log("[Elixir] Buscando Niveles de Elixir.", debug=True)
-    
+    f.log("[Elixir] Searching for Elixir level.", debug=True)
     image = f.capture_screenshot()
 
     for level, (x, y) in levels:
-        # Las coordenadas pendientes no se comprueban todavía.
-        f.log(f"[Elixir] buscando Nivel : {level} (pos={x},{y})", debug=True)
-
+        f.log(f"[Elixir] Checking level: {level} (pos={x},{y})", debug=True)
         if x is None or y is None:
             continue
-
         if f.check_pixel_from_image(
             image,
             x,
@@ -161,179 +131,170 @@ def get_elixir_level():
             screen_layout.ELIXIR_COLOR,
             tol=screen_layout.PIXEL_TOLERANCE,
         ):
-            f.log(f"[Elixir] Nivel detectado: {level} (pos={x},{y})")
+            f.log(f"[Elixir] Level detected: {level} (pos={x},{y})")
             return level
 
+    screenshot_path = f.screenshot("elixir_detection_failed")
+    f.log(
+        f"[Elixir] No level detected. Screenshot saved: {screenshot_path}",
+        color="red",
+        category="detection",
+    )
+    return None
+
+
+def get_gold_level():
+    """Detect the current gold level using the four configured pixel points."""
+    levels = (
+        ("FULL", screen_layout.GOLD_FULL_PIXEL),
+        ("75%", screen_layout.GOLD_75_PIXEL),
+        ("50%", screen_layout.GOLD_50_PIXEL),
+        ("25%", screen_layout.GOLD_25_PIXEL),
+    )
+    f.log("[Gold] Searching for Gold level.", debug=True)
+    image = f.capture_screenshot()
+
+    for level, (x, y) in levels:
+        f.log(f"[Gold] Checking level: {level} (pos={x},{y})", debug=True)
+        if x is None or y is None:
+            continue
+        if f.check_pixel_from_image(
+            image,
+            x,
+            y,
+            screen_layout.GOLD_COLOR,
+            tol=screen_layout.PIXEL_TOLERANCE,
+        ):
+            f.log(f"[Gold] Level detected: {level} (pos={x},{y})")
+            return level
+
+    screenshot_path = f.screenshot("gold_detection_failed")
+    f.log(
+        f"[Gold] No level detected. Screenshot saved: {screenshot_path}",
+        color="red",
+        category="detection",
+    )
     return None
 
 
 def is_elixir_full():
-    """Comprueba exclusivamente la condición que termina el farming.
-
-    Los niveles 75/50/25 son informativos y nunca cambian el flujo.
-    """
-    f.log("[Elixir] Buscando si Elixir Full.")
-
-    level = get_elixir_level()
-    return level == "FULL"
+    f.log("[Elixir] Checking if Elixir is full.")
+    return get_elixir_level() == "FULL"
 
 
-# -----------------------------
-#   FIND MATCH (buscar aldea)
-# -----------------------------
+def resources_full(attack_mode):
+    """Return True when the resources required by the selected mode are full."""
+    elixir_full = is_elixir_full()
+
+    if attack_mode == "surrender":
+        return elixir_full
+
+    gold_full = get_gold_level() == "FULL"
+    f.log(
+        f"[Resources] Full Attack: Elixir FULL={elixir_full}, Gold FULL={gold_full}",
+        debug=True,
+    )
+    return elixir_full and gold_full
+
+
 def find_match():
-    f.log("[GameFlow] Buscando aldea…")
-
-    # 1. Pulsar Atacar.
-    # Este paso pertenece al flujo del ataque, no a func.py.
-    f.log("Pulso en Atacar", category="Find")
+    f.log("[GameFlow] Searching for village…")
+    f.log("Pressing Attack", category="Find")
     tap_scale(100, 1000)
-
-    # 2. Esperar hasta que FIND esté realmente visible.
     machine_state.set_state(machine_state.WAITING_FIND)
-
     while botstate.should_run():
         find_ready = screen_detector.is_find_button_visible()
-
-        color = "magenta" if find_ready else "red"
-
         f.log(f"FIND ready: {find_ready}", debug=True, color="magenta", category="detection")
-
         if find_ready:
-            # 3. Pulsar FIND y pasar al estado de ataque.
-            f.log("Pulso en Find")
+            f.log("Pressing Find")
             tap_scale(1375, 650)
             t.sleep(5)
             machine_state.set_state(machine_state.ATTACKING)
             return True
-
-        f.log("Warning: FIND button not detected. Esperando…", color="red", category="detection")
+        f.log("Warning: FIND button not detected. Waiting…", color="red", category="detection")
         t.sleep(1)
-
-    f.log("[GameFlow] Bot detenido mientras esperaba FIND.")
+    f.log("[GameFlow] Bot stopped while waiting for FIND.")
     return False
 
 
-# -----------------------------
-#   ESPERAR FIN DE BATALLA
-# -----------------------------
 def wait_for_battle_end():
-    f.log("Esperando fin de batalla…")
-
+    f.log("Waiting for battle to end…")
     while botstate.should_run():
         x, y = screen_layout.BATTLE_END_PIXEL
-
-        if f.check_pixel(
-            x,
-            y,
-            screen_layout.BATTLE_END_COLOR,
-            tol=screen_layout.PIXEL_TOLERANCE,
-        ):
-            f.log("Batalla terminada")
+        if f.check_pixel(x, y, screen_layout.BATTLE_END_COLOR, tol=screen_layout.PIXEL_TOLERANCE):
+            f.log("Battle ended")
             return True
-
         t.sleep(1)
-
-    f.log("Bot detenido mientras esperaba el fin de batalla.")
+    f.log("Bot stopped while waiting for battle to end.")
     return False
 
 
-# -----------------------------
-#   RECOGER BOTÍN
-# -----------------------------
 def collect_loot():
-    f.log("Recogiendo botín…")
-
+    f.log("Collecting loot…")
     f.tap_scale(950, 900)
     t.sleep(2)
-
     f.swipe1()
     t.sleep(1)
-
     f.tap_scale(871, 521)
     t.sleep(1)
-
     f.tap_scale(1400, 920)
     t.sleep(1)
-
     f.tap_scale(1600, 100)
     t.sleep(1)
-
-    f.log("Botín recogido")
-
-
-# -----------------------------
-#   CICLO DE ATAQUE FARM (1 ciclo)
-# -----------------------------
+    f.log("Loot collected")
 
 
-def perform_attack(attempt_label):
-    f.log(f">>> Ataque {attempt_label} <<<")
+def perform_attack(attempt_label, attack_mode, total_attacks=None):
+    if total_attacks is not None and isinstance(attempt_label, int):
+        f.log(f">>> Attack {attempt_label} of {total_attacks} ({attack_mode}) <<<")
+    else:
+        f.log(f">>> Extra attack ({attack_mode}) <<<")
 
-    # 0. Buscar aldea
     if not find_match():
         return False
-
-    t.sleep(2)          # ← necesario para que cargue la aldea
-
-    # 1. Atacar
+    t.sleep(2)
     a.BBFarm()
 
-    # 2. Finalizar ataque según configuración
-    if settings.get_attack_mode() == "surrender":
+    if attack_mode == "surrender":
         if not tap_surrender_button():
             return False
         t.sleep(1)
-
-        # 3. Confirmar rendición
         confirm_surrender()
         t.sleep(1)
     else:
-        # 3. Esperar a que termine la batalla
         if not wait_for_battle_end():
             return False
 
-    # 4. Volver a Home
     f.log(">>> Return Home <<<")
     tap_return_home()
     t.sleep(1)
+    handle_star_bonus()
+    return True
 
 
 def farm_until_full(attacks_per_cycle=None):
+    # Capture the selected attack mode once for the whole farming cycle.
+    attack_mode = settings.get_attack_mode()
+    f.log(f">>> Attack mode fixed for cycle: {attack_mode} <<<")
 
-    while not is_elixir_full():
+    while not resources_full(attack_mode):
         cycle_attacks = settings.get_attacks_per_cycle() if attacks_per_cycle is None else attacks_per_cycle
-        f.log(f">>> Nuevo ciclo de {cycle_attacks} ataques <<<")
-
-        for i in range(cycle_attacks):  ## numero de ataques por ciclo
+        f.log(f">>> New cycle of {cycle_attacks} attacks <<<")
+        for i in range(cycle_attacks):
             if not botstate.should_run():
                 return False
-            perform_attack(i + 1)
-
-        # --- INTENTAR RECOGER ELIXIR ---
+            perform_attack(i + 1, attack_mode, cycle_attacks)
         if try_collect_pink_elixir():
-            f.log("Recogido elixir rosa. Nuevo ciclo de ataques.")
+            f.log("Pink elixir collected. Starting new attack cycle.")
             continue
-
-        # --- ATAQUES EXTRA HASTA QUE HAYA ELIXIR ---
-        f.log("No había elixir rosa. Iniciando ataques extra...")
-
+        f.log("No pink elixir available. Starting extra attacks...")
         while True:
-             
             if not botstate.should_run():
-                return False   
-
-            f.log("Ataque extra...")
-            perform_attack("extra")
-
+                return False
+            perform_attack("extra", attack_mode)
             if try_collect_pink_elixir():
-                f.log("Recogido elixir rosa tras ataque extra. Nuevo ciclo.")
-                break   # ← vuelve al while principal (nuevo ciclo)
-
-            f.log("Aún no hay elixir rosa. Otro ataque extra...")
-
-        # vuelve al inicio del while principal
-
-    f.log(">>> Almacén lleno. Fin del ciclo. <<<")
-    
-    return True   # ← señal para parar
+                f.log("Pink elixir collected after extra attack. Starting new cycle.")
+                break
+            f.log("Pink elixir still unavailable. Starting another extra attack...")
+    f.log(">>> Required resources are full. End of cycle. <<<")
+    return True

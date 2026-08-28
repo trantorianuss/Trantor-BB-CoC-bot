@@ -14,11 +14,17 @@ DROP_POINT = (1535, 585)  ## OLD BB code, to review
 
 # Elixir level reference pixels. The points are ordered from full to low.
 # The full point is known; the remaining X coordinates are intentionally pending.
-ELIXIR_FULL_PIXEL = (1525, 179)
-ELIXIR_75_PIXEL = (1605, 179)
-ELIXIR_50_PIXEL = (1685, 179)
-ELIXIR_25_PIXEL = (1765, 179)
+ELIXIR_FULL_PIXEL = (1525, 183)
+ELIXIR_75_PIXEL = (1605, 183)
+ELIXIR_50_PIXEL = (1685, 183)
+ELIXIR_25_PIXEL = (1765, 183)
 ELIXIR_COLOR = (121, 69, 197)
+
+GOLD_FULL_PIXEL = (1525, 80)
+GOLD_75_PIXEL = (1605, 80)
+GOLD_50_PIXEL = (1685, 80)
+GOLD_25_PIXEL = (1765, 80)
+GOLD_COLOR = (231, 192, 13)
 
 # Battle UI detection reference
 SURRENDER_PIXEL = (48, 737)
@@ -31,6 +37,13 @@ PIXEL_TOLERANCE = 20
 # These are deliberately provisional values and must be calibrated.
 FIND_BUTTON_PIXEL = (1400, 750)
 FIND_BUTTON_COLOR = (139, 212, 58)
+
+# Daily star bonus screen detection.
+# Provisional values: replace with measured coordinates/color from the game.
+STAR_BONUS_PIXEL = (855, 810)
+STAR_BONUS_COLOR = (187, 233, 135)
+# Provisional point inside the button used to dismiss the bonus window.
+STAR_BONUS_BUTTON = (855, 810)
 
 
 

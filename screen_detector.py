@@ -58,6 +58,26 @@ def is_find_button_visible(image=None):
     )
 
 
+def is_star_bonus_visible(image=None):
+    """Comprueba si aparece la ventana intermedia del bonus estelar.
+
+    Los valores de pixel son provisionales y deben calibrarse con una captura
+    real de la pantalla del bonus.
+    """
+    if image is None:
+        image = f.capture_screenshot()
+
+    x, y = screen_layout.STAR_BONUS_PIXEL
+
+    return f.check_pixel_from_image(
+        image,
+        x,
+        y,
+        screen_layout.STAR_BONUS_COLOR,
+        tol=screen_layout.PIXEL_TOLERANCE,
+    )
+
+
 def screen_detect(state):
     """Comprueba los elementos relevantes para el estado indicado.
 
