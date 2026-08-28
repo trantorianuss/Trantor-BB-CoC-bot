@@ -13,11 +13,10 @@ import func as f
 
 from TH_Bot import config_th, screen_layout_th
 from TH_Bot.gameflow_th import th_game_flow
-from TH_Bot.troops_th import DEPLOY_SEQUENCE
+from TH_Bot.th_strategies import DEFAULT_STRATEGY, get_strategy
 
 
 ATTACK_CONFIG_FILE = Path(__file__).with_name(config_th.ATTACK_CONFIG_FILENAME)
-
 EDGE_ZONE_START = None
 EDGE_ZONE_END = None
 EDGE_ZONE_POINTS = []
@@ -111,26 +110,6 @@ def get_th_slot_position(n):
     step_x = TH_SLOT_2_CENTER[0] - TH_SLOT_1_CENTER[0]
     fixed_y = (TH_SLOT_1_CENTER[1] + TH_SLOT_2_CENTER[1]) / 2
     return int(TH_SLOT_1_CENTER[0] + step_x * (n - 1)), int(fixed_y)
-
-
-def debug_tap_scale(x, y, name, color):
-    image = f.capture_screenshot()
-    if image is None:
-        f.log(f"[TH DEBUG] No se pudo capturar screenshot para {name}", color="red")
-        f.tap_scale(x, y)
-        return not exit_requested()
-    marked_x, marked_y = x, y
-    if coords.REAL_W is not None and coords.REAL_H is not None:
-        marked_x, marked_y = coords.scale(x, y)
-    f.log(f"[TH DEBUG] {name}: coordenadas iniciales=({x},{y}) | coordenadas convertidas=({marked_x},{marked_y})")
-    image_h, image_w = image.shape[:2]
-    cv2.circle(image, (image_w // 2, image_h // 2), 50, (0, 255, 255), 5)
-    cv2.circle(image, (int(marked_x), int(marked_y)), 25, color, 4)
-    cv2.drawMarker(image, (int(marked_x), int(marked_y)), color, markerType=cv2.MARKER_CROSS, markerSize=40, thickness=3)
-    filename = f.save_image(f"th_debug_{name}", image)
-    f.log(f"[TH DEBUG] Screenshot guardado: {filename}")
-    f.tap_scale(x, y)
-    return not exit_requested()
 
 
 def save_deployment_debug(image):
@@ -281,7 +260,8 @@ def initialize_coords():
         f.log("[coords] Usando resolución por defecto: 1920x1080")
 
 
-def build_context():
+def build_context(strategy_name=DEFAULT_STRATEGY):
+    strategy = get_strategy(strategy_name)
     return SimpleNamespace(
         ELIXIR_FULL_PIXEL=screen_layout_th.ELIXIR_FULL_PIXEL,
         ELIXIR_FULL_COLOR=screen_layout_th.ELIXIR_FULL_COLOR,
@@ -298,7 +278,8 @@ def build_context():
         DROP_DIAMOND_CENTER=screen_layout_th.DROP_DIAMOND_CENTER,
         DROP_DIAMOND_HALF_WIDTH=screen_layout_th.DROP_DIAMOND_HALF_WIDTH,
         DROP_DIAMOND_HALF_HEIGHT=screen_layout_th.DROP_DIAMOND_HALF_HEIGHT,
-        DEPLOY_SEQUENCE=DEPLOY_SEQUENCE,
+        TROOP_BAR=strategy["bar"],
+        DEPLOY_SEQUENCE=strategy["sequence"],
         PIXEL_TOLERANCE=config_th.PIXEL_TOLERANCE,
         EDGE_ZONE_POINTS=EDGE_ZONE_POINTS,
         exit_requested=exit_requested,
