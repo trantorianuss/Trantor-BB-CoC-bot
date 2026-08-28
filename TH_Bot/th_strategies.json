@@ -1,0 +1,22 @@
+{
+  "default": {
+    "bar": ["troop_1", "troop_2", "troop_3", "hero_1", "hero_2", "spell_1", "spell_2"],
+    "sequence": [["troop_1", 5, "edge", 0, false], ["troop_2", 6, "edge", 0, false], ["troop_3", 1, "edge", 0, false], ["hero_1", 1, "edge", 0, false], ["hero_2", 1, "edge", 0, false], ["spell_1", 2, "random", 0, false], ["spell_2", 2, "random", 0, false], ["hero_1", 0, "edge", 0, false], ["hero_2", 0, "edge", 0, false], ["troop_1", 6, "edge", 0, false], ["troop_2", 10, "edge", 0, false], ["spell_1", 2, "random", 0, false], ["spell_2", 1, "random", 0, false]]
+  },
+  "tresheroes": {
+    "bar": ["troop_1", "troop_2", "troop_3", "hero_1", "hero_2", "hero_3", "spell_1", "spell_2"],
+    "sequence": [["troop_1", 12, "edge", 0, false], ["troop_2", 16, "edge", 0, false], ["troop_3", 1, "edge", 0, false], ["hero_1", 1, "edge", 0, false], ["hero_2", 1, "edge", 0, false], ["spell_1", 4, "random", 0, false], ["spell_2", 3, "random", 0, false], ["troop_3", 0, "edge", 0, false], ["hero_1", 0, "edge", 0, false], ["hero_2", 0, "edge", 0, false]]
+  },
+  "Terminus_elefantes": {
+    "bar": ["troop_1", "troop_2", "troop_3", "hero_1", "hero_2", "hero_3", "spell_1", "spell_2"],
+    "sequence": [["troop_1", 12, "edge", 0, false], ["troop_2", 8, "edge", 0, false], ["hero_1", 1, "edge", 0, false], ["hero_2", 1, "edge", 0, false], ["hero_3", 1, "edge", 0, false], ["spell_1", 1, "edge", 0, false], ["spell_2", 1, "edge", 0, false], ["spell_2", 6, "random", 0, false], ["troop_1", 1, "random", 0, false], ["hero_1", 0, "edge", 0, false], ["hero_2", 0, "edge", 0, false], ["hero_3", 0, "edge", 0, false]]
+  },
+  "kk": {
+    "bar": ["troop_1", "troop_2", "troop_3", "hero_1", "hero_2", "hero_3", "spell_1", "spell_2"],
+    "sequence": [["troop_1", 8, "edge", 0, true], ["troop_2", 8, "edge", 0, true], ["spell_1", 10, "random", 0, true], ["spell_2", 10, "random", 0, true], ["hero_1", 1, "edge", 0, false], ["hero_2", 1, "edge", 0, false], ["hero_3", 1, "edge", 0, false], ["spell_1", 20, "random", 0, true], ["spell_2", 20, "random", 0, true], ["hero_1", 0, "edge", 0, false], ["hero_2", 0, "edge", 0, false], ["hero_3", 0, "edge", 0, false]]
+  },
+  "terminis_BCK": {
+    "bar": ["troop_1", "troop_2", "troop_3", "hero_1", "hero_2", "hero_3", "spell_1", "spell_2", "troop_4", "troop_5"],
+    "sequence": [["troop_1", 6, "edge", 0, true], ["troop_2", 12, "edge", 0, true], ["troop_3", 3, "edge", 0, false], ["hero_1", 1, "edge", 0, false], ["hero_2", 1, "edge", 0.1, false], ["hero_3", 1, "edge", 0.1, false], ["spell_1", 1, "edge", 0.1, false], ["spell_2", 1, "edge", 0.1, false], ["hero_2", 0, "edge", 0.1, false], ["hero_3", 0, "edge", 0.1, false], ["spell_1", 0, "edge", 0.1, false], ["spell_2", 0, "edge", 0.1, false], ["troop_4", 10, "random", 0, true], ["troop_5", 1, "random", 0, true]]
+  }
+}
