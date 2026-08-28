@@ -46,11 +46,7 @@ def confirm_surrender():
 
 
 def handle_star_bonus():
-    """Handle the optional daily star bonus window after returning Home.
-
-    The pixel and button coordinates are provisional and must be calibrated
-    against a real bonus-window screenshot.
-    """
+    """Handle the optional daily star bonus window after returning Home."""
     image = f.capture_screenshot()
 
     if screen_detector.is_star_bonus_visible(image):
@@ -75,7 +71,6 @@ def collect_pink_elixir():
     if not open_cart(debug=True):
         f.log("[Elixir] Carro no encontrado, no se hace tap de recogida.")
         return
-
     f.log("[Elixir] Pulsando botón Recoger…")
     f.log("[Elixir] AQUI L TAP COMMENTED.")
     f.human_tap_scale(1301, 871, 1510, 944)
@@ -124,13 +119,28 @@ def get_elixir_level():
     )
     f.log("[Elixir] Buscando Niveles de Elixir.", debug=True)
     image = f.capture_screenshot()
+
     for level, (x, y) in levels:
         f.log(f"[Elixir] buscando Nivel : {level} (pos={x},{y})", debug=True)
         if x is None or y is None:
             continue
-        if f.check_pixel_from_image(image, x, y, screen_layout.ELIXIR_COLOR, tol=screen_layout.PIXEL_TOLERANCE):
+        if f.check_pixel_from_image(
+            image,
+            x,
+            y,
+            screen_layout.ELIXIR_COLOR,
+            tol=screen_layout.PIXEL_TOLERANCE,
+        ):
             f.log(f"[Elixir] Nivel detectado: {level} (pos={x},{y})")
             return level
+
+    # Diagnostic capture only when none of the four levels was detected.
+    screenshot_path = f.screenshot("elixir_detection_failed")
+    f.log(
+        f"[Elixir] Ningún nivel detectado. Captura guardada: {screenshot_path}",
+        color="red",
+        category="detection",
+    )
     return None
 
 
@@ -203,12 +213,9 @@ def perform_attack(attempt_label):
         if not wait_for_battle_end():
             return False
 
-    # Ambos modos convergen aquí: primero volver a Home.
     f.log(">>> Return Home <<<")
     tap_return_home()
-    t.sleep(3)
-
-    # Después de Home puede aparecer, de forma opcional, la ventana del bonus estelar.
+    t.sleep(1)
     handle_star_bonus()
 
 
