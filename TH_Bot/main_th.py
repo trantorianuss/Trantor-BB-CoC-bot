@@ -163,24 +163,11 @@ app = BotInterface(
 
 l.set_log_sink(app.log)
 
-
-def initialize_coords():
-    l.log("[coords] Initializing resolution...")
-    try:
-        real_w, real_h = f.get_real_resolution()
-        coords.init_resolution(real_w, real_h)
-        l.log(f"[coords] Resolution initialized: {real_w}x{real_h}")
-    except Exception as exc:
-        l.log(f"[coords] Could not obtain actual resolution: {exc}")
-        coords.init_resolution(1920, 1080)
-        l.log("[coords] Using default resolution: 1920x1080")
-
-
 l.log("  Clash of Clans Trantor Bot")
 l.log("  Initializing application...")
 
 f.cleanup_screenshots()
-initialize_coords()
+coords.initialize()
 
 
 if __name__ == "__main__":
