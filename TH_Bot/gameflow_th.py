@@ -48,14 +48,14 @@ def is_elixir_full(ctx):
     debug_path = f.save_image("th_elixir_check", image)
     f.log(f"[TH] Elixir check screenshot: {debug_path}", debug=True, category="detection")
     x, y = screen_layout_th.ELIXIR_FULL_PIXEL
-    return f.check_pixel_from_image(image, x, y, screen_layout_th.ELIXIR_FULL_COLOR, tol=ctx.PIXEL_TOLERANCE)
+    return f.check_pixel_from_image(image, x, y, screen_layout_th.ELIXIR_FULL_COLOR, tol=config_th.PIXEL_TOLERANCE)
 
 
 def start_attack(ctx):
     machine_state.set_state(machine_state.WAITING_FIND)
     f.log("[TH] Starting attack")
     f.tap_scale(*screen_layout_th.ATTACK_BUTTON_1)
-    time.sleep(ctx.ATTACK_BUTTON_DELAY)
+    time.sleep(config_th.ATTACK_BUTTON_DELAY)
     if not botstate.should_run():
         return False
     elapsed = 0
@@ -64,18 +64,18 @@ def start_attack(ctx):
         if result == screen_detector_th.FIND_DETECTED:
             f.log("[TH] Find detected -> tapping")
             f.tap_scale(*screen_layout_th.FIND_BUTTON)
-            time.sleep(ctx.ATTACK_BUTTON_DELAY)
+            time.sleep(config_th.ATTACK_BUTTON_DELAY)
             if not botstate.should_run():
                 return False
             f.tap_scale(*screen_layout_th.ATTACK_BUTTON_2)
-            time.sleep(ctx.ATTACK_BUTTON_DELAY)
+            time.sleep(config_th.ATTACK_BUTTON_DELAY)
             if not botstate.should_run():
                 return False
             return True
-        elapsed += ctx.SCREEN_DETECT_DELAY
+        elapsed += config_th.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Find... {int(elapsed)}s")
-        time.sleep(ctx.SCREEN_DETECT_DELAY)
+        time.sleep(config_th.SCREEN_DETECT_DELAY)
     return False
 
 
@@ -89,8 +89,8 @@ def wait_for_next_screen(ctx):
         if detected:
             f.log(f"[TH] Next detected after {elapsed}s -> starting deployment")
             return image
-        elapsed += ctx.SCREEN_DETECT_DELAY
-        time.sleep(ctx.SCREEN_DETECT_DELAY)
+        elapsed += config_th.SCREEN_DETECT_DELAY
+        time.sleep(config_th.SCREEN_DETECT_DELAY)
     return None
 
 
@@ -103,7 +103,7 @@ def wait_for_battle_end(ctx):
     elif result == screen_detector_th.RETURN_HOME_DETECTED:
         f.log("[TH] Return Home detected directly")
         f.tap_scale(*screen_layout_th.RETURN_HOME_BUTTON_PIXEL)
-        time.sleep(ctx.AFTER_BATTLE_END_DELAY)
+        time.sleep(config_th.AFTER_BATTLE_END_DELAY)
         return botstate.should_run()
     else:
         return False
@@ -137,7 +137,7 @@ def wait_for_claim_reward(ctx):
             machine_state.set_state(machine_state.COLLECTING_REWARD)
             f.log(f"[TH] Claim Reward detected after {elapsed}s -> tapping")
             f.tap_scale(*screen_layout_th.CLAIM_REWARD_BUTTON_PIXEL)
-            time.sleep(ctx.AFTER_BATTLE_END_DELAY)
+            time.sleep(config_th.AFTER_BATTLE_END_DELAY)
             if not botstate.should_run():
                 return False
             for _ in range(3):
@@ -151,10 +151,10 @@ def wait_for_claim_reward(ctx):
                 if not botstate.should_run():
                     return False
             return wait_for_claim_reward_continue(ctx)
-        elapsed += ctx.SCREEN_DETECT_DELAY
+        elapsed += config_th.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Claim Reward... {int(elapsed)}s")
-        time.sleep(ctx.SCREEN_DETECT_DELAY)
+        time.sleep(config_th.SCREEN_DETECT_DELAY)
     return False
 
 
@@ -167,12 +167,12 @@ def wait_for_claim_reward_continue(ctx):
         if result == screen_detector_th.CLAIM_REWARD_CONTINUE_DETECTED:
             f.log(f"[TH] Claim Reward Continue detected after {elapsed}s -> tapping")
             f.tap_scale(*screen_layout_th.CLAIM_REWARD_CONTINUE_PIXEL)
-            time.sleep(ctx.AFTER_BATTLE_END_DELAY)
+            time.sleep(config_th.AFTER_BATTLE_END_DELAY)
             return botstate.should_run()
-        elapsed += ctx.SCREEN_DETECT_DELAY
+        elapsed += config_th.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Claim Reward Continue... {int(elapsed)}s")
-        time.sleep(ctx.SCREEN_DETECT_DELAY)
+        time.sleep(config_th.SCREEN_DETECT_DELAY)
     return False
 
 
