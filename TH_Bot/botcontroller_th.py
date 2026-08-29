@@ -24,12 +24,6 @@ def start_farm(strategy_name=th_strategies.DEFAULT_STRATEGY):
         f.log(f"Farm started with TH strategy: {strategy_name}.")
 
 
-def stop():
-    botstate.stop()
-    f.log("Stopping bot...")
-
-
-
 def farm_loop(strategy_name=th_strategies.DEFAULT_STRATEGY):
     ctx = th_strategies.build_context(strategy_name)
     gf.th_game_flow(ctx)
@@ -38,3 +32,9 @@ def farm_loop(strategy_name=th_strategies.DEFAULT_STRATEGY):
     machine_state.set_state(machine_state.IDLE)
 
     f.log(">>>>>  Bot stopped.  <<<<<", color="red")
+
+def stop():
+    botstate.stop()
+    f.log("Stopping bot...")
+
+
