@@ -6,9 +6,8 @@ import cv2
 import ocr
 
 from TH_Bot import botcontroller_th as controller
+from TH_Bot import th_strategies
 from TH_Bot.gui_th import BotInterface
-from TH_Bot.th_strategies import load_attack_config
-
 
 import func as f
 import paint as p
@@ -170,8 +169,7 @@ l.log("  Initializing application...")
 
 f.cleanup_screenshots()
 coords.initialize()
-load_attack_config()
-
+th_strategies.load_attack_config()
 
 
 if __name__ == "__main__":
