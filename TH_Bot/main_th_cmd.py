@@ -191,21 +191,11 @@ def menu():
 
 
 def build_context(strategy_name=DEFAULT_STRATEGY):
+    """Build the small execution context shared by TH flow and troop deployment."""
     strategy = get_strategy(strategy_name)
     return SimpleNamespace(
-        MULTITAP_MAX=config_th.MULTITAP_MAX,
-        ATTACK_BUTTON_DELAY=config_th.ATTACK_BUTTON_DELAY,
-        BETWEEN_TROOPS_DELAY=config_th.BETWEEN_TROOPS_DELAY,
-        AFTER_BATTLE_END_DELAY=config_th.AFTER_BATTLE_END_DELAY,
-        SCREEN_DETECT_DELAY=config_th.SCREEN_DETECT_DELAY,
         TROOP_BAR=strategy["bar"],
         DEPLOY_SEQUENCE=strategy["sequence"],
-        PIXEL_TOLERANCE=config_th.PIXEL_TOLERANCE,
-        DROP_POINTS_EDGE=screen_layout_th.DROP_POINTS_EDGE,
-        DROP_POINT_CENTER=screen_layout_th.DROP_POINT_CENTER,
-        DROP_DIAMOND_CENTER=screen_layout_th.DROP_DIAMOND_CENTER,
-        DROP_DIAMOND_HALF_WIDTH=screen_layout_th.DROP_DIAMOND_HALF_WIDTH,
-        DROP_DIAMOND_HALF_HEIGHT=screen_layout_th.DROP_DIAMOND_HALF_HEIGHT,
         EDGE_ZONE_POINTS=EDGE_ZONE_POINTS,
         get_th_slot_position=get_th_slot_position,
     )
