@@ -3,7 +3,6 @@
 import json
 import cv2
 from pathlib import Path
-from types import SimpleNamespace
 
 import botstate
 import coords
@@ -11,7 +10,7 @@ import func as f
 
 from TH_Bot import config_th, screen_layout_th, th_debug
 from TH_Bot.gameflow_th import th_game_flow
-from TH_Bot.th_strategies import DEFAULT_STRATEGY, get_strategy
+from TH_Bot.th_strategies import DEFAULT_STRATEGY, build_context
 
 
 ATTACK_CONFIG_FILE = Path(__file__).with_name(config_th.ATTACK_CONFIG_FILENAME)
@@ -190,19 +189,8 @@ def menu():
             print("Opción no válida")
 
 
-def build_context(strategy_name=DEFAULT_STRATEGY):
-    """Build the small execution context shared by TH flow and troop deployment."""
-    strategy = get_strategy(strategy_name)
-    return SimpleNamespace(
-        TROOP_BAR=strategy["bar"],
-        DEPLOY_SEQUENCE=strategy["sequence"],
-        EDGE_ZONE_POINTS=EDGE_ZONE_POINTS,
-        get_th_slot_position=get_th_slot_position,
-    )
-
-
 if __name__ == "__main__":
     inicializa()
     if menu():
         botstate.start()
-        th_game_flow(build_context())
+        th_game_flow(build_context(DEFAULT_STRATEGY, EDGE_ZONE_POINTS, get_th_slot_position))
