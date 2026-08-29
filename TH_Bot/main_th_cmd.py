@@ -1,4 +1,4 @@
-"""TH bot entry point and calibration tools."""
+"""TH bot command-line entry point and calibration tools."""
 
 import json
 import msvcrt
@@ -217,9 +217,14 @@ def select_slot_centers():
     return True
 
 
-def prepare_th_run():
+def inicializa():
+    """Initialize TH runtime state needed by both CMD and GUI entry points."""
     initialize_coords()
     load_attack_config()
+
+
+def menu():
+    """Run the command-line calibration menu and return whether to start the bot."""
     while True:
         print()
         print("1. Marcar zona de despliegue EDGE")
@@ -290,5 +295,6 @@ def build_context(strategy_name=DEFAULT_STRATEGY):
 
 
 if __name__ == "__main__":
-    if prepare_th_run():
+    inicializa()
+    if menu():
         th_game_flow(build_context())
