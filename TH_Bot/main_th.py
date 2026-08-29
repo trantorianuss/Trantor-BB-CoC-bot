@@ -11,35 +11,17 @@ import cv2
 import coords
 import func as f
 
+from TH_Bot import config_th, screen_layout_th
 from TH_Bot.gameflow_th import th_game_flow
-from TH_Bot.troops_th import DEPLOY_SEQUENCE
+from TH_Bot.th_strategies import DEFAULT_STRATEGY, get_strategy
 
 
-ELIXIR_FULL_PIXEL = (1540, 176)
-ELIXIR_FULL_COLOR = (192, 39, 192)
-ATTACK_BUTTON_1 = (125, 995)
-FIND_BUTTON = (320, 800)
-ATTACK_BUTTON_2 = (1700, 960)
-MULTITAP_MAX = 4
-ATTACK_BUTTON_DELAY = 0.5
-BETWEEN_TROOPS_DELAY = 0
-AFTER_BATTLE_END_DELAY = 3.0
-SCREEN_DETECT_DELAY = 2
-EXIT_POLL_INTERVAL = 0.05
-DROP_POINTS_EDGE = [(80, 440), (120, 400), (160, 360), (200, 320)]
-DROP_POINT_CENTER = (960, 540)
-DROP_DIAMOND_CENTER = (960, 540)
-DROP_DIAMOND_HALF_WIDTH = 450
-DROP_DIAMOND_HALF_HEIGHT = 450
-ATTACK_CONFIG_FILE = Path(__file__).with_name("attack_th.json")
+ATTACK_CONFIG_FILE = Path(__file__).with_name(config_th.ATTACK_CONFIG_FILENAME)
 EDGE_ZONE_START = None
 EDGE_ZONE_END = None
 EDGE_ZONE_POINTS = []
 TH_SLOT_1_CENTER = None
 TH_SLOT_2_CENTER = None
-ZONE_WINDOW_MAX_WIDTH = 1000
-ZONE_WINDOW_MAX_HEIGHT = 700
-PIXEL_TOLERANCE = 10
 
 
 def exit_requested():
@@ -59,7 +41,7 @@ def sleep_with_exit(seconds):
         remaining = end_time - time.time()
         if remaining <= 0:
             return True
-        time.sleep(min(EXIT_POLL_INTERVAL, remaining))
+        time.sleep(min(config_th.EXIT_POLL_INTERVAL, remaining))
 
 
 def load_attack_config():
@@ -130,45 +112,28 @@ def get_th_slot_position(n):
     return int(TH_SLOT_1_CENTER[0] + step_x * (n - 1)), int(fixed_y)
 
 
-def debug_tap_scale(x, y, name, color):
-    image = f.capture_screenshot()
-    if image is None:
-        f.log(f"[TH DEBUG] No se pudo capturar screenshot para {name}", color="red")
-        f.tap_scale(x, y)
-        return not exit_requested()
-    marked_x, marked_y = x, y
-    if coords.REAL_W is not None and coords.REAL_H is not None:
-        marked_x, marked_y = coords.scale(x, y)
-    f.log(f"[TH DEBUG] {name}: coordenadas iniciales=({x},{y}) | coordenadas convertidas=({marked_x},{marked_y})")
-    image_h, image_w = image.shape[:2]
-    cv2.circle(image, (image_w // 2, image_h // 2), 50, (0, 255, 255), 5)
-    cv2.circle(image, (int(marked_x), int(marked_y)), 25, color, 4)
-    cv2.drawMarker(image, (int(marked_x), int(marked_y)), color, markerType=cv2.MARKER_CROSS, markerSize=40, thickness=3)
-    filename = f.save_image(f"th_debug_{name}", image)
-    f.log(f"[TH DEBUG] Screenshot guardado: {filename}")
-    f.tap_scale(x, y)
-    return not exit_requested()
-
-
 def save_deployment_debug(image):
     if image is None:
         f.log("[TH DEBUG] No se pudo usar screenshot del mapa de despliegue", color="red")
         return
+
     def to_real(point):
         x, y = point
         if coords.REAL_W is not None and coords.REAL_H is not None:
             return tuple(int(v) for v in coords.scale(x, y))
         return int(x), int(y)
-    center = to_real(DROP_DIAMOND_CENTER)
+
+    center = to_real(screen_layout_th.DROP_DIAMOND_CENTER)
     diamond = [
-        to_real((DROP_DIAMOND_CENTER[0], DROP_DIAMOND_CENTER[1] - DROP_DIAMOND_HALF_HEIGHT)),
-        to_real((DROP_DIAMOND_CENTER[0] + DROP_DIAMOND_HALF_WIDTH, DROP_DIAMOND_CENTER[1])),
-        to_real((DROP_DIAMOND_CENTER[0], DROP_DIAMOND_CENTER[1] + DROP_DIAMOND_HALF_HEIGHT)),
-        to_real((DROP_DIAMOND_CENTER[0] - DROP_DIAMOND_HALF_WIDTH, DROP_DIAMOND_CENTER[1])),
+        to_real((screen_layout_th.DROP_DIAMOND_CENTER[0], screen_layout_th.DROP_DIAMOND_CENTER[1] - screen_layout_th.DROP_DIAMOND_HALF_HEIGHT)),
+        to_real((screen_layout_th.DROP_DIAMOND_CENTER[0] + screen_layout_th.DROP_DIAMOND_HALF_WIDTH, screen_layout_th.DROP_DIAMOND_CENTER[1])),
+        to_real((screen_layout_th.DROP_DIAMOND_CENTER[0], screen_layout_th.DROP_DIAMOND_CENTER[1] + screen_layout_th.DROP_DIAMOND_HALF_HEIGHT)),
+        to_real((screen_layout_th.DROP_DIAMOND_CENTER[0] - screen_layout_th.DROP_DIAMOND_HALF_WIDTH, screen_layout_th.DROP_DIAMOND_CENTER[1])),
     ]
     for p1, p2 in zip(diamond, diamond[1:] + diamond[:1]):
         cv2.line(image, p1, p2, (0, 255, 255), 3)
     cv2.circle(image, center, 10, (0, 255, 255), -1)
+
     if EDGE_ZONE_START is not None and EDGE_ZONE_END is not None:
         start = to_real(EDGE_ZONE_START)
         end = to_real(EDGE_ZONE_END)
@@ -177,11 +142,13 @@ def save_deployment_debug(image):
         cv2.circle(image, end, 10, (255, 0, 255), -1)
         for point in EDGE_ZONE_POINTS:
             cv2.circle(image, to_real(point), 6, (255, 0, 0), -1)
+
     if TH_SLOT_1_CENTER is not None and TH_SLOT_2_CENTER is not None:
         for slot_number in range(1, 11):
             x, y = to_real(get_th_slot_position(slot_number))
             cv2.circle(image, (x, y), 18, (0, 255, 0), 2)
             cv2.putText(image, str(slot_number), (x - 8, y + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
     filename = f.save_image("th_deployment_debug", image)
     f.log(f"[TH DEBUG] Mapa despliegue guardado: {filename}")
 
@@ -192,11 +159,12 @@ def select_two_points(title, prompt):
         f.log("[TH] No se pudo capturar screenshot para la calibración", color="red")
         return None
     image_h, image_w = image.shape[:2]
-    display_scale = min(1.0, ZONE_WINDOW_MAX_WIDTH / image_w, ZONE_WINDOW_MAX_HEIGHT / image_h)
+    display_scale = min(1.0, config_th.ZONE_WINDOW_MAX_WIDTH / image_w, config_th.ZONE_WINDOW_MAX_HEIGHT / image_h)
     display_w = int(image_w * display_scale)
     display_h = int(image_h * display_scale)
     display_image = cv2.resize(image, (display_w, display_h))
     points = []
+
     def mouse_callback(event, x, y, flags, param):
         if event != cv2.EVENT_LBUTTONDOWN or len(points) >= 2:
             return
@@ -210,6 +178,7 @@ def select_two_points(title, prompt):
             p2 = (int(points[1][0] * coords.SX * display_scale), int(points[1][1] * coords.SY * display_scale))
             cv2.line(display_image, p1, p2, (0, 255, 255), 3)
         cv2.imshow(title, display_image)
+
     cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
     cv2.setMouseCallback(title, mouse_callback)
     f.log(prompt)
@@ -291,25 +260,27 @@ def initialize_coords():
         f.log("[coords] Usando resolución por defecto: 1920x1080")
 
 
-def build_context():
+def build_context(strategy_name=DEFAULT_STRATEGY):
+    strategy = get_strategy(strategy_name)
     return SimpleNamespace(
-        ELIXIR_FULL_PIXEL=ELIXIR_FULL_PIXEL,
-        ELIXIR_FULL_COLOR=ELIXIR_FULL_COLOR,
-        ATTACK_BUTTON_1=ATTACK_BUTTON_1,
-        FIND_BUTTON=FIND_BUTTON,
-        ATTACK_BUTTON_2=ATTACK_BUTTON_2,
-        MULTITAP_MAX=MULTITAP_MAX,
-        ATTACK_BUTTON_DELAY=ATTACK_BUTTON_DELAY,
-        BETWEEN_TROOPS_DELAY=BETWEEN_TROOPS_DELAY,
-        AFTER_BATTLE_END_DELAY=AFTER_BATTLE_END_DELAY,
-        SCREEN_DETECT_DELAY=SCREEN_DETECT_DELAY,
-        DROP_POINTS_EDGE=DROP_POINTS_EDGE,
-        DROP_POINT_CENTER=DROP_POINT_CENTER,
-        DROP_DIAMOND_CENTER=DROP_DIAMOND_CENTER,
-        DROP_DIAMOND_HALF_WIDTH=DROP_DIAMOND_HALF_WIDTH,
-        DROP_DIAMOND_HALF_HEIGHT=DROP_DIAMOND_HALF_HEIGHT,
-        DEPLOY_SEQUENCE=DEPLOY_SEQUENCE,
-        PIXEL_TOLERANCE=PIXEL_TOLERANCE,
+        ELIXIR_FULL_PIXEL=screen_layout_th.ELIXIR_FULL_PIXEL,
+        ELIXIR_FULL_COLOR=screen_layout_th.ELIXIR_FULL_COLOR,
+        ATTACK_BUTTON_1=screen_layout_th.ATTACK_BUTTON_1,
+        FIND_BUTTON=screen_layout_th.FIND_BUTTON,
+        ATTACK_BUTTON_2=screen_layout_th.ATTACK_BUTTON_2,
+        MULTITAP_MAX=config_th.MULTITAP_MAX,
+        ATTACK_BUTTON_DELAY=config_th.ATTACK_BUTTON_DELAY,
+        BETWEEN_TROOPS_DELAY=config_th.BETWEEN_TROOPS_DELAY,
+        AFTER_BATTLE_END_DELAY=config_th.AFTER_BATTLE_END_DELAY,
+        SCREEN_DETECT_DELAY=config_th.SCREEN_DETECT_DELAY,
+        DROP_POINTS_EDGE=screen_layout_th.DROP_POINTS_EDGE,
+        DROP_POINT_CENTER=screen_layout_th.DROP_POINT_CENTER,
+        DROP_DIAMOND_CENTER=screen_layout_th.DROP_DIAMOND_CENTER,
+        DROP_DIAMOND_HALF_WIDTH=screen_layout_th.DROP_DIAMOND_HALF_WIDTH,
+        DROP_DIAMOND_HALF_HEIGHT=screen_layout_th.DROP_DIAMOND_HALF_HEIGHT,
+        TROOP_BAR=strategy["bar"],
+        DEPLOY_SEQUENCE=strategy["sequence"],
+        PIXEL_TOLERANCE=config_th.PIXEL_TOLERANCE,
         EDGE_ZONE_POINTS=EDGE_ZONE_POINTS,
         exit_requested=exit_requested,
         sleep_with_exit=sleep_with_exit,
