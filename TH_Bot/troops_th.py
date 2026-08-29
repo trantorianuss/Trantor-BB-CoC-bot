@@ -1,6 +1,7 @@
 """TH troop deployment helpers."""
 
 import random
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 import botstate
@@ -49,8 +50,10 @@ def deploy_troops(ctx):
     for element, count, drop_area, delay, use_multitap in ctx.DEPLOY_SEQUENCE:
         if not botstate.should_run():
             return False
-        if delay > 0 and not ctx.sleep_with_exit(delay):
-            return False
+        if delay > 0:
+            time.sleep(delay)
+            if not botstate.should_run():
+                return False
         try:
             slot_number = slot_for(ctx.TROOP_BAR, element)
         except ValueError as exc:
@@ -91,7 +94,8 @@ def deploy_troops(ctx):
                 if not botstate.should_run():
                     return False
                 f.tap_scale(*point)
-                if not ctx.sleep_with_exit(ctx.BETWEEN_TROOPS_DELAY):
+                time.sleep(ctx.BETWEEN_TROOPS_DELAY)
+                if not botstate.should_run():
                     return False
     f.log("[TH] Despliegue terminado")
     return True
