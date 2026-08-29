@@ -184,12 +184,6 @@ def select_slot_centers():
     return True
 
 
-def initialize():
-    """Initialize TH coordinates and load calibration data."""
-    coords.initialize()
-    return load_attack_config()
-
-
 def build_context(strategy_name=DEFAULT_STRATEGY):
     """Build the small execution context shared by TH flow and troop deployment."""
     strategy = get_strategy(strategy_name)

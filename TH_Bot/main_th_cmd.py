@@ -4,6 +4,9 @@ import botstate
 
 from TH_Bot import th_strategies
 from TH_Bot.gameflow_th import th_game_flow
+from TH_Bot.th_strategies import load_attack_config
+
+import coords
 
 
 def menu():
@@ -29,9 +32,15 @@ def menu():
         else:
             print("Opción no válida")
 
+def initialize():
+    """Initialize TH coordinates and load calibration data."""
+    coords.initialize()
+    return load_attack_config()
 
 if __name__ == "__main__":
-    th_strategies.initialize()
+    initialize()
     if menu():
         botstate.start()
         th_game_flow(th_strategies.build_context())
+
+

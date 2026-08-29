@@ -7,6 +7,7 @@ import ocr
 
 from TH_Bot import botcontroller_th as controller
 from TH_Bot.gui_th import BotInterface
+from TH_Bot.th_strategies import load_attack_config
 
 
 import func as f
@@ -166,8 +167,11 @@ l.set_log_sink(app.log)
 l.log("  Clash of Clans Trantor Bot")
 l.log("  Initializing application...")
 
+
 f.cleanup_screenshots()
 coords.initialize()
+load_attack_config()
+
 
 
 if __name__ == "__main__":
