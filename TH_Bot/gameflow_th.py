@@ -55,7 +55,8 @@ def start_attack(ctx):
     machine_state.set_state(machine_state.WAITING_FIND)
     f.log("[TH] Starting attack")
     f.tap_scale(*screen_layout_th.ATTACK_BUTTON_1)
-    if not ctx.sleep_with_exit(ctx.ATTACK_BUTTON_DELAY):
+    time.sleep(ctx.ATTACK_BUTTON_DELAY)
+    if not botstate.should_run():
         return False
     elapsed = 0
     while botstate.should_run():
@@ -63,17 +64,18 @@ def start_attack(ctx):
         if result == screen_detector_th.FIND_DETECTED:
             f.log("[TH] Find detected -> tapping")
             f.tap_scale(*screen_layout_th.FIND_BUTTON)
-            if not ctx.sleep_with_exit(ctx.ATTACK_BUTTON_DELAY):
+            time.sleep(ctx.ATTACK_BUTTON_DELAY)
+            if not botstate.should_run():
                 return False
             f.tap_scale(*screen_layout_th.ATTACK_BUTTON_2)
-            if not ctx.sleep_with_exit(ctx.ATTACK_BUTTON_DELAY):
+            time.sleep(ctx.ATTACK_BUTTON_DELAY)
+            if not botstate.should_run():
                 return False
             return True
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Find... {int(elapsed)}s")
-        if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
-            return False
+        time.sleep(ctx.SCREEN_DETECT_DELAY)
     return False
 
 
@@ -88,8 +90,7 @@ def wait_for_next_screen(ctx):
             f.log(f"[TH] Next detected after {elapsed}s -> starting deployment")
             return image
         elapsed += ctx.SCREEN_DETECT_DELAY
-        if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
-            return None
+        time.sleep(ctx.SCREEN_DETECT_DELAY)
     return None
 
 
@@ -102,9 +103,8 @@ def wait_for_battle_end(ctx):
     elif result == screen_detector_th.RETURN_HOME_DETECTED:
         f.log("[TH] Return Home detected directly")
         f.tap_scale(*screen_layout_th.RETURN_HOME_BUTTON_PIXEL)
-        if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
-            return False
-        return True
+        time.sleep(ctx.AFTER_BATTLE_END_DELAY)
+        return botstate.should_run()
     else:
         return False
 
@@ -123,8 +123,7 @@ def wait_for_battle_result(ctx):
         elapsed += config_th.BATTLE_RESULT_CHECK_DELAY
         if int(elapsed) % 10 == 0:
             f.log(f"[TH] Battle still running... {int(elapsed)}s")
-        if not ctx.sleep_with_exit(config_th.BATTLE_RESULT_CHECK_DELAY):
-            return None
+        time.sleep(config_th.BATTLE_RESULT_CHECK_DELAY)
     return None
 
 
@@ -138,7 +137,8 @@ def wait_for_claim_reward(ctx):
             machine_state.set_state(machine_state.COLLECTING_REWARD)
             f.log(f"[TH] Claim Reward detected after {elapsed}s -> tapping")
             f.tap_scale(*screen_layout_th.CLAIM_REWARD_BUTTON_PIXEL)
-            if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
+            time.sleep(ctx.AFTER_BATTLE_END_DELAY)
+            if not botstate.should_run():
                 return False
             for _ in range(3):
                 if not botstate.should_run():
@@ -147,14 +147,14 @@ def wait_for_claim_reward(ctx):
                 y = random.randint(config_th.REWARD_TAP_CENTER[1] - config_th.REWARD_TAP_RADIUS, config_th.REWARD_TAP_CENTER[1] + config_th.REWARD_TAP_RADIUS)
                 f.log(f"[TH] Reward tap -> ({x}, {y})")
                 f.tap_scale(x, y)
-                if not ctx.sleep_with_exit(config_th.REWARD_TAP_DELAY):
+                time.sleep(config_th.REWARD_TAP_DELAY)
+                if not botstate.should_run():
                     return False
             return wait_for_claim_reward_continue(ctx)
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Claim Reward... {int(elapsed)}s")
-        if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
-            return False
+        time.sleep(ctx.SCREEN_DETECT_DELAY)
     return False
 
 
@@ -167,14 +167,12 @@ def wait_for_claim_reward_continue(ctx):
         if result == screen_detector_th.CLAIM_REWARD_CONTINUE_DETECTED:
             f.log(f"[TH] Claim Reward Continue detected after {elapsed}s -> tapping")
             f.tap_scale(*screen_layout_th.CLAIM_REWARD_CONTINUE_PIXEL)
-            if not ctx.sleep_with_exit(ctx.AFTER_BATTLE_END_DELAY):
-                return False
-            return True
+            time.sleep(ctx.AFTER_BATTLE_END_DELAY)
+            return botstate.should_run()
         elapsed += ctx.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Claim Reward Continue... {int(elapsed)}s")
-        if not ctx.sleep_with_exit(ctx.SCREEN_DETECT_DELAY):
-            return False
+        time.sleep(ctx.SCREEN_DETECT_DELAY)
     return False
 
 
