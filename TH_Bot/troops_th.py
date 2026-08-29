@@ -3,6 +3,7 @@
 import random
 from concurrent.futures import ThreadPoolExecutor
 
+import botstate
 import coords
 import func as f
 
@@ -17,7 +18,7 @@ def slot(ctx, slot_number):
 def multi_tap_scale(points, ctx):
     if not points:
         return True
-    if ctx.exit_requested():
+    if not botstate.should_run():
         return False
     scaled_points = [
         coords.scale(x, y)
@@ -29,7 +30,7 @@ def multi_tap_scale(points, ctx):
         f.adb(f"input tap {point[0]} {point[1]}")
     with ThreadPoolExecutor(max_workers=len(scaled_points)) as executor:
         list(executor.map(send, scaled_points))
-    return not ctx.exit_requested()
+    return botstate.should_run()
 
 
 def random_drop_point(ctx):
@@ -46,7 +47,7 @@ def random_drop_point(ctx):
 def deploy_troops(ctx):
     edge_index = 0
     for element, count, drop_area, delay, use_multitap in ctx.DEPLOY_SEQUENCE:
-        if ctx.exit_requested():
+        if not botstate.should_run():
             return False
         if delay > 0 and not ctx.sleep_with_exit(delay):
             return False
@@ -70,7 +71,7 @@ def deploy_troops(ctx):
             continue
         points_to_drop = []
         for _ in range(count):
-            if ctx.exit_requested():
+            if not botstate.should_run():
                 return False
             if drop_area == "edge":
                 drop_point = drop_points[edge_index % len(drop_points)]
@@ -87,7 +88,7 @@ def deploy_troops(ctx):
                     return False
         else:
             for point in points_to_drop:
-                if ctx.exit_requested():
+                if not botstate.should_run():
                     return False
                 f.tap_scale(*point)
                 if not ctx.sleep_with_exit(ctx.BETWEEN_TROOPS_DELAY):
