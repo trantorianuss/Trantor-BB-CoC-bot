@@ -1,12 +1,9 @@
 """TH bot command-line entry point and calibration tools."""
 
 import json
-import msvcrt
-import time
+import cv2
 from pathlib import Path
 from types import SimpleNamespace
-
-import cv2
 
 import botstate
 import coords
@@ -23,27 +20,6 @@ EDGE_ZONE_END = None
 EDGE_ZONE_POINTS = []
 TH_SLOT_1_CENTER = None
 TH_SLOT_2_CENTER = None
-
-
-def exit_requested():
-    if msvcrt.kbhit():
-        key = msvcrt.getwch()
-        if key.lower() == "x":
-            f.log("[TH] X pulsada -> saliendo de la rutina", color="yellow")
-            botstate.stop()
-            return True
-    return False
-
-
-def sleep_with_exit(seconds):
-    end_time = time.time() + seconds
-    while True:
-        if not botstate.should_run():
-            return False
-        remaining = end_time - time.time()
-        if remaining <= 0:
-            return True
-        time.sleep(min(config_th.EXIT_POLL_INTERVAL, remaining))
 
 
 def load_attack_config():
@@ -272,7 +248,6 @@ def build_context(strategy_name=DEFAULT_STRATEGY):
         DROP_DIAMOND_HALF_WIDTH=screen_layout_th.DROP_DIAMOND_HALF_WIDTH,
         DROP_DIAMOND_HALF_HEIGHT=screen_layout_th.DROP_DIAMOND_HALF_HEIGHT,
         EDGE_ZONE_POINTS=EDGE_ZONE_POINTS,
-        sleep_with_exit=sleep_with_exit,
         get_th_slot_position=get_th_slot_position,
         save_deployment_debug=save_deployment_debug,
     )
