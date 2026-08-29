@@ -219,7 +219,7 @@ def select_slot_centers():
 
 def inicializa():
     """Initialize TH runtime state needed by both CMD and GUI entry points."""
-    initialize_coords()
+    coords.initialize()
     load_attack_config()
 
 
@@ -251,18 +251,6 @@ def menu():
             return True
         else:
             print("Opción no válida")
-
-
-def initialize_coords():
-    f.log("[coords] Inicializando resolución...")
-    try:
-        real_w, real_h = f.get_real_resolution()
-        coords.init_resolution(real_w, real_h)
-        f.log(f"[coords] Resolución inicializada: {real_w}x{real_h}")
-    except Exception as exc:
-        f.log(f"[coords] No se pudo obtener la resolución real: {exc}")
-        coords.init_resolution(1920, 1080)
-        f.log("[coords] Usando resolución por defecto: 1920x1080")
 
 
 def build_context(strategy_name=DEFAULT_STRATEGY):
