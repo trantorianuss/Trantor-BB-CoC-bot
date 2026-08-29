@@ -1,12 +1,15 @@
 import time
-print(f">>> main.py  starting [{time.perf_counter():.3f}]")
+print(f">>> main_th.py  starting [{time.perf_counter():.3f}]")
 
 import threading
 import cv2
 import ocr
 
+from TH_Bot import botcontroller_th as controller
+from TH_Bot.gui_th import BotInterface
+
+
 import func as f
-import botcontroller as controller
 import paint as p
 import settings
 import state_calibration
@@ -14,7 +17,7 @@ import vision
 import coords
 import elixir_cart
 import logger as l
-from gui import BotInterface
+
 import calibration
 import machine_state
 import pixel_inspector
