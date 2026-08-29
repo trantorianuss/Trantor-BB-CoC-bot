@@ -9,7 +9,7 @@ import botstate
 import coords
 import func as f
 
-from TH_Bot import config_th, screen_layout_th
+from TH_Bot import config_th, screen_layout_th, th_debug
 from TH_Bot.gameflow_th import th_game_flow
 from TH_Bot.th_strategies import DEFAULT_STRATEGY, get_strategy
 
@@ -88,47 +88,6 @@ def get_th_slot_position(n):
     step_x = TH_SLOT_2_CENTER[0] - TH_SLOT_1_CENTER[0]
     fixed_y = (TH_SLOT_1_CENTER[1] + TH_SLOT_2_CENTER[1]) / 2
     return int(TH_SLOT_1_CENTER[0] + step_x * (n - 1)), int(fixed_y)
-
-
-def save_deployment_debug(image):
-    if image is None:
-        f.log("[TH DEBUG] No se pudo usar screenshot del mapa de despliegue", color="red")
-        return
-
-    def to_real(point):
-        x, y = point
-        if coords.REAL_W is not None and coords.REAL_H is not None:
-            return tuple(int(v) for v in coords.scale(x, y))
-        return int(x), int(y)
-
-    center = to_real(screen_layout_th.DROP_DIAMOND_CENTER)
-    diamond = [
-        to_real((screen_layout_th.DROP_DIAMOND_CENTER[0], screen_layout_th.DROP_DIAMOND_CENTER[1] - screen_layout_th.DROP_DIAMOND_HALF_HEIGHT)),
-        to_real((screen_layout_th.DROP_DIAMOND_CENTER[0] + screen_layout_th.DROP_DIAMOND_HALF_WIDTH, screen_layout_th.DROP_DIAMOND_CENTER[1])),
-        to_real((screen_layout_th.DROP_DIAMOND_CENTER[0], screen_layout_th.DROP_DIAMOND_CENTER[1] + screen_layout_th.DROP_DIAMOND_HALF_HEIGHT)),
-        to_real((screen_layout_th.DROP_DIAMOND_CENTER[0] - screen_layout_th.DROP_DIAMOND_HALF_WIDTH, screen_layout_th.DROP_DIAMOND_CENTER[1])),
-    ]
-    for p1, p2 in zip(diamond, diamond[1:] + diamond[:1]):
-        cv2.line(image, p1, p2, (0, 255, 255), 3)
-    cv2.circle(image, center, 10, (0, 255, 255), -1)
-
-    if EDGE_ZONE_START is not None and EDGE_ZONE_END is not None:
-        start = to_real(EDGE_ZONE_START)
-        end = to_real(EDGE_ZONE_END)
-        cv2.line(image, start, end, (255, 0, 255), 4)
-        cv2.circle(image, start, 10, (255, 0, 255), -1)
-        cv2.circle(image, end, 10, (255, 0, 255), -1)
-        for point in EDGE_ZONE_POINTS:
-            cv2.circle(image, to_real(point), 6, (255, 0, 0), -1)
-
-    if TH_SLOT_1_CENTER is not None and TH_SLOT_2_CENTER is not None:
-        for slot_number in range(1, 11):
-            x, y = to_real(get_th_slot_position(slot_number))
-            cv2.circle(image, (x, y), 18, (0, 255, 0), 2)
-            cv2.putText(image, str(slot_number), (x - 8, y + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
-    filename = f.save_image("th_deployment_debug", image)
-    f.log(f"[TH DEBUG] Mapa despliegue guardado: {filename}")
 
 
 def select_two_points(title, prompt):
@@ -249,7 +208,6 @@ def build_context(strategy_name=DEFAULT_STRATEGY):
         DROP_DIAMOND_HALF_HEIGHT=screen_layout_th.DROP_DIAMOND_HALF_HEIGHT,
         EDGE_ZONE_POINTS=EDGE_ZONE_POINTS,
         get_th_slot_position=get_th_slot_position,
-        save_deployment_debug=save_deployment_debug,
     )
 
 
