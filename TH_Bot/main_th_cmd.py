@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 import cv2
 
+import botstate
 import coords
 import func as f
 
@@ -29,6 +30,7 @@ def exit_requested():
         key = msvcrt.getwch()
         if key.lower() == "x":
             f.log("[TH] X pulsada -> saliendo de la rutina", color="yellow")
+            botstate.stop()
             return True
     return False
 
@@ -36,7 +38,7 @@ def exit_requested():
 def sleep_with_exit(seconds):
     end_time = time.time() + seconds
     while True:
-        if exit_requested():
+        if not botstate.should_run():
             return False
         remaining = end_time - time.time()
         if remaining <= 0:
@@ -270,7 +272,6 @@ def build_context(strategy_name=DEFAULT_STRATEGY):
         DROP_DIAMOND_HALF_WIDTH=screen_layout_th.DROP_DIAMOND_HALF_WIDTH,
         DROP_DIAMOND_HALF_HEIGHT=screen_layout_th.DROP_DIAMOND_HALF_HEIGHT,
         EDGE_ZONE_POINTS=EDGE_ZONE_POINTS,
-        exit_requested=exit_requested,
         sleep_with_exit=sleep_with_exit,
         get_th_slot_position=get_th_slot_position,
         save_deployment_debug=save_deployment_debug,
@@ -280,4 +281,5 @@ def build_context(strategy_name=DEFAULT_STRATEGY):
 if __name__ == "__main__":
     inicializa()
     if menu():
+        botstate.start()
         th_game_flow(build_context())
