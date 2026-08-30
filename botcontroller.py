@@ -28,13 +28,7 @@ def stop():
 
 
 def farm_loop(attacks_per_cycle=None):
-    while botstate.should_run():
-        full = gf.farm_until_full(attacks_per_cycle)
-
-        if full:
-            f.log("Storage full. Stopping bot.")
-            botstate.stop()
-            break
+    gf.farm_until_full(attacks_per_cycle)
 
     botstate.set_stopped()
     machine_state.set_state(machine_state.IDLE)
