@@ -34,11 +34,11 @@ class BotInterface(ctk.CTk):
         self.top_frame.columnconfigure(2, weight=4)
         self.top_frame.columnconfigure(3, weight=1)
 
-        self.button_Farm = ctk.CTkButton(self.top_frame, text="Start Farm", command=self._pre_start_farm)
+        self.button_Farm = ctk.CTkButton(self.top_frame, text="Startrm", fg_color="green", hover_color="darkgreen", command=self._pre_start_farm)
         self.button_Farm.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
-        self.button_Stop = ctk.CTkButton(self.top_frame, text="Stop", command=self.on_stop)
+        self.button_Stop = ctk.CTkButton(self.top_frame, text="Stop", fg_color="red", hover_color="darkred", command=self.on_stop)
         self.button_Stop.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
-        self.button_side_panel = ctk.CTkButton(self.top_frame, text="☰ ", width=40, command=self._show_side_panel)
+        self.button_side_panel = ctk.CTkButton(self.top_frame, text="☰ ", fg_color="blue", hover_color="darkblue", width=40, command=self._show_side_panel)
         self.button_side_panel.grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
         self.label_bot_status = ctk.CTkLabel(self.top_frame, text="Status: ?")
