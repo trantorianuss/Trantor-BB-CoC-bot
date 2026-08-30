@@ -81,3 +81,4 @@ Thumbs.db
 # ==========================================================
 
 local_config.py
+telegram_auth.py
