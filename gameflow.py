@@ -282,19 +282,20 @@ def farm_until_full(attacks_per_cycle=None):
         f.log(f">>> New cycle of {cycle_attacks} attacks <<<")
         for i in range(cycle_attacks):
             if not botstate.should_run():
-                return False
-            perform_attack(i + 1, attack_mode, cycle_attacks)
+                return
+            if not perform_attack(i + 1, attack_mode, cycle_attacks):
+                return
         if try_collect_pink_elixir():
             f.log("Pink elixir collected. Starting new attack cycle.")
             continue
         f.log("No pink elixir available. Starting extra attacks...")
         while True:
             if not botstate.should_run():
-                return False
-            perform_attack("extra", attack_mode)
+                return
+            if not perform_attack("extra", attack_mode):
+                return
             if try_collect_pink_elixir():
                 f.log("Pink elixir collected after extra attack. Starting new cycle.")
                 break
             f.log("Pink elixir still unavailable. Starting another extra attack...")
     f.log(">>> Required resources are full. End of cycle. <<<")
-    return True
