@@ -160,8 +160,8 @@ app = BotInterface(
 
 l.set_log_sink(app.log)
 
-l.log("  Clash of Clans Trantor Bot")
-l.log("  Initializing application...")
+l.log("  Clash of Clans Trantor Bot", telegram=True)
+l.log("  Initializing application...", telegram=True)
 
 f.cleanup_screenshots()
 coords.initialize()
