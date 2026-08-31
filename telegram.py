@@ -1,7 +1,12 @@
-"""Small Telegram helper for sending messages."""
+"""Small Telegram helper for sending messages and status updates."""
+
+import threading
+import time
 
 import requests
 
+import botstate
+import config
 import telegram_auth
 
 
@@ -23,3 +28,31 @@ def send_message(message):
         raise RuntimeError(f"Telegram API error: {data}")
 
     return data
+
+
+def send_status():
+    """Read the current bot status and send it to Telegram."""
+    status = botstate.get_status()
+    send_message(f"🤖 Bot status: {status}")
+
+
+def _status_loop():
+    """Send the bot status periodically while the application is running."""
+    interval = config.TELEGRAM_STATUS_INTERVAL_MINUTES * 60
+
+    while True:
+        try:
+            send_status()
+        except Exception as e:
+            print(f"Telegram status error: {e}")
+
+        time.sleep(interval)
+
+
+def start_status_thread():
+    """Start the Telegram status thread when Telegram debugging is enabled."""
+    if not config.DEBUG_TELEGRAM:
+        return
+
+    thread = threading.Thread(target=_status_loop, daemon=True)
+    thread.start()
