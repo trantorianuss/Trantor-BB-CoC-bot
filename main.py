@@ -7,6 +7,7 @@ import ocr
 
 import func as f
 import botcontroller as controller
+import gameflow as gf
 import paint as p
 import settings
 import state_calibration
@@ -14,6 +15,7 @@ import vision
 import coords
 import elixir_cart
 import logger as l
+import telegram
 from gui import BotInterface
 import calibration
 import machine_state
@@ -165,6 +167,7 @@ l.log("  Initializing application...", telegram=True)
 
 f.cleanup_screenshots()
 coords.initialize()
+telegram.start_status_thread()
 
 
 if __name__ == "__main__":
