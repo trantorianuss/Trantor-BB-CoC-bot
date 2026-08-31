@@ -173,8 +173,8 @@ def initialize_coords():
         l.log("[coords] Using default resolution: 1920x1080")
 
 
-l.log("  Clash of Clans Trantor Bot")
-l.log("  Initializing application...")
+l.log("  Clash of Clans Trantor Bot", telegram=True)
+l.log("  Initializing application...", telegram=True)
 
 f.cleanup_screenshots()
 initialize_coords()

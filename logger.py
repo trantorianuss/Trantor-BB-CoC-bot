@@ -5,6 +5,8 @@ import config
 import time as t
 import inspect
 
+from telegram import send_message
+
 _log_sink = None
 
 
@@ -29,7 +31,7 @@ def _should_emit_log(debug=False, category=""):
     return True
 
 
-def log(message, debug=False, category="", color=None):
+def log(message, debug=False, category="", color=None, telegram=False):
 
     if not _should_emit_log(debug, category):
         return
@@ -65,6 +67,10 @@ def log(message, debug=False, category="", color=None):
         _log_sink(formatted, color)
     else:
         print(formatted)
+
+    if telegram:
+        send_message(formatted)
+
 
     if config.DEBUG_INSPECTION:
         # Obtener el nombre de la función que llamó a log()
