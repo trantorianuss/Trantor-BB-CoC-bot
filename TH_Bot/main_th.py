@@ -1,4 +1,5 @@
 import time
+
 print(f">>> main_th.py  starting [{time.perf_counter():.3f}]")
 
 import threading
@@ -17,6 +18,8 @@ import vision
 import coords
 import elixir_cart
 import logger as l
+import telegram
+
 
 import calibration
 import machine_state
@@ -170,6 +173,7 @@ l.log("  Initializing application...")
 f.cleanup_screenshots()
 coords.initialize()
 th_strategies.load_attack_config()
+telegram.start_status_thread()
 
 
 if __name__ == "__main__":

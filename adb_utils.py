@@ -40,6 +40,10 @@ def get_real_resolution():
     # Ejemplo de salida: "Physical size: 1920x1080"
     size_part = out.split(":")[-1].strip()
     w, h = map(int, size_part.split("x"))
+
+    if w < h:
+        w, h = h, w
+        
     return w, h
 
 def capture_screenshot():

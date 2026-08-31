@@ -6,6 +6,7 @@ import time
 import requests
 
 import botstate
+
 import config
 import telegram_auth
 
@@ -32,8 +33,19 @@ def send_message(message):
 
 def send_status():
     """Read the current bot status and send it to Telegram."""
-    status = botstate.get_status()
-    send_message(f"🤖 Bot status: {status}")
+
+    from machine_state import get_state
+    
+    game_state = get_state()
+    bot_status = botstate.get_status()
+
+    message = (
+        "❤️ Heartbeat\n"
+        f"Bot 🤖: {bot_status}\n"
+        f"Game 🎮: {game_state}"
+    )
+
+    send_message(message)
 
 
 def _status_loop():

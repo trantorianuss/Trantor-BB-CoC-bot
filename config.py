@@ -3,7 +3,10 @@
 # ------------------------------------------------------------
 
 # Puerto del emulador
-ADB_PORT = "emulator-5554"
+ADB_PORT = "127.0.0.1:7555"
+ADB_PORT_Mumu = "127.0.0.1:7555"
+ADB_PORT_LDPLAYER = "emulator-5554"
+
 
 # Ruta del ADB (opcional, para más adelante)
 ADB_PATH = "C:/LDPlayer/LDPlayer9/adb.exe"
