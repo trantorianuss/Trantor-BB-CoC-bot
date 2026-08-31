@@ -19,6 +19,9 @@ DROP_RADIUS_FACTOR = 0.70  # used to calculate the drop radius based on the maxi
 # Debug
 # ------------------------------------------------------------
 
+DEBUG_TELEGRAM = False  # Enables Telegram status messages.
+TELEGRAM_STATUS_INTERVAL_MINUTES = 5
+
 DEBUG_CATEGORIES = {
     "cart": True,
     "attack": True,
