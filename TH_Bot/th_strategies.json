@@ -13,6 +13,38 @@
       ],
       "sequence": [
           ["troop_1", 5, "edge", 0, false],
+          ["troop_2", 5, "edge", 0, false],
+          ["machine_1", 1, "edge", 0, false],
+          ["hero_1", 1, "edge", 0, false],
+          ["hero_2", 1, "edge", 0, false],
+          ["hero_3", 1, "edge", 0, false],
+          ["hero_4", 1, "edge", 0, false],  
+          ["spell_1", 2, "random", 0, false],
+          ["spell_2", 2, "random", 0, false],
+          ["hero_1", 0, "edge", 0, false],
+          ["hero_2", 0, "edge", 0, false],
+          ["hero_3", 0, "edge", 0, false],
+          ["hero_4", 0, "edge", 0, false],
+          ["troop_1", 8, "edge", 0, false],
+          ["troop_2", 4, "edge", 0, false],
+          ["spell_1", 2, "random", 0, false],
+          ["spell_2", 1, "random", 0, false]
+      ]
+  },
+  "default_uno": {
+      "bar": [
+          "troop_1",
+          "troop_2",
+          "machine_1",
+          "hero_1",
+          "hero_2",
+          "hero_3",
+          "hero_4",
+          "spell_1",
+          "spell_2"
+      ],
+      "sequence": [
+          ["troop_1", 5, "edge", 0, false],
           ["troop_2", 10, "edge", 0, false],
           ["machine_1", 1, "edge", 0, false],
           ["hero_1", 1, "edge", 0, false],

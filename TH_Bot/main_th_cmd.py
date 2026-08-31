@@ -1,15 +1,16 @@
-"""TH bot command-line entry point and calibration menu."""
+"""TH bot command-line entry point."""
 
 import botstate
-import coords
-import func as f
 
 from TH_Bot import th_strategies
 from TH_Bot.gameflow_th import th_game_flow
+from TH_Bot.th_strategies import load_attack_config
+
+import coords
 
 
 def menu():
-    """Run the command-line calibration menu and return whether to start the bot."""
+    """Run the TH command-line menu."""
     while True:
         print()
         print("1. Marcar zona de despliegue EDGE")
@@ -22,21 +23,24 @@ def menu():
         elif choice == "2":
             th_strategies.select_slot_centers()
         elif choice.lower() == "x":
-            f.log("[TH] X. Exit -> saliendo del menú", color="yellow")
             return False
         elif choice == "0":
             if th_strategies.TH_SLOT_1_CENTER is None or th_strategies.TH_SLOT_2_CENTER is None:
-                f.log("[TH] No se puede ejecutar: faltan los centros de los slots. Usa la opción 2.", color="yellow")
+                print("Falta calibrar el centro del Slot 1 y del Slot 2.")
                 continue
             return True
         else:
             print("Opción no válida")
 
+def initialize():
+    """Initialize TH coordinates and load calibration data."""
+    coords.initialize()
+    return load_attack_config()
 
 if __name__ == "__main__":
-    coords.initialize()
-    th_strategies.load_attack_config()
+    initialize()
     if menu():
         botstate.start()
-        ctx = th_strategies.build_context()
-        th_game_flow(ctx)
+        th_game_flow(th_strategies.build_context())
+
+

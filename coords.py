@@ -20,10 +20,7 @@ SY = 1.0
 
 
 def init_resolution(real_w, real_h):
-    """
-    Inicializa la resolución real del emulador y calcula SX/SY.
-    Esta función se llama UNA sola vez desde main.py.
-    """
+    """Inicializa la resolución real y calcula los factores de escalado."""
     global REAL_W, REAL_H, SX, SY
 
     REAL_W = real_w
@@ -36,10 +33,25 @@ def init_resolution(real_w, real_h):
     log(f"[coords] Scale SX={SX:.3f}, SY={SY:.3f}", category="coords")
 
 
+def initialize():
+    """Obtiene la resolución real del emulador e inicializa el escalado."""
+    log("[coords] Initializing resolution...", category="coords")
+
+    # Import local para evitar el ciclo: adb_utils importa coords.
+    from adb_utils import get_real_resolution
+
+    try:
+        real_w, real_h = get_real_resolution()
+        init_resolution(real_w, real_h)
+        log(f"[coords] Resolution initialized: {real_w}x{real_h}", category="coords")
+    except Exception as exc:
+        log(f"[coords] Could not obtain actual resolution: {exc}", category="coords")
+        init_resolution(BASE_W, BASE_H)
+        log(f"[coords] Using default resolution: {BASE_W}x{BASE_H}", category="coords")
+
+
 def scale(x, y):
-    """
-    Devuelve las coordenadas escaladas según SX/SY.
-    """
+    """Devuelve las coordenadas escaladas según SX/SY."""
     return int(x * SX), int(y * SY)
 
 
@@ -48,9 +60,9 @@ def scale(x, y):
 # -----------------------------------------
 
 # Ejemplos (pon aquí todos tus taps)
-#TAP_ATTACK = (1700, 900)
-#TAP_OPEN_TROOPS = (1500, 300)
-#TAP_COLLECT = (300, 850)
+# TAP_ATTACK = (1700, 900)
+# TAP_OPEN_TROOPS = (1500, 300)
+# TAP_COLLECT = (300, 850)
 
 # Puedes añadir todos los que quieras:
 # TAP_BUILDER = (x, y)
@@ -65,8 +77,6 @@ def scale(x, y):
 # -----------------------------------------
 
 def get_tap_scaled(tap_tuple):
-    """
-    Recibe un tap definido como (x, y) y devuelve el tap escalado.
-    """
+    """Recibe un tap definido como (x, y) y devuelve el tap escalado."""
     x, y = tap_tuple
     return scale(x, y)

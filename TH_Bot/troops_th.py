@@ -1,11 +1,14 @@
 """TH troop deployment helpers."""
 
 import random
+import time
 from concurrent.futures import ThreadPoolExecutor
 
+import botstate
 import coords
 import func as f
 
+from TH_Bot import config_th, screen_layout_th
 from TH_Bot.th_strategies import slot_for
 
 
@@ -14,10 +17,10 @@ def slot(ctx, slot_number):
     f.tap_scale(x, y)
 
 
-def multi_tap_scale(points, ctx):
+def multi_tap_scale(points):
     if not points:
         return True
-    if ctx.exit_requested():
+    if not botstate.should_run():
         return False
     scaled_points = [
         coords.scale(x, y)
@@ -25,17 +28,19 @@ def multi_tap_scale(points, ctx):
         for x, y in points
     ]
     f.log(f"[TH MULTI TAP] {len(scaled_points)} taps: {scaled_points}")
+
     def send(point):
         f.adb(f"input tap {point[0]} {point[1]}")
+
     with ThreadPoolExecutor(max_workers=len(scaled_points)) as executor:
         list(executor.map(send, scaled_points))
-    return not ctx.exit_requested()
+    return botstate.should_run()
 
 
-def random_drop_point(ctx):
-    center_x, center_y = ctx.DROP_DIAMOND_CENTER
-    half_width = ctx.DROP_DIAMOND_HALF_WIDTH
-    half_height = ctx.DROP_DIAMOND_HALF_HEIGHT
+def random_drop_point():
+    center_x, center_y = screen_layout_th.DROP_DIAMOND_CENTER
+    half_width = screen_layout_th.DROP_DIAMOND_HALF_WIDTH
+    half_height = screen_layout_th.DROP_DIAMOND_HALF_HEIGHT
     while True:
         x = random.uniform(center_x - half_width, center_x + half_width)
         y = random.uniform(center_y - half_height, center_y + half_height)
@@ -46,10 +51,12 @@ def random_drop_point(ctx):
 def deploy_troops(ctx):
     edge_index = 0
     for element, count, drop_area, delay, use_multitap in ctx.DEPLOY_SEQUENCE:
-        if ctx.exit_requested():
+        if not botstate.should_run():
             return False
-        if delay > 0 and not ctx.sleep_with_exit(delay):
-            return False
+        if delay > 0:
+            time.sleep(delay)
+            if not botstate.should_run():
+                return False
         try:
             slot_number = slot_for(ctx.TROOP_BAR, element)
         except ValueError as exc:
@@ -60,9 +67,9 @@ def deploy_troops(ctx):
         if count == 0:
             continue
         if drop_area == "center":
-            drop_points = [ctx.DROP_POINT_CENTER]
+            drop_points = [screen_layout_th.DROP_POINT_CENTER]
         elif drop_area == "edge":
-            drop_points = ctx.EDGE_ZONE_POINTS or ctx.DROP_POINTS_EDGE
+            drop_points = ctx.EDGE_ZONE_POINTS or screen_layout_th.DROP_POINTS_EDGE
         elif drop_area == "random":
             drop_points = None
         else:
@@ -70,27 +77,28 @@ def deploy_troops(ctx):
             continue
         points_to_drop = []
         for _ in range(count):
-            if ctx.exit_requested():
+            if not botstate.should_run():
                 return False
             if drop_area == "edge":
                 drop_point = drop_points[edge_index % len(drop_points)]
                 edge_index += 1
             elif drop_area == "random":
-                drop_point = random_drop_point(ctx)
+                drop_point = random_drop_point()
                 f.log(f"[TH] Random drop -> {drop_point}")
             else:
                 drop_point = drop_points[0]
             points_to_drop.append(drop_point)
         if use_multitap:
-            for start in range(0, len(points_to_drop), ctx.MULTITAP_MAX):
-                if not multi_tap_scale(points_to_drop[start:start + ctx.MULTITAP_MAX], ctx):
+            for start in range(0, len(points_to_drop), config_th.MULTITAP_MAX):
+                if not multi_tap_scale(points_to_drop[start:start + config_th.MULTITAP_MAX]):
                     return False
         else:
             for point in points_to_drop:
-                if ctx.exit_requested():
+                if not botstate.should_run():
                     return False
                 f.tap_scale(*point)
-                if not ctx.sleep_with_exit(ctx.BETWEEN_TROOPS_DELAY):
+                time.sleep(config_th.BETWEEN_TROOPS_DELAY)
+                if not botstate.should_run():
                     return False
     f.log("[TH] Despliegue terminado")
     return True
