@@ -20,13 +20,14 @@ extra_troops_min = 0
 extra_troops_max = 4
 debug_mode = False
 attack_mode = "surrender"
+bot_type = "BB"
 
 # ============ FUNCIONES DE PERSISTENCIA ============
 
 def load_state():
     """Cargar el estado desde el archivo JSON."""
     global swipe_dx, swipe_dy, attacks_min_per_cycle, attacks_max_per_cycle
-    global extra_troops_min, extra_troops_max, debug_mode, attack_mode
+    global extra_troops_min, extra_troops_max, debug_mode, attack_mode, bot_type
     
     if not STATE_FILE.exists():
         return
@@ -55,6 +56,9 @@ def load_state():
 
         debug_mode = data.get("debug_mode", False)
         attack_mode = data.get("attack_mode", "surrender")
+        bot_type = data.get("bot_type", "BB")
+        if bot_type not in ("BB", "TH"):
+            bot_type = "BB"
         
     except Exception as e:
         print(f"Error cargando estado: {e}")
@@ -71,6 +75,7 @@ def save_state():
         "extra_troops_max": extra_troops_max,
         "debug_mode": debug_mode,
         "attack_mode": attack_mode,
+        "bot_type": bot_type,
     }
     
     try:
@@ -162,6 +167,18 @@ def set_attack_mode(mode):
 def get_attack_mode():
     """Obtener el modo de ataque actual."""
     return attack_mode
+
+
+def set_bot_type(bot):
+    """Actualizar el tipo de bot seleccionado en la GUI."""
+    global bot_type
+    bot_type = bot if bot in ("BB", "TH") else "BB"
+    save_state()
+
+
+def get_bot_type():
+    """Obtener el tipo de bot seleccionado en la GUI."""
+    return bot_type
 
 
 # Cargar estado al importar el módulo
