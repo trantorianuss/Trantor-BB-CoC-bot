@@ -3,11 +3,20 @@
 # ------------------------------------------------------------
 
 # Puerto del emulador
-ADB_PORT = "emulator-5554"
+#ADB_PORT = "emulator-5554"
 
 # Ruta del ADB (opcional, para más adelante)
-ADB_PATH = "C:/LDPlayer/LDPlayer9/adb.exe"
+#ADB_PATH = "C:/LDPlayer/LDPlayer9/adb.exe"
 
+# Puerto del emulador
+ADB_PORT = "192.168.240.112:5555"
+
+# Ruta del ADB (opcional, para más adelante)
+ADB_PATH = "adb"
+
+
+
+##DEBUG_TELEGRAM = False
 
 # ------------------------------------------------------------
 # Bot tuning
