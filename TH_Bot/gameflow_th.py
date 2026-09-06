@@ -13,7 +13,7 @@ from TH_Bot.troops_th import deploy_troops
 
 
 def th_game_flow(ctx):
-    f.log("[TH] Starting TH game flow")
+    f.log("[TH] Starting TH game flow", telegram=True)
     machine_state.set_state(machine_state.IDLE)
     while not is_elixir_full():
         if not botstate.should_run():
@@ -38,6 +38,10 @@ def th_game_flow(ctx):
             f.log("[TH] Battle did not finish. Leaving flow.")
             machine_state.set_state(machine_state.IDLE)
             return
+
+        # Wait for the return-to-village fade to finish
+        time.sleep(3)
+        
         f.log("[TH] Battle finished -> checking elixir again")
     machine_state.set_state(machine_state.IDLE)
     f.log("[TH] Elixir is full -> flow finished")
