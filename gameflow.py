@@ -199,6 +199,7 @@ def resources_full(attack_mode):
 
 def find_match():
     f.log("[GameFlow] Searching for village…")
+    t.sleep(2)
     f.log("Pressing Attack", category="Find")
     tap_scale(100, 1000)
     machine_state.set_state(machine_state.WAITING_FIND)
@@ -212,7 +213,7 @@ def find_match():
             machine_state.set_state(machine_state.ATTACKING)
             return True
         f.log("Warning: FIND button not detected. Waiting…", color="red", category="detection")
-        t.sleep(1)
+        t.sleep(2)
     f.log("[GameFlow] Bot stopped while waiting for FIND.")
     return False
 

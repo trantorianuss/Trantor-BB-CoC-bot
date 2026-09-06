@@ -3,10 +3,7 @@
 # ------------------------------------------------------------
 
 # Puerto del emulador
-ADB_PORT = "127.0.0.1:7555"
-ADB_PORT_Mumu = "127.0.0.1:7555"
-ADB_PORT_LDPLAYER = "emulator-5554"
-
+#ADB_PORT = "emulator-5554"
 
 # Ruta del ADB (opcional, para más adelante)
 #ADB_PATH = "C:/LDPlayer/LDPlayer9/adb.exe"
@@ -30,9 +27,6 @@ DROP_RADIUS_FACTOR = 0.70  # used to calculate the drop radius based on the maxi
 # ------------------------------------------------------------
 # Debug
 # ------------------------------------------------------------
-
-DEBUG_TELEGRAM = True  # Enables Telegram status messages.
-TELEGRAM_STATUS_INTERVAL_MINUTES = 5
 
 DEBUG_CATEGORIES = {
     "cart": True,
