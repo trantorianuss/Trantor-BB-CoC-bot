@@ -48,7 +48,29 @@ def random_drop_point():
             return int(x), int(y)
 
 
+def get_edge_deployment_points(ctx):
+    """Return the edge points in the configured deployment order."""
+    drop_points = list(ctx.EDGE_ZONE_POINTS or screen_layout_th.DROP_POINTS_EDGE)
+    mode = getattr(config_th, "EDGE_DEPLOYMENT_MODE", "forward").lower()
+
+    if mode == "auto":
+        mode = random.choice(("forward", "reverse", "random"))
+        f.log(f"[TH] Edge deployment mode AUTO -> {mode.upper()}")
+    else:
+        f.log(f"[TH] Edge deployment mode -> {mode.upper()}")
+
+    if mode == "reverse":
+        return list(reversed(drop_points))
+    if mode == "random":
+        random.shuffle(drop_points)
+        return drop_points
+    if mode != "forward":
+        f.log(f"[TH] Edge deployment mode desconocido '{mode}', usando FORWARD", color="yellow")
+    return drop_points
+
+
 def deploy_troops(ctx):
+    edge_points = get_edge_deployment_points(ctx)
     edge_index = 0
     for element, count, drop_area, delay, use_multitap in ctx.DEPLOY_SEQUENCE:
         if not botstate.should_run():
@@ -69,7 +91,7 @@ def deploy_troops(ctx):
         if drop_area == "center":
             drop_points = [screen_layout_th.DROP_POINT_CENTER]
         elif drop_area == "edge":
-            drop_points = ctx.EDGE_ZONE_POINTS or screen_layout_th.DROP_POINTS_EDGE
+            drop_points = edge_points
         elif drop_area == "random":
             drop_points = None
         else:
