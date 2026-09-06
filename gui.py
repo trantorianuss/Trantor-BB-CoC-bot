@@ -9,7 +9,7 @@ class BotInterface(ctk.CTk):
     def __init__(self, on_start_farm, on_stop, on_screenshot, on_recognize, on_buscar_carro, on_test, on_calibrar_zoom, on_calibrate, on_pixel_inspector):
         super().__init__()
 
-        self.title("Trantor CoC BB-Bot")
+        self.title("Trantor CoC Bot")
         self.geometry("400x500")
         self.panel_window = None
 
@@ -24,6 +24,7 @@ class BotInterface(ctk.CTk):
         self.on_pixel_inspector = on_pixel_inspector
 
         self._init_components()
+        self._create_side_panel()
         self.update_bot_status()
 
     def _init_components(self):
@@ -42,10 +43,23 @@ class BotInterface(ctk.CTk):
         self.button_side_panel.grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
         self.label_bot_status = ctk.CTkLabel(self.top_frame, text="Status: ?")
-        self.label_bot_status.grid(row=1, column=1, columnspan=3, padx=5, pady=(0, 5), sticky="w")
+        self.label_bot_status.grid(row=1, column=1, columnspan=2, padx=5, pady=(0, 5), sticky="w")
 
         self.label_bot_status_indicator = ctk.CTkLabel(self.top_frame, text="●", font=ctk.CTkFont(size=18))
         self.label_bot_status_indicator.grid(row=1, column=0, padx=(5, 0), pady=(0, 5), sticky="e")
+
+        self.bot_type_switch = ctk.CTkSwitch(
+            self.top_frame,
+            text="BB / TH",
+            onvalue="TH",
+            offvalue="BB",
+            command=self._on_bot_type_change,
+        )
+        if settings.get_bot_type() == "TH":
+            self.bot_type_switch.select()
+        else:
+            self.bot_type_switch.deselect()
+        self.bot_type_switch.grid(row=1, column=3, padx=5, pady=(0, 5), sticky="e")
 
         self.log_frame = ctk.CTkFrame(self)
         self.log_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -100,6 +114,9 @@ class BotInterface(ctk.CTk):
     def _toggle_autoscroll(self):
         if self.autoscroll_switch.get() == 1:
             self.tk_log.see("end")
+
+    def _on_bot_type_change(self):
+        settings.set_bot_type(self.bot_type_switch.get())
 
     def _on_attack_mode_change(self, choice):
         settings.set_attack_mode(choice)
@@ -171,16 +188,9 @@ class BotInterface(ctk.CTk):
         btn = ctk.CTkButton(popup, text="Continue", command=lambda: self.on_calibrar_zoom(popup))
         btn.pack(pady=10)
 
-    def _show_side_panel(self):
-        if self.panel_window is not None and self.panel_window.winfo_exists():
-            self.panel_window.lift()
-            self.panel_window.focus_force()
+    def _position_side_panel(self):
+        if self.panel_window is None or not self.panel_window.winfo_exists():
             return
-
-        self.panel_window = ctk.CTkToplevel(self)
-        self.panel_window.title("Panel")
-        self.panel_window.geometry("300x500")
-        self.panel_window.transient(self)
 
         main_x = self.winfo_x()
         main_y = self.winfo_y()
@@ -190,6 +200,17 @@ class BotInterface(ctk.CTk):
         right_x = main_x + main_w + 10
         panel_x = right_x if right_x + panel_w <= screen_w else main_x - panel_w - 10
         self.panel_window.geometry(f"{panel_w}x500+{panel_x}+{main_y}")
+
+    def _create_side_panel(self):
+        """Crear el panel una sola vez y dejarlo oculto hasta que se solicite."""
+        if self.panel_window is not None and self.panel_window.winfo_exists():
+            return
+
+        self.panel_window = ctk.CTkToplevel(self)
+        self.panel_window.title("Panel")
+        self.panel_window.geometry("300x500")
+        self.panel_window.transient(self)
+        self.panel_window.protocol("WM_DELETE_WINDOW", self._hide_side_panel)
 
         self.tabs = ctk.CTkTabview(self.panel_window)
         self.tabs.pack(fill="x", padx=10, pady=10)
@@ -294,8 +315,20 @@ class BotInterface(ctk.CTk):
             checkbox.grid(row=file_logs_row + 1 + index // 2, column=index % 2, padx=5, pady=3, sticky="w")
             self.debug_file_log_vars[log_name] = variable
 
+        self.panel_window.withdraw()
+
+    def _show_side_panel(self):
+        if self.panel_window is None or not self.panel_window.winfo_exists():
+            self._create_side_panel()
+
+        self._position_side_panel()
+        self.panel_window.deiconify()
         self.panel_window.lift()
         self.panel_window.focus_force()
+
+    def _hide_side_panel(self):
+        if self.panel_window is not None and self.panel_window.winfo_exists():
+            self.panel_window.withdraw()
 
     def get_swipe_values(self):
         return self.swipe_dx_entry.get(), self.swipe_dy_entry.get()
