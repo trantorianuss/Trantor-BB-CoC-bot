@@ -4,6 +4,8 @@ import botstate
 import settings
 import config
 
+ctk.set_appearance_mode("dark")
+
 
 class BotInterface(ctk.CTk):
     def __init__(self, on_start_farm, on_stop, on_screenshot, on_recognize, on_buscar_carro, on_test, on_calibrar_zoom, on_calibrate, on_pixel_inspector):
@@ -24,7 +26,6 @@ class BotInterface(ctk.CTk):
         self.on_pixel_inspector = on_pixel_inspector
 
         self._init_components()
-        self._create_side_panel()
         self.update_bot_status()
 
     def _init_components(self):
@@ -207,6 +208,7 @@ class BotInterface(ctk.CTk):
             return
 
         self.panel_window = ctk.CTkToplevel(self)
+        self.panel_window.withdraw()
         self.panel_window.title("Panel")
         self.panel_window.geometry("300x500")
         self.panel_window.transient(self)
