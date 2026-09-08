@@ -90,16 +90,19 @@ class BotInterface(ctk.CTk):
             self.label_bot_status.configure(text="Running")
             self.button_Farm.configure(state="disabled")
             self.button_Stop.configure(state="normal")
+            self.bot_type_switch.configure(state="disabled")
         elif status == botstate.STOPPING:
             self.label_bot_status_indicator.configure(text_color="orange")
             self.label_bot_status.configure(text="Stopping")
             self.button_Farm.configure(state="disabled")
             self.button_Stop.configure(state="disabled")
+            self.bot_type_switch.configure(state="disabled")
         else:
             self.label_bot_status_indicator.configure(text_color="red")
             self.label_bot_status.configure(text="Stopped")
             self.button_Farm.configure(state="normal")
             self.button_Stop.configure(state="disabled")
+            self.bot_type_switch.configure(state="normal")
         self.after(500, self.update_bot_status)
 
     def log(self, formatted_message, color="default"):
