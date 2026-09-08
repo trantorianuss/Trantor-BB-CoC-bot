@@ -193,26 +193,66 @@ class BotInterface(ctk.CTk):
         if self.panel_window is None or not self.panel_window.winfo_exists():
             return
 
+        self.panel_window.update_idletasks()
+
+        main_x = self.winfo_x()
+        main_y = self.winfo_y() - 38
+        main_w = self.winfo_width()
+
+        panel_w = 300
+        screen_w = self.winfo_screenwidth()
+
+        right_x = main_x + main_w + 10
+        panel_x = right_x if right_x + panel_w <= screen_w else main_x - panel_w - 10
+
+        self.panel_window.geometry(f"{panel_w}x500+{panel_x}+{main_y}")
+
+
+    def __kk_position_side_panel(self):
+        if self.panel_window is None or not self.panel_window.winfo_exists():
+            return
+
+        geo = self.panel_window.geometry()  
+        print(geo)
+
+        # Forzar a Tkinter a calcular las posiciones reales actuales
+        self.update_idletasks()
+
+        # 1. Obtener la posición del contenido interno
         main_x = self.winfo_x()
         main_y = self.winfo_y()
         main_w = self.winfo_width()
+
+        # 2. Calcular de forma exacta el grosor de la barra de título
+        # En Windows/Mac da 0, en Linux da la altura real de la barra superior (ej: 32 o 38px)
+        title_bar_height = self.winfo_rooty() - self.winfo_y()
+
         panel_w = 300
         screen_w = self.winfo_screenwidth()
+
         right_x = main_x + main_w + 10
         panel_x = right_x if right_x + panel_w <= screen_w else main_x - panel_w - 10
-        self.panel_window.geometry(f"{panel_w}x500+{panel_x}+{main_y}")
+
+        # 3. COMPENSACIÓN EXACTA: 
+        # Sumamos el grosor de la barra para contrarrestar el empuje del Gestor de Ventanas en Linux
+        corrected_y = main_y + title_bar_height
+
+        # Aplicamos la geometría limpia
+        #self.panel_window.geometry(f"{panel_w}x500+{panel_x}+{corrected_y}")
+        self.panel_window.geometry(f"+{panel_x}")
+        
 
     def _create_side_panel(self):
-        """Crear el panel una sola vez y dejarlo oculto hasta que se solicite."""
+        """Crear el panel lateral si todavía no existe."""
         if self.panel_window is not None and self.panel_window.winfo_exists():
             return
 
         self.panel_window = ctk.CTkToplevel(self)
         self.panel_window.withdraw()
         self.panel_window.title("Panel")
-        self.panel_window.geometry("300x500")
         self.panel_window.transient(self)
-        self.panel_window.protocol("WM_DELETE_WINDOW", self._hide_side_panel)
+        #self.panel_window.update()
+
 
         self.tabs = ctk.CTkTabview(self.panel_window)
         self.tabs.pack(fill="x", padx=10, pady=10)
@@ -317,7 +357,6 @@ class BotInterface(ctk.CTk):
             checkbox.grid(row=file_logs_row + 1 + index // 2, column=index % 2, padx=5, pady=3, sticky="w")
             self.debug_file_log_vars[log_name] = variable
 
-        self.panel_window.withdraw()
 
     def _show_side_panel(self):
         if self.panel_window is None or not self.panel_window.winfo_exists():
@@ -327,6 +366,8 @@ class BotInterface(ctk.CTk):
         self.panel_window.deiconify()
         self.panel_window.lift()
         self.panel_window.focus_force()
+
+
 
     def _hide_side_panel(self):
         if self.panel_window is not None and self.panel_window.winfo_exists():
