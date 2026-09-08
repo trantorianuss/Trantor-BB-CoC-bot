@@ -36,9 +36,9 @@ class BotInterface(ctk.CTk):
         self.top_frame.columnconfigure(2, weight=4)
         self.top_frame.columnconfigure(3, weight=1)
 
-        self.button_Farm = ctk.CTkButton(self.top_frame, text="Start Farm", command=self._pre_start_farm)
+        self.button_Farm = ctk.CTkButton(self.top_frame, text="Start", fg_color="#16a34a", hover_color="#15803d", command=self._pre_start_farm)
         self.button_Farm.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
-        self.button_Stop = ctk.CTkButton(self.top_frame, text="Stop", command=self.on_stop)
+        self.button_Stop = ctk.CTkButton(self.top_frame, text="Stop", fg_color="#dc2626", hover_color="#b91c1c", command=self.on_stop)
         self.button_Stop.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
         self.button_side_panel = ctk.CTkButton(self.top_frame, text="☰ ", width=40, command=self._show_side_panel)
         self.button_side_panel.grid(row=0, column=3, padx=5, pady=5, sticky="e")
@@ -56,6 +56,11 @@ class BotInterface(ctk.CTk):
             offvalue="BB",
             command=self._on_bot_type_change,
         )
+
+        self.bot_type_switch.configure(
+            fg_color=self.bot_type_switch.cget("progress_color")
+        )
+        
         if settings.get_bot_type() == "TH":
             self.bot_type_switch.select()
         else:
@@ -120,7 +125,14 @@ class BotInterface(ctk.CTk):
             self.tk_log.see("end")
 
     def _on_bot_type_change(self):
-        settings.set_bot_type(self.bot_type_switch.get())
+        bot_type = self.bot_type_switch.get()
+
+        settings.set_bot_type(bot_type)
+
+        if bot_type == "TH":
+            self.button_Farm.configure(text="Start TH")
+        else:
+            self.button_Farm.configure(text="Start BB")
 
     def _on_attack_mode_change(self, choice):
         settings.set_attack_mode(choice)

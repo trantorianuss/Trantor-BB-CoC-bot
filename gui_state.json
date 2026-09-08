@@ -6,5 +6,6 @@
   "extra_troops_min": 3,
   "extra_troops_max": 6,
   "debug_mode": true,
-  "attack_mode": "surrender"
+  "attack_mode": "surrender",
+  "bot_type": "TH"
 }
