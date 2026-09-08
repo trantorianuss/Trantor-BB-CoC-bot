@@ -33,6 +33,9 @@ def _should_emit_log(debug=False, category=""):
 
 def log(message, debug=False, category="", color=None, telegram=False):
 
+    if telegram:
+        send_message(message)
+
     if not _should_emit_log(debug, category):
         return
 
@@ -67,9 +70,6 @@ def log(message, debug=False, category="", color=None, telegram=False):
         _log_sink(formatted, color)
     else:
         print(formatted)
-
-    if telegram:
-        send_message(formatted)
 
 
     if config.DEBUG_INSPECTION:
