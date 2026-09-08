@@ -21,6 +21,8 @@ import calibration
 import machine_state
 import pixel_inspector
 
+from TH_Bot import th_strategies
+
 
 def parse_int(value, default=0):
     try:
@@ -167,6 +169,7 @@ l.log("  Initializing application...", telegram=True)
 
 f.cleanup_screenshots()
 coords.initialize()
+th_strategies.load_attack_config()
 telegram.start_status_thread()
 
 
