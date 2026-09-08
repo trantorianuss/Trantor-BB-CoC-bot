@@ -53,8 +53,8 @@ DEBUG_INSPECTION = False # used to print the file, function, and line number of 
 # Controls whether diagnostic history files are written.
 # These are independent from the on-screen debug logger.
 DEBUG_FILE_LOGS = {
-    "drop_finder": True,
-    "state_machine": True,
+    "drop_finder": False,
+    "state_machine": False,
 }
 
 # -----------------------------------------------------------------------------
