@@ -50,7 +50,7 @@ def set_state(new_state):
     message = f"{previous_state} -> {new_state}"
 
     # Visible in the normal application logger.
-    log(message, debug=True, category="state", telegram=True)
+    log(message, debug=True, category="state", telegram=True, tmsg=f"State transition: {current_state}")
 
     # Keep a simple historical state-transition log independent of the GUI.
     if config.DEBUG_FILE_LOGS.get("state_machine", False):

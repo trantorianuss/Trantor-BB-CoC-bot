@@ -31,10 +31,11 @@ def _should_emit_log(debug=False, category=""):
     return True
 
 
-def log(message, debug=False, category="", color=None, telegram=False):
+def log(message, debug=False, category="", color=None, telegram=False, tmsg=""):
 
     if telegram:
-        send_message(message)
+        _t_msg = tmsg if tmsg else message
+        send_message(_t_msg)
 
     if not _should_emit_log(debug, category):
         return
