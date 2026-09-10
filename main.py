@@ -16,7 +16,7 @@ import coords
 import elixir_cart
 import logger as l
 import telegram
-from gui_ttkbootstrap import BotInterface
+from gui import BotInterface
 import calibration
 import machine_state
 import pixel_inspector
