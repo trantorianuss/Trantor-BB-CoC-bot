@@ -1,6 +1,5 @@
 import tkinter as tk
 import ttkbootstrap as ttk
-from ttkbootstrap.scrolled import ScrolledText
 
 import botstate
 import settings
@@ -81,11 +80,11 @@ class BotInterface(ttk.Window):
         log_frame = ttk.Frame(self, padding=10)
         log_frame.pack(fill="both", expand=True)
 
-        self.log_textbox = ScrolledText(log_frame, wrap="word")
+        self.log_textbox = ttk.ScrolledText(log_frame, wrap="word")
         self.log_textbox.pack(fill="both", expand=True)
-        self.tk_log = self.log_textbox
+        self.tk_log = self.log_textbox.text
 
-        # ScrolledText is a Tk Text widget, so configure the log tags explicitly.
+        # ScrolledText exposes the underlying Tk Text widget through .text.
         for name, color in config.LOG_COLORS.items():
             if color is None:
                 self.tk_log.tag_configure(name)
@@ -133,11 +132,11 @@ class BotInterface(ttk.Window):
 
     def log(self, formatted_message, color="default"):
         def append():
-            self.log_textbox.configure(state="normal")
-            self.log_textbox.insert("end", formatted_message + "\n", color)
+            self.tk_log.configure(state="normal")
+            self.tk_log.insert("end", formatted_message + "\n", color)
             if self.autoscroll_var.get() == 1:
-                self.log_textbox.see("end")
-            self.log_textbox.configure(state="disabled")
+                self.tk_log.see("end")
+            self.tk_log.configure(state="disabled")
 
         self.after(0, append)
 
