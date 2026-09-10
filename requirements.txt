@@ -6,6 +6,6 @@ opencv-python
 adbutils
 pure-python-adb
 requests
-pywin32
+pywin32; sys_platform == "win32"
 easyocr
 uiautomator2
