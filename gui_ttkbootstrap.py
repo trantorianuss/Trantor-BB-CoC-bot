@@ -1,8 +1,10 @@
 import tkinter as tk
 import ttkbootstrap as ttk
+from ttkbootstrap.scrolled import ScrolledText
 
 import botstate
 import settings
+import config
 
 
 class BotInterface(ttk.Window):
@@ -79,9 +81,17 @@ class BotInterface(ttk.Window):
         log_frame = ttk.Frame(self, padding=10)
         log_frame.pack(fill="both", expand=True)
 
-        self.log_textbox = tk.Text(log_frame, wrap="word", state="disabled")
+        self.log_textbox = ScrolledText(log_frame, wrap="word")
         self.log_textbox.pack(fill="both", expand=True)
         self.tk_log = self.log_textbox
+
+        # ScrolledText is a Tk Text widget, so configure the log tags explicitly.
+        for name, color in config.LOG_COLORS.items():
+            if color is None:
+                self.tk_log.tag_configure(name)
+            else:
+                self.tk_log.tag_configure(name, foreground=color)
+        self.tk_log.tag_configure("spacing", spacing3=8)
 
         controls = ttk.Frame(self, padding=(10, 0, 10, 10))
         controls.pack(fill="x")
@@ -124,7 +134,7 @@ class BotInterface(ttk.Window):
     def log(self, formatted_message, color="default"):
         def append():
             self.log_textbox.configure(state="normal")
-            self.log_textbox.insert("end", formatted_message + "\n")
+            self.log_textbox.insert("end", formatted_message + "\n", color)
             if self.autoscroll_var.get() == 1:
                 self.log_textbox.see("end")
             self.log_textbox.configure(state="disabled")
@@ -144,7 +154,7 @@ class BotInterface(ttk.Window):
             self.button_Farm.configure(text="Start TH" if bot_type == "TH" else "Start BB")
 
     def _pre_start_farm(self):
-        popup = ttk.Toplevel(self, title="Zoom Required", size=(300, 180), transient=self)
+        popup = ttk.Toplevel(master=self, title="Zoom Required", size=(300, 180), transient=self)
         popup.grab_set()
 
         ttk.Label(
