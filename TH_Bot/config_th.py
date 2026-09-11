@@ -13,6 +13,8 @@ EXIT_POLL_INTERVAL = 0.05
 
 # Deployment behaviour.
 MULTITAP_MAX = 4
+# Edge deployment: forward, reverse, random, or auto (choose one per attack).
+EDGE_DEPLOYMENT_MODE = "auto"
 
 # Calibration/debug UI limits.
 ZONE_WINDOW_MAX_WIDTH = 1000
