@@ -30,6 +30,7 @@ RETURN_HOME_DETECTED = DETECTED_RETURN_HOME
 WAITING_HOME = "waiting_home"
 DETECTED_HOME = "home"
 HOME_DETECTED = DETECTED_HOME
+STAR_BONUS_DETECTED = "star_bonus"
 
 
 def is_pixel_visible(image, pixel, color):
@@ -128,7 +129,7 @@ def screen_detect(state):
         return DETECTED_RETURN_HOME
     if state == WAITING_HOME:
         if is_star_bonus_visible(image):
-            return screen_layout_th.STAR_BONUS_DETECTED
+            return STAR_BONUS_DETECTED
         if is_home_visible(image):
             return DETECTED_HOME
     return None
