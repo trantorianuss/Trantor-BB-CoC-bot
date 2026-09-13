@@ -68,7 +68,6 @@ def handle_star_bonus():
     if screen_detector_th.is_star_bonus_visible(image):
         f.log("[TH] Star Bonus window detected -> tapping OK")
         f.tap_scale(*screen_layout_th.STAR_BONUS_BUTTON_PIXEL)
-        time.sleep(config_th.STAR_BONUS_CHECK_DELAY)
     else:
         f.log("[TH] Star Bonus window not detected")
 
@@ -125,7 +124,7 @@ def wait_for_battle_end():
     elif result == screen_detector_th.RETURN_HOME_DETECTED:
         f.log("[TH] Return Home detected directly")
         f.tap_scale(*screen_layout_th.RETURN_HOME_BUTTON_PIXEL)
-        time.sleep(config_th.AFTER_BATTLE_END_DELAY)
+        time.sleep(config_th.STAR_BONUS_CHECK_DELAY)
         return botstate.should_run()
     else:
         return False
@@ -189,7 +188,7 @@ def wait_for_claim_reward_continue():
         if result == screen_detector_th.CLAIM_REWARD_CONTINUE_DETECTED:
             f.log(f"[TH] Claim Reward Continue detected after {elapsed}s -> tapping")
             f.tap_scale(*screen_layout_th.CLAIM_REWARD_CONTINUE_PIXEL)
-            time.sleep(config_th.AFTER_BATTLE_END_DELAY)
+            time.sleep(config_th.STAR_BONUS_CHECK_DELAY)
             return botstate.should_run()
         elapsed += config_th.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
