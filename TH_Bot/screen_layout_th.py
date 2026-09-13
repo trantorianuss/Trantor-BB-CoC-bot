@@ -20,6 +20,14 @@ CLAIM_REWARD_CONTINUE_COLOR = (139, 211, 58)
 RETURN_HOME_BUTTON_PIXEL = (960, 960)
 RETURN_HOME_BUTTON_COLOR = (108, 187, 31)
 
+# Optional Star Bonus window after Return Home.
+# Values are base coordinates, as used by the TH scaling system.
+STAR_BONUS_PIXEL_1 = (1665, 177)
+STAR_BONUS_COLOR_1 = (62, 46, 185)
+STAR_BONUS_PIXEL_2 = (960, 963)
+STAR_BONUS_COLOR_2 = (110, 188, 31)
+STAR_BONUS_BUTTON_PIXEL = STAR_BONUS_PIXEL_2
+
 # Deployment coordinates
 DROP_POINTS_EDGE = [(80, 440), (120, 400), (160, 360), (200, 320)]
 DROP_POINT_CENTER = (960, 540)
