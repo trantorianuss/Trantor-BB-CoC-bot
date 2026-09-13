@@ -62,6 +62,23 @@ def is_return_home_button_visible(image):
     return result
 
 
+def is_star_bonus_visible(image):
+    """Return True when both reference pixels of the optional Star Bonus window match."""
+    pixel_1 = is_pixel_visible(
+        image,
+        screen_layout_th.STAR_BONUS_PIXEL_1,
+        screen_layout_th.STAR_BONUS_COLOR_1,
+    )
+    pixel_2 = is_pixel_visible(
+        image,
+        screen_layout_th.STAR_BONUS_PIXEL_2,
+        screen_layout_th.STAR_BONUS_COLOR_2,
+    )
+    result = pixel_1 and pixel_2
+    f.log(f"[TH DETECTOR] Star Bonus pixels -> {pixel_1}, {pixel_2} => {result}")
+    return result
+
+
 def screen_detect(state):
     f.log(f"[TH DETECTOR] screen_detect(state={state}) -> capturing screenshot")
     image = f.capture_screenshot()
