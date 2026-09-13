@@ -30,7 +30,4 @@ REWARD_TAP_CENTER = (640, 640)
 REWARD_TAP_RADIUS = 100
 REWARD_TAP_DELAY = 0.3
 
-# Wait after Return Home before checking for the optional Star Bonus window.
-STAR_BONUS_CHECK_DELAY = 3.0
-
 PIXEL_TOLERANCE = 10
