@@ -39,9 +39,9 @@ def th_game_flow(ctx):
             machine_state.set_state(machine_state.IDLE)
             return
 
-        # Wait for the return-to-village fade to finish
-        time.sleep(3)
-        
+        # wait_for_battle_end already waits after tapping Return Home.
+        handle_star_bonus()
+
         f.log("[TH] Battle finished -> checking elixir again")
     machine_state.set_state(machine_state.IDLE)
     f.log("[TH] Elixir is full -> flow finished")
@@ -53,6 +53,24 @@ def is_elixir_full():
     f.log(f"[TH] Elixir check screenshot: {debug_path}", debug=True, category="detection")
     x, y = screen_layout_th.ELIXIR_FULL_PIXEL
     return f.check_pixel_from_image(image, x, y, screen_layout_th.ELIXIR_FULL_COLOR, tol=config_th.PIXEL_TOLERANCE)
+
+
+def handle_star_bonus():
+    """Check for the optional Star Bonus window after Return Home and dismiss it."""
+    if not botstate.should_run():
+        return
+
+    image = f.capture_screenshot()
+    if image is None:
+        f.log("[TH] Star Bonus check -> screenshot unavailable", color="red")
+        return
+
+    if screen_detector_th.is_star_bonus_visible(image):
+        f.log("[TH] Star Bonus window detected -> tapping OK")
+        f.tap_scale(*screen_layout_th.STAR_BONUS_BUTTON_PIXEL)
+        time.sleep(config_th.STAR_BONUS_CHECK_DELAY)
+    else:
+        f.log("[TH] Star Bonus window not detected")
 
 
 def start_attack():
