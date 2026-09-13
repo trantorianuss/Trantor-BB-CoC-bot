@@ -27,6 +27,10 @@ WAITING_RETURN_HOME = "waiting_return_home"
 DETECTED_RETURN_HOME = "return_home"
 RETURN_HOME_DETECTED = DETECTED_RETURN_HOME
 
+WAITING_HOME = "waiting_home"
+DETECTED_HOME = "home"
+HOME_DETECTED = DETECTED_HOME
+
 
 def is_pixel_visible(image, pixel, color):
     return f.check_pixel_from_image(image, pixel[0], pixel[1], color, tol=config_th.PIXEL_TOLERANCE)
@@ -79,6 +83,23 @@ def is_star_bonus_visible(image):
     return result
 
 
+def is_home_visible(image):
+    """Return True when both reference pixels of the main HOME screen match."""
+    pixel_1 = is_pixel_visible(
+        image,
+        screen_layout_th.HOME_PIXEL_1,
+        screen_layout_th.HOME_COLOR_1,
+    )
+    pixel_2 = is_pixel_visible(
+        image,
+        screen_layout_th.HOME_PIXEL_2,
+        screen_layout_th.HOME_COLOR_2,
+    )
+    result = pixel_1 and pixel_2
+    f.log(f"[TH DETECTOR] HOME pixels -> {pixel_1}, {pixel_2} => {result}")
+    return result
+
+
 def screen_detect(state):
     f.log(f"[TH DETECTOR] screen_detect(state={state}) -> capturing screenshot")
     image = f.capture_screenshot()
@@ -105,4 +126,9 @@ def screen_detect(state):
         return DETECTED_REWARD_CONTINUE
     if state == WAITING_RETURN_HOME and is_return_home_button_visible(image):
         return DETECTED_RETURN_HOME
+    if state == WAITING_HOME:
+        if is_star_bonus_visible(image):
+            return screen_layout_th.STAR_BONUS_DETECTED
+        if is_home_visible(image):
+            return DETECTED_HOME
     return None
