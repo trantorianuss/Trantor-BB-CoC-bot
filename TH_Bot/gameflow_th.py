@@ -39,10 +39,7 @@ def th_game_flow(ctx):
             machine_state.set_state(machine_state.IDLE)
             return
 
-        # wait_for_battle_end already waits after tapping Return Home.
-        handle_star_bonus()
-
-        f.log("[TH] Battle finished -> checking elixir again")
+        f.log("[TH] HOME detected -> checking elixir again")
     machine_state.set_state(machine_state.IDLE)
     f.log("[TH] Elixir is full -> flow finished")
 
@@ -55,21 +52,31 @@ def is_elixir_full():
     return f.check_pixel_from_image(image, x, y, screen_layout_th.ELIXIR_FULL_COLOR, tol=config_th.PIXEL_TOLERANCE)
 
 
-def handle_star_bonus():
-    """Check for the optional Star Bonus window after Return Home and dismiss it."""
-    if not botstate.should_run():
-        return
+def wait_for_home_after_return():
+    """Wait for the main HOME screen, handling an optional Star Bonus first."""
+    machine_state.set_state(machine_state.WAITING_RETURN_HOME)
+    f.log("[TH] Waiting for HOME after Return Home")
+    elapsed = 0
 
-    image = f.capture_screenshot()
-    if image is None:
-        f.log("[TH] Star Bonus check -> screenshot unavailable", color="red")
-        return
+    while botstate.should_run():
+        result = screen_detector_th.screen_detect(screen_detector_th.WAITING_HOME)
 
-    if screen_detector_th.is_star_bonus_visible(image):
-        f.log("[TH] Star Bonus window detected -> tapping OK")
-        f.tap_scale(*screen_layout_th.STAR_BONUS_BUTTON_PIXEL)
-    else:
-        f.log("[TH] Star Bonus window not detected")
+        if result == screen_detector_th.STAR_BONUS_DETECTED:
+            f.log("[TH] Star Bonus detected -> tapping OK")
+            f.tap_scale(*screen_layout_th.STAR_BONUS_BUTTON_PIXEL)
+            elapsed = 0
+            continue
+
+        if result == screen_detector_th.HOME_DETECTED:
+            f.log(f"[TH] HOME detected after {elapsed}s")
+            return True
+
+        elapsed += config_th.SCREEN_DETECT_DELAY
+        if int(elapsed) % 10 == 0:
+            f.log(f"[TH] Waiting for HOME... {int(elapsed)}s")
+        time.sleep(config_th.SCREEN_DETECT_DELAY)
+
+    return False
 
 
 def start_attack():
@@ -124,8 +131,7 @@ def wait_for_battle_end():
     elif result == screen_detector_th.RETURN_HOME_DETECTED:
         f.log("[TH] Return Home detected directly")
         f.tap_scale(*screen_layout_th.RETURN_HOME_BUTTON_PIXEL)
-        time.sleep(config_th.STAR_BONUS_CHECK_DELAY)
-        return botstate.should_run()
+        return wait_for_home_after_return()
     else:
         return False
 
@@ -188,8 +194,7 @@ def wait_for_claim_reward_continue():
         if result == screen_detector_th.CLAIM_REWARD_CONTINUE_DETECTED:
             f.log(f"[TH] Claim Reward Continue detected after {elapsed}s -> tapping")
             f.tap_scale(*screen_layout_th.CLAIM_REWARD_CONTINUE_PIXEL)
-            time.sleep(config_th.STAR_BONUS_CHECK_DELAY)
-            return botstate.should_run()
+            return wait_for_home_after_return()
         elapsed += config_th.SCREEN_DETECT_DELAY
         if int(elapsed) % 5 == 0:
             f.log(f"[TH] Waiting for Claim Reward Continue... {int(elapsed)}s")
