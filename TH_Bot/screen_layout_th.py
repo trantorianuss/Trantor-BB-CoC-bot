@@ -28,6 +28,13 @@ STAR_BONUS_PIXEL_2 = (960, 963)
 STAR_BONUS_COLOR_2 = (110, 188, 31)
 STAR_BONUS_BUTTON_PIXEL = STAR_BONUS_PIXEL_2
 
+# Main HOME screen reference pixels.
+# Values are base coordinates, as used by the TH scaling system.
+HOME_PIXEL_1 = (1852, 171)
+HOME_COLOR_1 = (215, 34, 255)
+HOME_PIXEL_2 = (1852, 268)
+HOME_COLOR_2 = (60, 45, 63)
+
 # Deployment coordinates
 DROP_POINTS_EDGE = [(80, 440), (120, 400), (160, 360), (200, 320)]
 DROP_POINT_CENTER = (960, 540)
