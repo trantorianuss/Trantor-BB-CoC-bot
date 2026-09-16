@@ -39,7 +39,11 @@ def is_pixel_visible(image, pixel, color):
 
 
 def is_find_button_visible(image):
-    result = is_pixel_visible(image, screen_layout_th.FIND_BUTTON, screen_layout_th.FIND_BUTTON_COLOR if hasattr(screen_layout_th, "FIND_BUTTON_COLOR") else (249, 173, 44))
+    pixel = screen_layout_th.FIND_BUTTON
+    expected_color = screen_layout_th.FIND_BUTTON_COLOR if hasattr(screen_layout_th, "FIND_BUTTON_COLOR") else (249, 173, 44)
+    actual_color = tuple(int(value) for value in image[pixel[1], pixel[0]][::-1])
+    f.log(f"[TH DETECTOR] FIND pixel: ({pixel[0]}, {pixel[1]}) actual RGB={actual_color} expected RGB={expected_color}")
+    result = is_pixel_visible(image, pixel, expected_color)
     f.log(f"[TH DETECTOR] FIND pixel check -> {result}")
     return result
 
