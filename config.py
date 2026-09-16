@@ -3,20 +3,17 @@
 # ------------------------------------------------------------
 
 # Puerto del emulador
-ADB_PORT = "127.0.0.1:7555"
+ADB_PORT = "192.168.240.112:5555"
+
+# OLD Saves
 ADB_PORT_Mumu = "127.0.0.1:7555"
 ADB_PORT_LDPLAYER = "emulator-5554"
 
 
 # Ruta del ADB (opcional, para más adelante)
-#ADB_PATH = "C:/LDPlayer/LDPlayer9/adb.exe"
-
-# Puerto del emulador
-ADB_PORT = "192.168.240.112:5555"
-
-# Ruta del ADB (opcional, para más adelante)
 ADB_PATH = "adb"
 
+#ADB_PATH = "C:/LDPlayer/LDPlayer9/adb.exe"
 
 
 ##DEBUG_TELEGRAM = False
@@ -35,15 +32,15 @@ DEBUG_TELEGRAM = True  # Enables Telegram status messages.
 TELEGRAM_STATUS_INTERVAL_MINUTES = 5
 
 DEBUG_CATEGORIES = {
-    "cart": True,
-    "attack": True,
-    "vision": True,
+    "cart": False,
+    "attack": False,
+    "vision": False,
     "timing": False,
     "adb": False,
-    "flow": True,
-    "detection": True,
-    "drop": True,
-    "state": True, 
+    "flow": False,
+    "detection": False,
+    "drop": False,
+    "state": False, 
     "func": False,
 }
 
