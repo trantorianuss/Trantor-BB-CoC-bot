@@ -41,8 +41,29 @@ def is_pixel_visible(image, pixel, color):
 def is_find_button_visible(image):
     pixel = screen_layout_th.FIND_BUTTON
     expected_color = screen_layout_th.FIND_BUTTON_COLOR if hasattr(screen_layout_th, "FIND_BUTTON_COLOR") else (249, 173, 44)
-    actual_color = tuple(int(value) for value in image[pixel[1], pixel[0]][::-1])
-    f.log(f"[TH DETECTOR] FIND pixel: ({pixel[0]}, {pixel[1]}) actual RGB={actual_color} expected RGB={expected_color}")
+
+    # Use the same coordinate scaling as check_pixel_from_image(), so the
+    # debug read points to the actual pixel being checked.
+    if f.coords.REAL_W is not None and f.coords.REAL_H is not None:
+        real_x, real_y = f.coords.scale(pixel[0], pixel[1])
+    else:
+        real_x, real_y = pixel
+
+    if not (0 <= real_y < image.shape[0] and 0 <= real_x < image.shape[1]):
+        f.log(
+            f"[TH DETECTOR] FIND pixel out of bounds: base=({pixel[0]}, {pixel[1]}) "
+            f"real=({real_x}, {real_y}) image={image.shape[1]}x{image.shape[0]}",
+            color="red",
+        )
+        return False
+
+    b, g, r = image[real_y, real_x]
+    actual_color = (int(r), int(g), int(b))
+    f.log(
+        f"[TH DETECTOR] FIND pixel: base=({pixel[0]}, {pixel[1]}) "
+        f"real=({real_x}, {real_y}) actual RGB={actual_color} expected RGB={expected_color}"
+    )
+
     result = is_pixel_visible(image, pixel, expected_color)
     f.log(f"[TH DETECTOR] FIND pixel check -> {result}")
     return result
