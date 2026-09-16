@@ -6,6 +6,7 @@ Kept separate from the BB detector so TH can evolve independently.
 import func as f
 
 from TH_Bot import config_th, screen_layout_th
+from screen_utils import save_screenshot
 
 
 WAITING_FIND = "waiting_find"
@@ -108,6 +109,8 @@ def screen_detect(state):
     if image is None:
         f.log("[TH DETECTOR] screen_detect -> no screenshot", color="red")
         return None
+
+    save_screenshot(image, tag=f"th_{state}")
 
     if state == WAITING_FIND and is_find_button_visible(image):
         return FIND_DETECTED
