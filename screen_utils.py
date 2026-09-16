@@ -4,9 +4,46 @@ print(f">>> screen_utils.py  starting [{time.perf_counter():.3f}]")
 import time as t
 import cv2
 import numpy as np
+import os
 
 from adb_utils import screenshot, swipe
 from logger import log
+
+
+def save_screenshot(image, name: str = None, tag: str = None, timestamp: bool = True):
+    """
+    Guarda en disco una imagen ya capturada en memoria.
+
+    No realiza ninguna captura ADB.
+
+    Args:
+        image: Screenshot en memoria como numpy.ndarray (OpenCV/BGR).
+        name: Nombre base del fichero.
+        tag: Etiqueta opcional para mantener compatibilidad con screenshot().
+        timestamp: Añadir timestamp al nombre.
+
+    Returns:
+        str: Ruta del fichero guardado.
+        None: Si la imagen no es válida o no se pudo guardar.
+    """
+    if image is None:
+        return None
+
+    if name is None:
+        name = tag or "screen"
+
+    os.makedirs("screenshots", exist_ok=True)
+
+    if timestamp:
+        ts = t.strftime("%Y%m%d_%H%M%S")
+        filename = f"screenshots/{name}_{ts}.png"
+    else:
+        filename = f"screenshots/{name}.png"
+
+    if not cv2.imwrite(filename, image):
+        return None
+
+    return filename
 
 
 def wait_for_stable_screen(timeout=5):
