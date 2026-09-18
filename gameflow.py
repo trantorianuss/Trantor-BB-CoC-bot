@@ -45,21 +45,42 @@ def confirm_surrender():
     tap_scale(x, y)
 
 
+def wait_for_home_or_star_bonus():
+    """Wait until BB has reached Home or the Star Bonus screen."""
+    f.log("[GameFlow] Waiting for Home or Star Bonus...")
+
+    while botstate.should_run():
+        image = f.capture_screenshot()
+
+        if screen_detector.is_star_bonus_visible(image):
+            f.log("[GameFlow] Star Bonus detected.")
+            return "star_bonus"
+
+        if screen_detector.is_bb_home_visible(image):
+            f.log("[GameFlow] BB Home detected.")
+            return "home"
+
+        t.sleep(config.SCREEN_DETECT_DELAY)
+
+    return None
+
+
 def handle_star_bonus():
     """Handle the optional daily star bonus window after returning Home."""
-    image = f.capture_screenshot()
+    state = wait_for_home_or_star_bonus()
 
-    if screen_detector.is_star_bonus_visible(image):
-        f.log("[GameFlow] Star Bonus detected. Pressing button to continue.")
+    if state == "star_bonus":
+        f.log("[GameFlow] Pressing Star Bonus button.")
         x, y = screen_layout.STAR_BONUS_BUTTON
         tap_scale(x, y)
         t.sleep(1)
         return True
 
-    f.log("[GameFlow] No Star Bonus. Continuing.", debug=True)
+    if state == "home":
+        f.log("[GameFlow] No Star Bonus. Continuing.", debug=True)
+        return False
+
     return False
-
-
 def tap_return_home():
     tap_scale(*screen_layout.RETURN_HOME_BUTTON)
 
