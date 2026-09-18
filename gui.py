@@ -94,6 +94,7 @@ class BotInterface(ctk.CTk):
         )
         self.log_minimize_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
         self.log_minimized = False
+        self._normal_window_geometry = None
 
     def update_bot_status(self):
         status = botstate.get_status()
@@ -146,15 +147,29 @@ class BotInterface(ctk.CTk):
 
     def _toggle_log_view(self):
         if self.log_minimized:
+            if self._normal_window_geometry:
+                self.geometry(self._normal_window_geometry)
             self.log_frame.configure(height=0)
             self.log_frame.pack_configure(fill="both", expand=True)
             self.log_frame.pack_propagate(True)
             self.log_minimize_button.configure(text="Minimize Logs")
             self.log_minimized = False
         else:
-            self.log_frame.configure(height=50)
+            self.update_idletasks()
+            self._normal_window_geometry = self.geometry()
+
+            current_height = self.winfo_height()
+            log_height = self.log_frame.winfo_height()
+            minimized_log_height = 50
+            new_height = max(
+                current_height - log_height + minimized_log_height,
+                180,
+            )
+
+            self.log_frame.configure(height=minimized_log_height)
             self.log_frame.pack_configure(fill="x", expand=False)
             self.log_frame.pack_propagate(False)
+            self.geometry(f"{self.winfo_width()}x{new_height}")
             self.log_minimize_button.configure(text="Expand Logs")
             self.log_minimized = True
 
