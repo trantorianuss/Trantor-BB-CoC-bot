@@ -9,7 +9,7 @@ ctk.set_appearance_mode("dark")
 
 class BotInterface(ctk.CTk):
     def __init__(self, on_start_farm, on_stop, on_screenshot, on_recognize, on_buscar_carro, on_test, on_calibrar_zoom, on_calibrate, on_pixel_inspector):
-        super().__init__()
+        super().__init__(className="Trantor Bot")
 
         self.title("Trantor CoC Bot")
         self.geometry("400x500")

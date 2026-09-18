@@ -3,9 +3,9 @@
   "swipe_dy": 800,
   "attacks_min_per_cycle": 3,
   "attacks_max_per_cycle": 6,
-  "extra_troops_min": 3,
+  "extra_troops_min": 6,
   "extra_troops_max": 6,
-  "debug_mode": true,
+  "debug_mode": false,
   "attack_mode": "surrender",
   "bot_type": "BB"
 }
