@@ -58,11 +58,26 @@ def is_find_button_visible(image=None):
     )
 
 
+def is_bb_home_visible(image=None):
+    """Comprueba si la pantalla principal de BB está visible."""
+    if image is None:
+        image = f.capture_screenshot()
+
+    x, y = screen_layout.BB_HOME_PIXEL
+
+    return f.check_pixel_from_image(
+        image,
+        x,
+        y,
+        screen_layout.BB_HOME_COLOR,
+        tol=screen_layout.PIXEL_TOLERANCE,
+    )
+
+
 def is_star_bonus_visible(image=None):
     """Comprueba si aparece la ventana intermedia del bonus estelar.
 
-    Los valores de pixel son provisionales y deben calibrarse con una captura
-    real de la pantalla del bonus.
+    Los dos puntos deben coincidir para confirmar la pantalla.
     """
     if image is None:
         image = f.capture_screenshot()
