@@ -36,8 +36,8 @@ FIND_BUTTON_COLOR = (139, 212, 58)
 
 # Battle screen detection reference.
 # Calibrate from a pixel inside the Attacker / Defender text after FIND.
-ATTACK_SCREEN_PIXEL = None
-ATTACK_SCREEN_COLOR = None
+ATTACK_SCREEN_PIXEL = (111, 31)
+ATTACK_SCREEN_COLOR = (7, 7, 4)
 
 # Daily star bonus screen detection.
 STAR_BONUS_PIXEL = (855, 810)
