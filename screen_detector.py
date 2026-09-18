@@ -67,15 +67,25 @@ def is_star_bonus_visible(image=None):
     if image is None:
         image = f.capture_screenshot()
 
-    x, y = screen_layout.STAR_BONUS_PIXEL
+    x1, y1 = screen_layout.STAR_BONUS_PIXEL_1
+    x2, y2 = screen_layout.STAR_BONUS_PIXEL_2
 
-    return f.check_pixel_from_image(
+    first_match = f.check_pixel_from_image(
         image,
-        x,
-        y,
-        screen_layout.STAR_BONUS_COLOR,
+        x1,
+        y1,
+        screen_layout.STAR_BONUS_COLOR_1,
         tol=screen_layout.PIXEL_TOLERANCE,
     )
+    second_match = f.check_pixel_from_image(
+        image,
+        x2,
+        y2,
+        screen_layout.STAR_BONUS_COLOR_2,
+        tol=screen_layout.PIXEL_TOLERANCE,
+    )
+
+    return first_match and second_match
 
 
 def screen_detect(state):
