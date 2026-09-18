@@ -44,6 +44,9 @@ BB_HOME_PIXEL = (109, 28)
 BB_HOME_COLOR = (63, 197, 243)
 
 # Daily star bonus screen detection.
-STAR_BONUS_PIXEL = (855, 810)
-STAR_BONUS_COLOR = (187, 233, 135)
-STAR_BONUS_BUTTON = (855, 810)
+# Two reference points must match to confirm the bonus screen.
+STAR_BONUS_PIXEL_1 = (639, 433)
+STAR_BONUS_COLOR_1 = (39, 62, 168)
+STAR_BONUS_PIXEL_2 = (861, 849)
+STAR_BONUS_COLOR_2 = (139, 212, 58)
+STAR_BONUS_BUTTON = (861, 849)
