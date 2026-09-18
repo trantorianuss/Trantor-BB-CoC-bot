@@ -159,6 +159,9 @@ class BotInterface(ctk.CTk):
             self._normal_window_geometry = self.geometry()
 
             current_height = self.winfo_height()
+            current_width = self.winfo_width()
+            current_x = self.winfo_x()
+            current_y = self.winfo_y()
             log_height = self.log_frame.winfo_height()
             minimized_log_height = 50
             new_height = max(
@@ -169,7 +172,7 @@ class BotInterface(ctk.CTk):
             self.log_frame.configure(height=minimized_log_height)
             self.log_frame.pack_configure(fill="x", expand=False)
             self.log_frame.pack_propagate(False)
-            self.geometry(f"{self.winfo_width()}x{new_height}")
+            self.geometry(f"{current_width}x{new_height}+{current_x}+{current_y}")
             self.log_minimize_button.configure(text="Expand Logs")
             self.log_minimized = True
 
