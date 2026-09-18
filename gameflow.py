@@ -4,7 +4,6 @@ print(f">>> gameflow.py  starting [{time.perf_counter():.3f}]")
 import time as t
 import func as f
 import attacks as a
-#import elixir_cart
 import cart_calibration
 
 import botstate
@@ -15,6 +14,7 @@ from func import tap_scale
 import settings
 import screen_layout
 import screen_detector
+import config
 
 
 def tap_surrender_button():
@@ -61,9 +61,28 @@ def handle_star_bonus():
 
 
 def tap_return_home():
-    x = random.randint(850, 1065)
-    y = random.randint(875, 950)
-    tap_scale(x, y)
+    tap_scale(*screen_layout.RETURN_HOME_BUTTON)
+
+
+def wait_for_attack_screen():
+    """Wait until the post-FIND attack screen is actually visible."""
+    if screen_layout.ATTACK_SCREEN_PIXEL is None or screen_layout.ATTACK_SCREEN_COLOR is None:
+        f.log("[GameFlow] Attack screen pixel is not calibrated.", color="red")
+        return False
+
+    f.log("[GameFlow] Waiting for attack screen...")
+    while botstate.should_run():
+        image = f.capture_screenshot()
+        if f.check_pixel_from_image(
+            image,
+            *screen_layout.ATTACK_SCREEN_PIXEL,
+            screen_layout.ATTACK_SCREEN_COLOR,
+            tol=screen_layout.PIXEL_TOLERANCE,
+        ):
+            f.log("[GameFlow] Attack screen detected.")
+            return True
+        t.sleep(config.SCREEN_DETECT_DELAY)
+    return False
 
 
 def collect_pink_elixir():
@@ -124,27 +143,16 @@ def get_elixir_level():
         f.log(f"[Elixir] Checking level: {level} (pos={x},{y})", debug=True)
         if x is None or y is None:
             continue
-        if f.check_pixel_from_image(
-            image,
-            x,
-            y,
-            screen_layout.ELIXIR_COLOR,
-            tol=screen_layout.PIXEL_TOLERANCE,
-        ):
+        if f.check_pixel_from_image(image, x, y, screen_layout.ELIXIR_COLOR, tol=screen_layout.PIXEL_TOLERANCE):
             f.log(f"[Elixir] Level detected: {level} (pos={x},{y})")
             return level
 
     screenshot_path = f.screenshot("elixir_detection_failed")
-    f.log(
-        f"[Elixir] No level detected. Screenshot saved: {screenshot_path}",
-        color="red",
-        category="detection",
-    )
+    f.log(f"[Elixir] No level detected. Screenshot saved: {screenshot_path}", color="red", category="detection")
     return None
 
 
 def get_gold_level():
-    """Detect the current gold level using the four configured pixel points."""
     levels = (
         ("FULL", screen_layout.GOLD_FULL_PIXEL),
         ("75%", screen_layout.GOLD_75_PIXEL),
@@ -158,22 +166,12 @@ def get_gold_level():
         f.log(f"[Gold] Checking level: {level} (pos={x},{y})", debug=True)
         if x is None or y is None:
             continue
-        if f.check_pixel_from_image(
-            image,
-            x,
-            y,
-            screen_layout.GOLD_COLOR,
-            tol=screen_layout.PIXEL_TOLERANCE,
-        ):
+        if f.check_pixel_from_image(image, x, y, screen_layout.GOLD_COLOR, tol=screen_layout.PIXEL_TOLERANCE):
             f.log(f"[Gold] Level detected: {level} (pos={x},{y})")
             return level
 
     screenshot_path = f.screenshot("gold_detection_failed")
-    f.log(
-        f"[Gold] No level detected. Screenshot saved: {screenshot_path}",
-        color="red",
-        category="detection",
-    )
+    f.log(f"[Gold] No level detected. Screenshot saved: {screenshot_path}", color="red", category="detection")
     return None
 
 
@@ -183,17 +181,11 @@ def is_elixir_full():
 
 
 def resources_full(attack_mode):
-    """Return True when the resources required by the selected mode are full."""
     elixir_full = is_elixir_full()
-
     if attack_mode == "surrender":
         return elixir_full
-
     gold_full = get_gold_level() == "FULL"
-    f.log(
-        f"[Resources] Full Attack: Elixir FULL={elixir_full}, Gold FULL={gold_full}",
-        debug=True,
-    )
+    f.log(f"[Resources] Full Attack: Elixir FULL={elixir_full}, Gold FULL={gold_full}", debug=True)
     return elixir_full and gold_full
 
 
@@ -201,15 +193,17 @@ def find_match():
     f.log("[GameFlow] Searching for village…")
     t.sleep(2)
     f.log("Pressing Attack", category="Find")
-    tap_scale(100, 1000)
+    tap_scale(*screen_layout.ATTACK_BUTTON)
     machine_state.set_state(machine_state.WAITING_FIND)
     while botstate.should_run():
         find_ready = screen_detector.is_find_button_visible()
         f.log(f"FIND ready: {find_ready}", debug=True, color="magenta", category="detection")
         if find_ready:
             f.log("Pressing Find")
-            tap_scale(1375, 650)
-            t.sleep(5)
+            tap_scale(*screen_layout.FIND_BUTTON)
+            machine_state.set_state(machine_state.WAITING_ATTACK_SCREEN)
+            if not wait_for_attack_screen():
+                return False
             machine_state.set_state(machine_state.ATTACKING)
             return True
         f.log("Warning: FIND button not detected. Waiting…", color="red", category="detection")
@@ -274,7 +268,6 @@ def perform_attack(attempt_label, attack_mode, total_attacks=None):
 
 
 def farm_until_full(attacks_per_cycle=None):
-    # Capture the selected attack mode once for the whole farming cycle.
     attack_mode = settings.get_attack_mode()
     f.log(f">>> Attack mode fixed for cycle: {attack_mode} <<<")
 
