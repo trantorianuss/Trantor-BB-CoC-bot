@@ -39,6 +39,10 @@ FIND_BUTTON_COLOR = (139, 212, 58)
 ATTACK_SCREEN_PIXEL = (104, 33)
 ATTACK_SCREEN_COLOR = (255, 255, 153)
 
+# BB Home screen detection reference.
+BB_HOME_PIXEL = (109, 28)
+BB_HOME_COLOR = (63, 197, 243)
+
 # Daily star bonus screen detection.
 STAR_BONUS_PIXEL = (855, 810)
 STAR_BONUS_COLOR = (187, 233, 135)
