@@ -96,6 +96,9 @@ class BotInterface(ctk.CTk):
         self.log_minimized = False
         self._normal_window_geometry = None
 
+        # Recalculate the log area whenever the main window is resized manually.
+        self.bind("<Configure>", self._on_window_resize)
+
     def update_bot_status(self):
         status = botstate.get_status()
         if status == botstate.RUNNING:
@@ -144,6 +147,18 @@ class BotInterface(ctk.CTk):
     def _toggle_autoscroll(self):
         if self.autoscroll_switch.get() == 1:
             self.tk_log.see("end")
+
+    def _on_window_resize(self, event):
+        if event.widget != self:
+            return
+
+        # Ignore geometry changes triggered by our own minimize/restore operation.
+        if self.log_minimized:
+            return
+
+        # The log area expands/contracts with the window; the controls frame stays
+        # at the bottom because the log frame is the expanding pack widget.
+        self.log_frame.pack_configure(fill="both", expand=True)
 
     def _toggle_log_view(self):
         if self.log_minimized:
