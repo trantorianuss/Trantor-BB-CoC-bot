@@ -4,6 +4,7 @@ Kept separate from the BB detector so TH can evolve independently.
 """
 
 import func as f
+import logger as l
 
 from TH_Bot import config_th, screen_layout_th
 from screen_utils import save_screenshot
@@ -50,46 +51,47 @@ def is_find_button_visible(image):
         real_x, real_y = pixel
 
     if not (0 <= real_y < image.shape[0] and 0 <= real_x < image.shape[1]):
-        f.log(
-            f"[TH DETECTOR] FIND pixel out of bounds: base=({pixel[0]}, {pixel[1]}) "
+        l.log(
+            f"FIND pixel out of bounds: base=({pixel[0]}, {pixel[1]}) "
             f"real=({real_x}, {real_y}) image={image.shape[1]}x{image.shape[0]}",
-            color="red",
+            color="red", debug=True, category="detection"
         )
         return False
 
     b, g, r = image[real_y, real_x]
     actual_color = (int(r), int(g), int(b))
-    f.log(
-        f"[TH DETECTOR] FIND pixel: base=({pixel[0]}, {pixel[1]}) "
-        f"real=({real_x}, {real_y}) actual RGB={actual_color} expected RGB={expected_color}"
+    l.log(
+        f"FIND pixel: base=({pixel[0]}, {pixel[1]}) "
+        f"real=({real_x}, {real_y}) actual RGB={actual_color} expected RGB={expected_color}",
+        debug=True, category="detection"
     )
 
     result = is_pixel_visible(image, pixel, expected_color)
-    f.log(f"[TH DETECTOR] FIND pixel check -> {result}")
+    l.log(f"FIND pixel check -> {result}", category="detection")
     return result
 
 
 def is_next_button_visible(image):
     result = is_pixel_visible(image, screen_layout_th.NEXT_BUTTON_PIXEL, screen_layout_th.NEXT_BUTTON_COLOR)
-    f.log(f"[TH DETECTOR] NEXT pixel check -> {result}")
+    l.log(f"NEXT pixel check -> {result}", debug=True, category="detection")
     return result
 
 
 def is_claim_reward_button_visible(image):
     result = is_pixel_visible(image, screen_layout_th.CLAIM_REWARD_BUTTON_PIXEL, screen_layout_th.CLAIM_REWARD_BUTTON_COLOR)
-    f.log(f"[TH DETECTOR] Claim Reward pixel check -> {result}")
+    l.log(f"Claim Reward pixel check -> {result}", debug=True, category="detection")
     return result
 
 
 def is_claim_reward_continue_visible(image):
     result = is_pixel_visible(image, screen_layout_th.CLAIM_REWARD_CONTINUE_PIXEL, screen_layout_th.CLAIM_REWARD_CONTINUE_COLOR)
-    f.log(f"[TH DETECTOR] Claim Reward Continue pixel check -> {result}")
+    l.log(f"Claim Reward Continue pixel check -> {result}", debug=True, category="detection")
     return result
 
 
 def is_return_home_button_visible(image):
     result = is_pixel_visible(image, screen_layout_th.RETURN_HOME_BUTTON_PIXEL, screen_layout_th.RETURN_HOME_BUTTON_COLOR)
-    f.log(f"[TH DETECTOR] Return Home pixel check -> {result}")
+    l.log(f"Return Home pixel check -> {result}", debug=True, category="detection")
     return result
 
 
@@ -106,7 +108,7 @@ def is_star_bonus_visible(image):
         screen_layout_th.STAR_BONUS_COLOR_2,
     )
     result = pixel_1 and pixel_2
-    f.log(f"[TH DETECTOR] Star Bonus pixels -> {pixel_1}, {pixel_2} => {result}")
+    l.log(f"Star Bonus pixels -> {pixel_1}, {pixel_2} => {result}", debug=True, category="detection")
     return result
 
 
@@ -123,16 +125,16 @@ def is_home_visible(image):
         screen_layout_th.HOME_COLOR_2,
     )
     result = pixel_1 and pixel_2
-    f.log(f"[TH DETECTOR] HOME pixels -> {pixel_1}, {pixel_2} => {result}")
+    l.log(f"HOME pixels -> {pixel_1}, {pixel_2} => {result}", debug=True, category="detection")
     return result
 
 
 def screen_detect(state):
-    f.log(f"[TH DETECTOR] screen_detect(state={state}) -> capturing screenshot")
+    f.log(f"screen_detect(state={state}) -> capturing screenshot", debug=True, category="detection")
     image = f.capture_screenshot()
-    f.log("[TH DETECTOR] screen_detect -> screenshot received")
+    f.log("screen_detect -> screenshot received", debug=True, category="detection")
     if image is None:
-        f.log("[TH DETECTOR] screen_detect -> no screenshot", color="red")
+        f.log("screen_detect -> no screenshot", color="red", debug=True, category="detection")
         return None
 
     save_screenshot(image, tag=f"th_{state}")
