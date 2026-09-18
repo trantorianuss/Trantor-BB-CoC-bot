@@ -86,6 +86,15 @@ class BotInterface(ctk.CTk):
         self.autoscroll_switch.select()
         self.autoscroll_switch.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
+        self.log_minimize_button = ctk.CTkButton(
+            self.log_controls_frame,
+            text="Minimize Logs",
+            width=110,
+            command=self._toggle_log_view,
+        )
+        self.log_minimize_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
+        self.log_minimized = False
+
     def update_bot_status(self):
         status = botstate.get_status()
         if status == botstate.RUNNING:
@@ -134,6 +143,21 @@ class BotInterface(ctk.CTk):
     def _toggle_autoscroll(self):
         if self.autoscroll_switch.get() == 1:
             self.tk_log.see("end")
+
+    def _toggle_log_view(self):
+        if self.log_minimized:
+            self.log_frame.pack_forget()
+            self.log_frame.pack(fill="both", expand=True, padx=10, pady=10)
+            self.log_frame.pack_propagate(True)
+            self.log_minimize_button.configure(text="Minimize Logs")
+            self.log_minimized = False
+        else:
+            self.log_frame.pack_forget()
+            self.log_frame.configure(height=50)
+            self.log_frame.pack(fill="x", padx=10, pady=10)
+            self.log_frame.pack_propagate(False)
+            self.log_minimize_button.configure(text="Expand Logs")
+            self.log_minimized = True
 
     def _on_farm_button_click(self):
         if botstate.get_status() == botstate.RUNNING:
