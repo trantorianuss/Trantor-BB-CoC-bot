@@ -73,10 +73,19 @@ def wait_for_attack_screen():
     f.log("[GameFlow] Waiting for attack screen...")
     while botstate.should_run():
         image = f.capture_screenshot()
+        x, y = screen_layout.ATTACK_SCREEN_PIXEL
+        found_color = f.get_pixel_from_image(image, x, y)
+        expected_color = screen_layout.ATTACK_SCREEN_COLOR
+        f.log(
+            f"[GameFlow] Attack screen pixel: found={found_color}, expected={expected_color}",
+            debug=True,
+            category="detector",
+        )
         if f.check_pixel_from_image(
             image,
-            *screen_layout.ATTACK_SCREEN_PIXEL,
-            screen_layout.ATTACK_SCREEN_COLOR,
+            x,
+            y,
+            expected_color,
             tol=screen_layout.PIXEL_TOLERANCE,
         ):
             f.log("[GameFlow] Attack screen detected.")
