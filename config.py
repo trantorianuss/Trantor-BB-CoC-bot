@@ -24,6 +24,9 @@ ADB_PATH = "adb"
 
 DROP_RADIUS_FACTOR = 0.70  # used to calculate the drop radius based on the maximum distance from the center of the blob
 
+# BB screen detection polling interval
+SCREEN_DETECT_DELAY = 0.5
+
 # ------------------------------------------------------------
 # Debug
 # ------------------------------------------------------------
