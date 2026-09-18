@@ -147,21 +147,25 @@ class BotInterface(ctk.CTk):
 
     def _toggle_log_view(self):
         if self.log_minimized:
-            if self._normal_window_geometry:
-                self.geometry(self._normal_window_geometry)
+            # Restore the log area and the previous window height.
             self.log_frame.configure(height=0)
             self.log_frame.pack_configure(fill="both", expand=True)
             self.log_frame.pack_propagate(True)
+
+            if self._normal_window_geometry:
+                normal_width, normal_height = self._normal_window_geometry.split("+", 1)[0].split("x")
+                self.geometry(f"{normal_width}x{normal_height}")
+
             self.log_minimize_button.configure(text="Minimize Logs")
             self.log_minimized = False
         else:
             self.update_idletasks()
-            self._normal_window_geometry = self.geometry()
+
+            # Keep only the normal size. Do not read or set the window position.
+            self._normal_window_geometry = f"{self.winfo_width()}x{self.winfo_height()}"
 
             current_height = self.winfo_height()
             current_width = self.winfo_width()
-            current_x = self.winfo_x()
-            current_y = self.winfo_y()
             log_height = self.log_frame.winfo_height()
             minimized_log_height = 50
             new_height = max(
@@ -172,7 +176,11 @@ class BotInterface(ctk.CTk):
             self.log_frame.configure(height=minimized_log_height)
             self.log_frame.pack_configure(fill="x", expand=False)
             self.log_frame.pack_propagate(False)
-            self.geometry(f"{current_width}x{new_height}+{current_x}+{current_y}")
+
+            # Under Wayland, request only the new size.
+            # The compositor owns the window position.
+            self.geometry(f"{current_width}x{new_height}")
+
             self.log_minimize_button.configure(text="Expand Logs")
             self.log_minimized = True
 
