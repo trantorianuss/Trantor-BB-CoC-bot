@@ -146,15 +146,14 @@ class BotInterface(ctk.CTk):
 
     def _toggle_log_view(self):
         if self.log_minimized:
-            self.log_frame.pack_forget()
-            self.log_frame.pack(fill="both", expand=True, padx=10, pady=10)
+            self.log_frame.configure(height=0)
+            self.log_frame.pack_configure(fill="both", expand=True)
             self.log_frame.pack_propagate(True)
             self.log_minimize_button.configure(text="Minimize Logs")
             self.log_minimized = False
         else:
-            self.log_frame.pack_forget()
             self.log_frame.configure(height=50)
-            self.log_frame.pack(fill="x", padx=10, pady=10)
+            self.log_frame.pack_configure(fill="x", expand=False)
             self.log_frame.pack_propagate(False)
             self.log_minimize_button.configure(text="Expand Logs")
             self.log_minimized = True
