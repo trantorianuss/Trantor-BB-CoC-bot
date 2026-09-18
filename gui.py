@@ -86,6 +86,19 @@ class BotInterface(ctk.CTk):
         self.autoscroll_switch.select()
         self.autoscroll_switch.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
+        self.log_minimize_button = ctk.CTkButton(
+            self.log_controls_frame,
+            text="Minimize Logs",
+            width=110,
+            command=self._toggle_log_view,
+        )
+        self.log_minimize_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
+        self.log_minimized = False
+        self._normal_window_geometry = None
+
+        # Recalculate the log area whenever the main window is resized manually.
+        self.bind("<Configure>", self._on_window_resize)
+
     def update_bot_status(self):
         status = botstate.get_status()
         if status == botstate.RUNNING:
@@ -134,6 +147,57 @@ class BotInterface(ctk.CTk):
     def _toggle_autoscroll(self):
         if self.autoscroll_switch.get() == 1:
             self.tk_log.see("end")
+
+    def _on_window_resize(self, event):
+        if event.widget != self:
+            return
+
+        # Ignore geometry changes triggered by our own minimize/restore operation.
+        if self.log_minimized:
+            return
+
+        # The log area expands/contracts with the window; the controls frame stays
+        # at the bottom because the log frame is the expanding pack widget.
+        self.log_frame.pack_configure(fill="both", expand=True)
+
+    def _toggle_log_view(self):
+        if self.log_minimized:
+            # Restore the log area and the previous window height.
+            self.log_frame.configure(height=0)
+            self.log_frame.pack_configure(fill="both", expand=True)
+            self.log_frame.pack_propagate(True)
+
+            if self._normal_window_geometry:
+                normal_width, normal_height = self._normal_window_geometry.split("+", 1)[0].split("x")
+                self.geometry(f"{normal_width}x{normal_height}")
+
+            self.log_minimize_button.configure(text="Minimize Logs")
+            self.log_minimized = False
+        else:
+            self.update_idletasks()
+
+            # Keep only the normal size. Do not read or set the window position.
+            self._normal_window_geometry = f"{self.winfo_width()}x{self.winfo_height()}"
+
+            current_height = self.winfo_height()
+            current_width = self.winfo_width()
+            log_height = self.log_frame.winfo_height()
+            minimized_log_height = 50
+            new_height = max(
+                current_height - log_height + minimized_log_height,
+                180,
+            )
+
+            self.log_frame.configure(height=minimized_log_height)
+            self.log_frame.pack_configure(fill="x", expand=False)
+            self.log_frame.pack_propagate(False)
+
+            # Under Wayland, request only the new size.
+            # The compositor owns the window position.
+            self.geometry(f"{current_width}x{new_height}")
+
+            self.log_minimize_button.configure(text="Expand Logs")
+            self.log_minimized = True
 
     def _on_farm_button_click(self):
         if botstate.get_status() == botstate.RUNNING:
