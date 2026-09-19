@@ -13,6 +13,7 @@ import settings
 import state_calibration
 import vision
 import coords
+import adb_utils
 import elixir_cart
 import logger as l
 import telegram
@@ -168,6 +169,7 @@ l.log("  Clash of Clans Trantor Bot", telegram=True)
 l.log("  Initializing application...", telegram=True)
 
 f.cleanup_screenshots()
+adb_utils.connect_adb()
 coords.initialize()
 th_strategies.load_attack_config()
 telegram.start_status_thread()
