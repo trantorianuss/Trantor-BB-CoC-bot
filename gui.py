@@ -72,24 +72,6 @@ class BotInterface(ctk.CTk):
         self.label_bot_status_indicator = ctk.CTkLabel(self.top_frame, text="●", font=ctk.CTkFont(size=18))
         self.label_bot_status_indicator.grid(row=1, column=0, padx=(5, 0), pady=(0, 5), sticky="e")
 
-        self.bot_type_switch = ctk.CTkSwitch(
-            self.top_frame,
-            text="BB / TH",
-            onvalue="TH",
-            offvalue="BB",
-            command=self._on_bot_type_change,
-        )
-
-        self.bot_type_switch.configure(
-            fg_color=self.bot_type_switch.cget("progress_color")
-        )
-
-        if settings.get_bot_type() == "TH":
-            self.bot_type_switch.select()
-        else:
-            self.bot_type_switch.deselect()
-        self.bot_type_switch.grid(row=1, column=3, padx=5, pady=(0, 5), sticky="e")
-
         self.log_frame = ctk.CTkFrame(self)
         self.log_frame.pack(fill="both", expand=True, padx=10, pady=10)
         self.log_textbox = ctk.CTkTextbox(self.log_frame, wrap="word")
@@ -135,7 +117,6 @@ class BotInterface(ctk.CTk):
                 hover_color="#b91c1c",
                 state="normal",
             )
-            self.bot_type_switch.configure(state="disabled")
             self.bot_type_segmented.configure(state="disabled")
         elif status == botstate.STOPPING:
             self.label_bot_status_indicator.configure(text_color="orange")
@@ -146,7 +127,6 @@ class BotInterface(ctk.CTk):
                 hover_color="#d97706",
                 state="disabled",
             )
-            self.bot_type_switch.configure(state="disabled")
             self.bot_type_segmented.configure(state="disabled")
         else:
             self.label_bot_status_indicator.configure(text_color="red")
@@ -158,7 +138,6 @@ class BotInterface(ctk.CTk):
                 hover_color="#15803d",
                 state="normal",
             )
-            self.bot_type_switch.configure(state="normal")
             self.bot_type_segmented.configure(state="normal")
             self.bot_type_segmented.set(bot_type)
 
@@ -166,7 +145,8 @@ class BotInterface(ctk.CTk):
         def append():
             textbox = self.tk_log
             textbox.configure(state="normal")
-            textbox.insert("end", formatted_message + "\n", (color, "spacing"))
+            textbox.insert("end", formatted_message + "
+", (color, "spacing"))
             if self.autoscroll_switch.get() == 1:
                 textbox.see("end")
             textbox.configure(state="disabled")
@@ -227,18 +207,8 @@ class BotInterface(ctk.CTk):
         else:
             self._pre_start_farm()
 
-    def _on_bot_type_change(self, choice=None):
-        if choice is None:
-            choice = self.bot_type_switch.get()
-
+    def _on_bot_type_change(self, choice):
         settings.set_bot_type(choice)
-
-        if choice == "TH":
-            self.bot_type_switch.select()
-        else:
-            self.bot_type_switch.deselect()
-
-        self.bot_type_segmented.set(choice)
 
         if botstate.get_status() != botstate.RUNNING and botstate.get_status() != botstate.STOPPING:
             self.button_Farm.configure(
