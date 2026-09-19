@@ -36,8 +36,8 @@ class BotInterface(ctk.CTk):
         self.top_frame.columnconfigure(2, weight=4)
         self.top_frame.columnconfigure(3, weight=1)
 
-        self.button_Farm = ctk.CTkButton(self.top_frame, text="Start BB", fg_color="#16a34a", hover_color="#15803d", command=self._on_farm_button_click)
-        self.button_Farm.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
+        self.button_Farm = ctk.CTkButton(self.top_frame, text="Start BB", width=140, fg_color="#16a34a", hover_color="#15803d", command=self._on_farm_button_click)
+        self.button_Farm.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky="w")
         self.button_side_panel = ctk.CTkButton(self.top_frame, text="☰ ", width=40, command=self._show_side_panel)
         self.button_side_panel.grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
