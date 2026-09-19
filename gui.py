@@ -140,6 +140,7 @@ class BotInterface(ctk.CTk):
             )
             self.bot_type_segmented.configure(state="normal")
             self.bot_type_segmented.set(bot_type)
+        self.after(500, self.update_bot_status)
 
     def log(self, formatted_message, color="default"):
         def append():
