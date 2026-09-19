@@ -6,10 +6,11 @@ import config
 
 ctk.set_appearance_mode("dark")
 
-def create_segmented(parent):
+
+def create_bot_type_segmented(parent, command):
     widget = ctk.CTkSegmentedButton(
         parent,
-        values=["TH", "BB"],
+        values=["BB", "TH"],
         width=82,
         height=26,
         selected_color="#2563eb",
@@ -18,8 +19,9 @@ def create_segmented(parent):
         unselected_hover_color="#2a2a30",
         text_color="#ffffff",
         font=ctk.CTkFont(size=11, weight="bold"),
-        command=lambda value: print(f"Segmented: {value}")
+        command=command,
     )
+    return widget
 
 
 class BotInterface(ctk.CTk):
@@ -51,8 +53,12 @@ class BotInterface(ctk.CTk):
         self.top_frame.columnconfigure(2, weight=4)
         self.top_frame.columnconfigure(3, weight=1)
 
-        self.segmented = ctk.CTkSegmentedButton(self.top_frame, values=["TH", "BB"], width=82, height=26)
-        self.segmented.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        self.bot_type_segmented = create_bot_type_segmented(
+            self.top_frame,
+            self._on_bot_type_change,
+        )
+        self.bot_type_segmented.set(settings.get_bot_type())
+        self.bot_type_segmented.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         self.button_Farm = ctk.CTkButton(self.top_frame, text="Start BB ▶", width=100, fg_color="#16a34a", hover_color="#15803d", command=self._on_farm_button_click)
         self.button_Farm.grid(row=0, column=2, padx=5, pady=5, sticky="w")
@@ -77,7 +83,7 @@ class BotInterface(ctk.CTk):
         self.bot_type_switch.configure(
             fg_color=self.bot_type_switch.cget("progress_color")
         )
-        
+
         if settings.get_bot_type() == "TH":
             self.bot_type_switch.select()
         else:
@@ -116,7 +122,6 @@ class BotInterface(ctk.CTk):
         self.log_minimized = False
         self._normal_window_geometry = None
 
-        # Recalculate the log area whenever the main window is resized manually.
         self.bind("<Configure>", self._on_window_resize)
 
     def update_bot_status(self):
@@ -131,6 +136,7 @@ class BotInterface(ctk.CTk):
                 state="normal",
             )
             self.bot_type_switch.configure(state="disabled")
+            self.bot_type_segmented.configure(state="disabled")
         elif status == botstate.STOPPING:
             self.label_bot_status_indicator.configure(text_color="orange")
             self.label_bot_status.configure(text="Stopping")
@@ -141,6 +147,7 @@ class BotInterface(ctk.CTk):
                 state="disabled",
             )
             self.bot_type_switch.configure(state="disabled")
+            self.bot_type_segmented.configure(state="disabled")
         else:
             self.label_bot_status_indicator.configure(text_color="red")
             self.label_bot_status.configure(text="Stopped")
@@ -152,7 +159,8 @@ class BotInterface(ctk.CTk):
                 state="normal",
             )
             self.bot_type_switch.configure(state="normal")
-        self.after(500, self.update_bot_status)
+            self.bot_type_segmented.configure(state="normal")
+            self.bot_type_segmented.set(bot_type)
 
     def log(self, formatted_message, color="default"):
         def append():
@@ -219,11 +227,23 @@ class BotInterface(ctk.CTk):
         else:
             self._pre_start_farm()
 
-    def _on_bot_type_change(self):
-        bot_type = self.bot_type_switch.get()
-        settings.set_bot_type(bot_type)
+    def _on_bot_type_change(self, choice=None):
+        if choice is None:
+            choice = self.bot_type_switch.get()
+
+        settings.set_bot_type(choice)
+
+        if choice == "TH":
+            self.bot_type_switch.select()
+        else:
+            self.bot_type_switch.deselect()
+
+        self.bot_type_segmented.set(choice)
+
         if botstate.get_status() != botstate.RUNNING and botstate.get_status() != botstate.STOPPING:
-            self.button_Farm.configure(text="Start TH ▶" if bot_type == "TH" else "Start BB ▶")
+            self.button_Farm.configure(
+                text="Start TH ▶" if choice == "TH" else "Start BB ▶"
+            )
 
     def _on_attack_mode_change(self, choice):
         settings.set_attack_mode(choice)
