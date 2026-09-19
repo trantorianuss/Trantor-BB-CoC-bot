@@ -80,6 +80,10 @@ class BotInterface(ctk.CTk):
 
         self.log_controls_frame = ctk.CTkFrame(self)
         self.log_controls_frame.pack(fill="x", padx=10, pady=(0, 10))
+
+        # Empty expanding space used while logs are minimized so the
+        # bottom controls remain anchored to the bottom of the window.
+        self.log_minimize_spacer = ctk.CTkFrame(self, fg_color="transparent")
         self.log_controls_frame.columnconfigure(0, weight=1)
 
         self.autoscroll_switch = ctk.CTkCheckBox(self.log_controls_frame, text="Auto Scroll", command=self._toggle_autoscroll)
@@ -88,8 +92,8 @@ class BotInterface(ctk.CTk):
 
         self.log_minimize_button = ctk.CTkButton(
             self.log_controls_frame,
-            text="Minimize Logs",
-            width=110,
+            text="▼",
+            width=40,
             command=self._toggle_log_view,
         )
         self.log_minimize_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
@@ -152,12 +156,16 @@ class BotInterface(ctk.CTk):
         if event.widget != self:
             return
 
-        # Ignore geometry changes triggered by our own minimize/restore operation.
         if self.log_minimized:
+            # Keep the log area compact while the transparent spacer absorbs
+            # any extra window height, keeping the controls at the bottom.
+            self.log_frame.pack_configure(fill="x", expand=False)
+            self.log_minimize_spacer.pack_configure(fill="both", expand=True)
             return
 
         # The log area expands/contracts with the window; the controls frame stays
         # at the bottom because the log frame is the expanding pack widget.
+        self.log_minimize_spacer.pack_forget()
         self.log_frame.pack_configure(fill="both", expand=True)
 
     def _toggle_log_view(self):
@@ -171,7 +179,8 @@ class BotInterface(ctk.CTk):
                 normal_width, normal_height = self._normal_window_geometry.split("+", 1)[0].split("x")
                 self.geometry(f"{normal_width}x{normal_height}")
 
-            self.log_minimize_button.configure(text="Minimize Logs")
+            self.log_minimize_spacer.pack_forget()
+            self.log_minimize_button.configure(text="▼")
             self.log_minimized = False
         else:
             self.update_idletasks()
@@ -192,11 +201,14 @@ class BotInterface(ctk.CTk):
             self.log_frame.pack_configure(fill="x", expand=False)
             self.log_frame.pack_propagate(False)
 
+            # Let the spacer absorb extra height so the controls stay at the bottom.
+            self.log_minimize_spacer.pack(fill="both", expand=True, before=self.log_controls_frame)
+
             # Under Wayland, request only the new size.
             # The compositor owns the window position.
             self.geometry(f"{current_width}x{new_height}")
 
-            self.log_minimize_button.configure(text="Expand Logs")
+            self.log_minimize_button.configure(text="▲")
             self.log_minimized = True
 
     def _on_farm_button_click(self):
