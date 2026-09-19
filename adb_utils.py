@@ -32,6 +32,59 @@ def adb(cmd_rest):
 
     return result.stdout.strip()
 
+def connect_adb():
+    """
+    Intenta conectar con el dispositivo ADB configurado y verifica que
+    realmente está disponible.
+
+    Para destinos TCP/IP (IP:puerto) ejecuta primero 'adb connect'.
+    Para emuladores locales, como 'emulator-5554', sólo verifica el estado.
+
+    Returns:
+        bool: True si el dispositivo está conectado y disponible.
+    """
+    target = config.ADB_PORT
+
+    try:
+        # Los destinos con formato IP:puerto necesitan un 'adb connect'.
+        if ":" in target:
+            result = subprocess.run(
+                [config.ADB_PATH, "connect", target],
+                capture_output=True,
+                text=True,
+            )
+            log(
+                f"[ADB] connect {target}: "
+                f"{result.stdout.strip() or result.stderr.strip()}",
+                debug=True,
+                category="adb",
+            )
+
+        # Verificación real: ADB debe reconocer el dispositivo como 'device'.
+        result = subprocess.run(
+            [config.ADB_PATH, "-s", target, "get-state"],
+            capture_output=True,
+            text=True,
+        )
+
+        connected = result.returncode == 0 and result.stdout.strip() == "device"
+
+        if connected:
+            log(f"[ADB] Connected: {target}", category="adb")
+        else:
+            log(
+                f"[ADB] Connection failed: "
+                f"{result.stderr.strip() or result.stdout.strip()}",
+                category="adb",
+            )
+
+        return connected
+
+    except Exception as exc:
+        log(f"[ADB] Connection error: {exc}", category="adb")
+        return False
+
+
 def get_real_resolution():
     out = adb("wm size")
     if not out:
