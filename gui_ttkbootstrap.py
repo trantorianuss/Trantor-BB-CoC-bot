@@ -123,7 +123,7 @@ class BotInterface(ttk.Window):
             self.label_bot_status.configure(text="Stopped")
             bot_type = settings.get_bot_type()
             self.button_Farm.configure(
-                text="Start TH" if bot_type == "TH" else "Start BB",
+                text="Start TH ▶" if bot_type == "TH" else "Start BB ▶",
                 bootstyle="success",
                 state="normal",
             )
@@ -151,7 +151,7 @@ class BotInterface(ttk.Window):
         bot_type = "TH" if self.bot_type_switch.instate(["selected"]) else "BB"
         settings.set_bot_type(bot_type)
         if botstate.get_status() not in (botstate.RUNNING, botstate.STOPPING):
-            self.button_Farm.configure(text="Start TH" if bot_type == "TH" else "Start BB")
+            self.button_Farm.configure(text="Start TH ▶" if bot_type == "TH" else "Start BB ▶")
 
     def _pre_start_farm(self):
         popup = ttk.Toplevel(master=self, title="Zoom Required", size=(300, 180), transient=self)

@@ -6,44 +6,20 @@ import config
 
 ctk.set_appearance_mode("dark")
 
-
-class DotToggle(ctk.CTkFrame):
-    def __init__(self, master, **kwargs):
-        super().__init__(master, fg_color="transparent", **kwargs)
-        self.current_state = 0
-
-        self.dot_th = ctk.CTkLabel(self, text="●", text_color="#2563eb", font=ctk.CTkFont(size=11))
-        self.dot_th.grid(row=0, column=0)
-
-        self.th = ctk.CTkLabel(self, text="TH", text_color="#ffffff", font=ctk.CTkFont(size=11, weight="bold"))
-        self.th.grid(row=0, column=1, padx=(3, 12))
-
-        self.dot_bb = ctk.CTkLabel(self, text="●", text_color="#55555d", font=ctk.CTkFont(size=11))
-        self.dot_bb.grid(row=0, column=2)
-
-        self.bb = ctk.CTkLabel(self, text="BB", text_color="#66666f", font=ctk.CTkFont(size=11))
-        self.bb.grid(row=0, column=3, padx=(3, 0))
-
-        self.dot_th.bind("<Button-1>", lambda event: self._select(0))
-        self.th.bind("<Button-1>", lambda event: self._select(0))
-        self.dot_bb.bind("<Button-1>", lambda event: self._select(1))
-        self.bb.bind("<Button-1>", lambda event: self._select(1))
-
-    def _select(self, index):
-        if self.current_state == index:
-            return
-        self.current_state = index
-
-        self.dot_th.configure(text_color="#2563eb" if index == 0 else "#55555d")
-        self.th.configure(
-            text_color="#ffffff" if index == 0 else "#66666f",
-            font=ctk.CTkFont(size=11, weight="bold" if index == 0 else "normal"),
-        )
-        self.dot_bb.configure(text_color="#2563eb" if index == 1 else "#55555d")
-        self.bb.configure(
-            text_color="#ffffff" if index == 1 else "#66666f",
-            font=ctk.CTkFont(size=11, weight="bold" if index == 1 else "normal"),
-        )
+def create_segmented(parent):
+    widget = ctk.CTkSegmentedButton(
+        parent,
+        values=["TH", "BB"],
+        width=82,
+        height=26,
+        selected_color="#2563eb",
+        selected_hover_color="#1d4ed8",
+        unselected_color="#1a1a1e",
+        unselected_hover_color="#2a2a30",
+        text_color="#ffffff",
+        font=ctk.CTkFont(size=11, weight="bold"),
+        command=lambda value: print(f"Segmented: {value}")
+    )
 
 
 class BotInterface(ctk.CTk):
@@ -75,11 +51,11 @@ class BotInterface(ctk.CTk):
         self.top_frame.columnconfigure(2, weight=4)
         self.top_frame.columnconfigure(3, weight=1)
 
-        self.button_Farm = ctk.CTkButton(self.top_frame, text="Start BB", width=140, fg_color="#16a34a", hover_color="#15803d", command=self._on_farm_button_click)
-        self.button_Farm.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        self.segmented = ctk.CTkSegmentedButton(self.top_frame, values=["TH", "BB"], width=82, height=26)
+        self.segmented.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-        self.dot_toggle = DotToggle(self.top_frame)
-        self.dot_toggle.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+        self.button_Farm = ctk.CTkButton(self.top_frame, text="Start BB ▶", width=100, fg_color="#16a34a", hover_color="#15803d", command=self._on_farm_button_click)
+        self.button_Farm.grid(row=0, column=2, padx=5, pady=5, sticky="w")
 
         self.button_side_panel = ctk.CTkButton(self.top_frame, text="☰ ", width=40, command=self._show_side_panel)
         self.button_side_panel.grid(row=0, column=3, padx=5, pady=5, sticky="e")
@@ -170,7 +146,7 @@ class BotInterface(ctk.CTk):
             self.label_bot_status.configure(text="Stopped")
             bot_type = settings.get_bot_type()
             self.button_Farm.configure(
-                text="Start TH" if bot_type == "TH" else "Start BB",
+                text="Start TH ▶" if bot_type == "TH" else "Start BB ▶",
                 fg_color="#16a34a",
                 hover_color="#15803d",
                 state="normal",
@@ -247,7 +223,7 @@ class BotInterface(ctk.CTk):
         bot_type = self.bot_type_switch.get()
         settings.set_bot_type(bot_type)
         if botstate.get_status() != botstate.RUNNING and botstate.get_status() != botstate.STOPPING:
-            self.button_Farm.configure(text="Start TH" if bot_type == "TH" else "Start BB")
+            self.button_Farm.configure(text="Start TH ▶" if bot_type == "TH" else "Start BB ▶")
 
     def _on_attack_mode_change(self, choice):
         settings.set_attack_mode(choice)
