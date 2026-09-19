@@ -78,10 +78,6 @@ class BotInterface(ctk.CTk):
                 self.tk_log.tag_configure(name, foreground=color)
         self.tk_log.tag_configure("spacing", spacing3=8)
 
-        # Expanding spacer used only when logs are minimized. It must sit
-        # between the compact log area and the bottom controls.
-        self.log_minimize_spacer = ctk.CTkFrame(self, fg_color="transparent")
-
         self.log_controls_frame = ctk.CTkFrame(self)
         self.log_controls_frame.pack(fill="x", padx=10, pady=(0, 10))
 
@@ -158,16 +154,15 @@ class BotInterface(ctk.CTk):
             return
 
         if self.log_minimized:
-            # Keep the compact log area fixed. The spacer takes all extra
-            # height so the controls remain anchored to the bottom.
-            self.log_frame.pack_configure(fill="x", expand=False)
-            self.log_minimize_spacer.pack_configure(fill="both", expand=True)
+            # Keep the log frame in the layout as the expanding widget.
+            # Its contents remain compact, while the frame itself tracks
+            # the available window height.
+            self.log_frame.pack_configure(fill="both", expand=True)
             self.log_controls_frame.pack_configure(fill="x")
             return
 
         # The log area expands/contracts with the window; the controls frame stays
         # at the bottom because the log frame is the expanding pack widget.
-        self.log_minimize_spacer.pack_forget()
         self.log_frame.pack_configure(fill="both", expand=True)
 
     def _toggle_log_view(self):
