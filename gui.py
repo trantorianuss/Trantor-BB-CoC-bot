@@ -197,10 +197,6 @@ class BotInterface(ctk.CTk):
             self.log_frame.pack_configure(fill="x", expand=False)
             self.log_frame.pack_propagate(False)
 
-            # The spacer is inserted between the compact log area and the
-            # bottom controls. It absorbs any height added manually later.
-            self.log_minimize_spacer.pack(fill="both", expand=True, before=self.log_controls_frame)
-
             # Under Wayland, request only the new size.
             # The compositor owns the window position.
             self.geometry(f"{current_width}x{new_height}")
