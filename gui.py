@@ -7,6 +7,45 @@ import config
 ctk.set_appearance_mode("dark")
 
 
+class DotToggle(ctk.CTkFrame):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, fg_color="transparent", **kwargs)
+        self.current_state = 0
+
+        self.dot_th = ctk.CTkLabel(self, text="●", text_color="#2563eb", font=ctk.CTkFont(size=11))
+        self.dot_th.grid(row=0, column=0)
+
+        self.th = ctk.CTkLabel(self, text="TH", text_color="#ffffff", font=ctk.CTkFont(size=11, weight="bold"))
+        self.th.grid(row=0, column=1, padx=(3, 12))
+
+        self.dot_bb = ctk.CTkLabel(self, text="●", text_color="#55555d", font=ctk.CTkFont(size=11))
+        self.dot_bb.grid(row=0, column=2)
+
+        self.bb = ctk.CTkLabel(self, text="BB", text_color="#66666f", font=ctk.CTkFont(size=11))
+        self.bb.grid(row=0, column=3, padx=(3, 0))
+
+        self.dot_th.bind("<Button-1>", lambda event: self._select(0))
+        self.th.bind("<Button-1>", lambda event: self._select(0))
+        self.dot_bb.bind("<Button-1>", lambda event: self._select(1))
+        self.bb.bind("<Button-1>", lambda event: self._select(1))
+
+    def _select(self, index):
+        if self.current_state == index:
+            return
+        self.current_state = index
+
+        self.dot_th.configure(text_color="#2563eb" if index == 0 else "#55555d")
+        self.th.configure(
+            text_color="#ffffff" if index == 0 else "#66666f",
+            font=ctk.CTkFont(size=11, weight="bold" if index == 0 else "normal"),
+        )
+        self.dot_bb.configure(text_color="#2563eb" if index == 1 else "#55555d")
+        self.bb.configure(
+            text_color="#ffffff" if index == 1 else "#66666f",
+            font=ctk.CTkFont(size=11, weight="bold" if index == 1 else "normal"),
+        )
+
+
 class BotInterface(ctk.CTk):
     def __init__(self, on_start_farm, on_stop, on_screenshot, on_recognize, on_buscar_carro, on_test, on_calibrar_zoom, on_calibrate, on_pixel_inspector):
         super().__init__(className="Trantor Bot")
@@ -37,7 +76,11 @@ class BotInterface(ctk.CTk):
         self.top_frame.columnconfigure(3, weight=1)
 
         self.button_Farm = ctk.CTkButton(self.top_frame, text="Start BB", width=140, fg_color="#16a34a", hover_color="#15803d", command=self._on_farm_button_click)
-        self.button_Farm.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky="w")
+        self.button_Farm.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+        self.dot_toggle = DotToggle(self.top_frame)
+        self.dot_toggle.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+
         self.button_side_panel = ctk.CTkButton(self.top_frame, text="☰ ", width=40, command=self._show_side_panel)
         self.button_side_panel.grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
@@ -154,20 +197,14 @@ class BotInterface(ctk.CTk):
             return
 
         if self.log_minimized:
-            # Keep the log frame in the layout as the expanding widget.
-            # Its contents remain compact, while the frame itself tracks
-            # the available window height.
             self.log_frame.pack_configure(fill="both", expand=True)
             self.log_controls_frame.pack_configure(fill="x")
             return
 
-        # The log area expands/contracts with the window; the controls frame stays
-        # at the bottom because the log frame is the expanding pack widget.
         self.log_frame.pack_configure(fill="both", expand=True)
 
     def _toggle_log_view(self):
         if self.log_minimized:
-            # Restore the log area and the previous window height.
             self.log_frame.configure(height=0)
             self.log_frame.pack_configure(fill="both", expand=True)
             self.log_frame.pack_propagate(True)
@@ -180,8 +217,6 @@ class BotInterface(ctk.CTk):
             self.log_minimized = False
         else:
             self.update_idletasks()
-
-            # Keep only the normal size. Do not read or set the window position.
             self._normal_window_geometry = f"{self.winfo_width()}x{self.winfo_height()}"
 
             current_height = self.winfo_height()
@@ -197,8 +232,6 @@ class BotInterface(ctk.CTk):
             self.log_frame.pack_configure(fill="x", expand=False)
             self.log_frame.pack_propagate(False)
 
-            # Under Wayland, request only the new size.
-            # The compositor owns the window position.
             self.geometry(f"{current_width}x{new_height}")
 
             self.log_minimize_button.configure(text="▼")
@@ -304,24 +337,19 @@ class BotInterface(ctk.CTk):
 
         self.panel_window.geometry(f"{panel_w}x500+{panel_x}+{main_y}")
 
-
     def __kk_position_side_panel(self):
         if self.panel_window is None or not self.panel_window.winfo_exists():
             return
 
-        geo = self.panel_window.geometry()  
+        geo = self.panel_window.geometry()
         print(geo)
 
-        # Forzar a Tkinter a calcular las posiciones reales actuales
         self.update_idletasks()
 
-        # 1. Obtener la posición del contenido interno
         main_x = self.winfo_x()
         main_y = self.winfo_y()
         main_w = self.winfo_width()
 
-        # 2. Calcular de forma exacta el grosor de la barra de título
-        # En Windows/Mac da 0, en Linux da la altura real de la barra superior (ej: 32 o 38px)
         title_bar_height = self.winfo_rooty() - self.winfo_y()
 
         panel_w = 300
@@ -330,14 +358,9 @@ class BotInterface(ctk.CTk):
         right_x = main_x + main_w + 10
         panel_x = right_x if right_x + panel_w <= screen_w else main_x - panel_w - 10
 
-        # 3. COMPENSACIÓN EXACTA: 
-        # Sumamos el grosor de la barra para contrarrestar el empuje del Gestor de Ventanas en Linux
         corrected_y = main_y + title_bar_height
 
-        # Aplicamos la geometría limpia
-        #self.panel_window.geometry(f"{panel_w}x500+{panel_x}+{corrected_y}")
         self.panel_window.geometry(f"+{panel_x}")
-        
 
     def _create_side_panel(self):
         """Crear el panel lateral si todavía no existe."""
@@ -348,8 +371,6 @@ class BotInterface(ctk.CTk):
         self.panel_window.withdraw()
         self.panel_window.title("Panel")
         self.panel_window.transient(self)
-        #self.panel_window.update()
-
 
         self.tabs = ctk.CTkTabview(self.panel_window)
         self.tabs.pack(fill="x", padx=10, pady=10)
@@ -454,7 +475,6 @@ class BotInterface(ctk.CTk):
             checkbox.grid(row=file_logs_row + 1 + index // 2, column=index % 2, padx=5, pady=3, sticky="w")
             self.debug_file_log_vars[log_name] = variable
 
-
     def _show_side_panel(self):
         if self.panel_window is None or not self.panel_window.winfo_exists():
             self._create_side_panel()
@@ -463,8 +483,6 @@ class BotInterface(ctk.CTk):
         self.panel_window.deiconify()
         self.panel_window.lift()
         self.panel_window.focus_force()
-
-
 
     def _hide_side_panel(self):
         if self.panel_window is not None and self.panel_window.winfo_exists():
