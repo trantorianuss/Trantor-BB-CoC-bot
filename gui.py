@@ -5,6 +5,7 @@ import settings
 import config
 
 ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
 
 
 def create_bot_type_segmented(parent, command):
@@ -13,12 +14,12 @@ def create_bot_type_segmented(parent, command):
         values=["BB", "TH"],
         width=82,
         height=26,
-        selected_color="#2563eb",
-        selected_hover_color="#1d4ed8",
-        unselected_color="#1a1a1e",
-        unselected_hover_color="#2a2a30",
-        text_color="#ffffff",
-        font=ctk.CTkFont(size=11, weight="bold"),
+        #selected_color="#3B8ED0",
+        #selected_hover_color="#36719F",
+        #unselected_color="#1a1a1e",
+        #unselected_hover_color="#2a2a30",
+        #text_color="#ffffff",
+        font=ctk.CTkFont(size=12, weight="bold"),
         command=command,
     )
     return widget
