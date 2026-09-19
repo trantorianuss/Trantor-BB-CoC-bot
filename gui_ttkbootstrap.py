@@ -47,7 +47,7 @@ class BotInterface(ttk.Window):
     def _init_components(self):
         top_frame = ttk.Frame(self, padding=(10, 10, 10, 0))
         top_frame.pack(fill="x")
-        top_frame.columnconfigure(0, weight=1)
+        top_frame.columnconfigure(0, weight=0)
         top_frame.columnconfigure(1, weight=0)
 
         self.button_Farm = ttk.Button(
@@ -55,8 +55,9 @@ class BotInterface(ttk.Window):
             text="Start BB",
             command=self._on_farm_button_click,
             bootstyle="success",
+            width=10,
         )
-        self.button_Farm.grid(row=0, column=0, padx=(0, 5), pady=5, sticky="ew")
+        self.button_Farm.grid(row=0, column=0, padx=(0, 5), pady=5)
 
         self.bot_type_switch = ttk.Checkbutton(
             top_frame,
