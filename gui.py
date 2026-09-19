@@ -145,8 +145,7 @@ class BotInterface(ctk.CTk):
         def append():
             textbox = self.tk_log
             textbox.configure(state="normal")
-            textbox.insert("end", formatted_message + "
-", (color, "spacing"))
+            textbox.insert("end", formatted_message + "\n", (color, "spacing"))
             if self.autoscroll_switch.get() == 1:
                 textbox.see("end")
             textbox.configure(state="disabled")
