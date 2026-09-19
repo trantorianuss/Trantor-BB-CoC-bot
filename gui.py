@@ -13,13 +13,13 @@ def create_bot_type_segmented(parent, command):
         parent,
         values=["BB", "TH"],
         width=82,
-        height=26,
+        #height=26,
         #selected_color="#3B8ED0",
         #selected_hover_color="#36719F",
         #unselected_color="#1a1a1e",
         #unselected_hover_color="#2a2a30",
         #text_color="#ffffff",
-        font=ctk.CTkFont(size=12, weight="bold"),
+        #font=ctk.CTkFont(size=12, weight="bold"),
         command=command,
     )
     return widget
